@@ -1,0 +1,7 @@
+import * as admin from "firebase-admin";
+
+const app = admin.initializeApp();
+
+export const db = admin.firestore(app);
+export const auth = admin.auth(app);
+export const storage = admin.storage(app);

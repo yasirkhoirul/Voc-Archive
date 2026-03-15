@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "793723580629",
+    "project_id": "voc-archive",
+    "storage_bucket": "voc-archive.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793723580629:android:cfc22abacb98012b90f25c",
+        "android_client_info": {
+          "package_name": "com.example.voc_archive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQINK6JXckw5PWkH6wZARVUk_c5SqTzyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
