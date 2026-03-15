@@ -7,7 +7,7 @@ import 'package:voc_archive/router/route_name.dart';
 
 class AppRouter {
   AppRouter._();
-  GoRouter routerConfig(BlocBase authBloc) {
+  static GoRouter routerConfig(BlocBase authBloc) {
     return GoRouter(
       initialLocation: RouteName.home.path,
       redirect: (context, state) {},
