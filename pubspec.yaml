@@ -10,8 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^4.5.0
-  go_router: ^17.1.0
   firebase_auth: ^6.2.0
+  go_router: ^17.1.0
   flutter_bloc: ^9.1.1
   module_core:
     path: module_core
