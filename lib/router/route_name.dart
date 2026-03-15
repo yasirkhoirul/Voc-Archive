@@ -1,4 +1,8 @@
 enum RouteName {
+  //general
+  signIn("/sign-in"),
+  signUp("/sign-up"),
+  splash("/splash"),
   //user
   home("/"),
   about("/about"),

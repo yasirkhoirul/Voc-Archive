@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:module_core/module_core.dart';
 
 abstract class AuthDatasource {
-  Future<void> signInWithEmailAndPassword(String email, String password);
-  Future<void> registerWithEmailAndPassword(String email, String password);
+  Future<UserCredential> signInWithEmailAndPassword(String email, String password);
+  Future<UserCredential> registerWithEmailAndPassword(String email, String password);
   Stream<User?> authStateChanges();
   Future<void> signOut();
 }
@@ -13,18 +13,18 @@ class AuthDatasourceImpl implements AuthDatasource {
   final FirebaseAuth _firebaseAuth;
 
   @override
-  Future<void> signInWithEmailAndPassword(String email, String password) async {
-    final response = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password).guard();
+  Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
+    return await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password).guardDatasource();
   }
 
   @override
-  Future<void> signOut() {
-    return _firebaseAuth.signOut();
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut().guardDatasource();
   }
 
   @override
-  Future<void> registerWithEmailAndPassword(String email, String password) async{
-    await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password).guard();
+  Future<UserCredential> registerWithEmailAndPassword(String email, String password) async{
+    return await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password).guardDatasource();
   }
   
   @override
