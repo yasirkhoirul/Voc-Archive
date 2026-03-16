@@ -11,4 +11,19 @@ import "./config/firebase";
 export { onUserCreated } from "./functions/auth.functions";
 
 // Product Functions
-export { createProduct, updateProduct, updateStock } from "./functions/product.functions";
+export {
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  updateStock,
+} from "./functions/product.functions";
+
+// Slider Functions
+export { createSlider, deleteSlider } from "./functions/slider.functions";
+
+// Display Item Functions
+export {
+  createDisplay,
+  updateDisplay,
+  deleteDisplay,
+} from "./functions/display.functions";
