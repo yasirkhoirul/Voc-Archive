@@ -6,7 +6,7 @@ part 'create_product_input_model.g.dart';
 @JsonSerializable()
 class CreateProductInputModel extends CreateProductInput {
   const CreateProductInputModel({
-    required super.gambar,
+    @JsonKey(name: 'gambar_base64') required super.gambarBase64,
     @JsonKey(name: 'nama_brand') required super.namaBrand,
     required super.harga,
     required super.deskripsi,
@@ -20,7 +20,7 @@ class CreateProductInputModel extends CreateProductInput {
 
   factory CreateProductInputModel.fromEntity(CreateProductInput entity) {
     return CreateProductInputModel(
-      gambar: entity.gambar,
+      gambarBase64: entity.gambarBase64,
       namaBrand: entity.namaBrand,
       harga: entity.harga,
       deskripsi: entity.deskripsi,

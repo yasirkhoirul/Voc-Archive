@@ -19,4 +19,12 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
       await _datasource.createProduct(inputModel);
     })().guard();
   }
+  
+  @override
+  Future<Either<Failure, void>> updateProduct(CreateProductInput input) async{
+    return await (() async {
+      final inputModel = CreateProductInputModel.fromEntity(input);
+      await _datasource.updateProduct(inputModel);
+    })().guard();
+  }
 }

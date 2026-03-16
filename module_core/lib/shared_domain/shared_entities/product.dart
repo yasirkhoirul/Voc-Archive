@@ -1,6 +1,7 @@
 class Product {
   final String uid;
   final List<String> gambar;
+  final List<String> gambarPaths;
   final String namaBrand;
   final double harga;
   final String deskripsi;
@@ -15,6 +16,7 @@ class Product {
   const Product({
     required this.uid,
     required this.gambar,
+    required this.gambarPaths,
     required this.namaBrand,
     required this.harga,
     required this.deskripsi,

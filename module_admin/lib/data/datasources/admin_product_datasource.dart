@@ -4,6 +4,7 @@ import 'package:module_core/utils/runcatching.dart';
 
 abstract class AdminProductDatasource {
   Future<void> createProduct(CreateProductInputModel input);
+  Future<void> updateProduct(CreateProductInputModel input);
 }
 
 class AdminProductDatasourceImpl implements AdminProductDatasource {
@@ -15,6 +16,14 @@ class AdminProductDatasourceImpl implements AdminProductDatasource {
   Future<void> createProduct(CreateProductInputModel input) async {
     return await (() async {
       final callable = _functions.httpsCallable('createProduct');
+      await callable.call(input.toJson());
+    })().guardDatasource();
+  }
+  
+  @override
+  Future<void> updateProduct(CreateProductInputModel input) async{
+    return await (() async {
+      final callable = _functions.httpsCallable('updateProduct');
       await callable.call(input.toJson());
     })().guardDatasource();
   }

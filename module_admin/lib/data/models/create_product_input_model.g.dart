@@ -9,7 +9,9 @@ part of 'create_product_input_model.dart';
 CreateProductInputModel _$CreateProductInputModelFromJson(
   Map<String, dynamic> json,
 ) => CreateProductInputModel(
-  gambar: (json['gambar'] as List<dynamic>).map((e) => e as String).toList(),
+  gambarBase64: (json['gambar_base64'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
   namaBrand: json['nama_brand'] as String,
   harga: (json['harga'] as num).toDouble(),
   deskripsi: json['deskripsi'] as String,
@@ -21,7 +23,7 @@ CreateProductInputModel _$CreateProductInputModelFromJson(
 Map<String, dynamic> _$CreateProductInputModelToJson(
   CreateProductInputModel instance,
 ) => <String, dynamic>{
-  'gambar': instance.gambar,
+  'gambar_base64': instance.gambarBase64,
   'nama_brand': instance.namaBrand,
   'harga': instance.harga,
   'deskripsi': instance.deskripsi,

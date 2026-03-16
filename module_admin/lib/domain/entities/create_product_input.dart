@@ -1,5 +1,5 @@
 class CreateProductInput {
-  final List<String> gambar;
+  final List<String> gambarBase64;
   final String namaBrand;
   final double harga;
   final String deskripsi;
@@ -8,7 +8,7 @@ class CreateProductInput {
   final double? diskon;
 
   const CreateProductInput({
-    required this.gambar,
+    required this.gambarBase64,
     required this.namaBrand,
     required this.harga,
     required this.deskripsi,

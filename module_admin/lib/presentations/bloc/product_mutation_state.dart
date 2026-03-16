@@ -8,6 +8,14 @@ sealed class ProductMutationState extends Equatable {
 }
 
 final class ProductMutationInitial extends ProductMutationState {}
+final class ProductMutationLoaded extends ProductMutationState {
+  final Product product;
+
+  const ProductMutationLoaded(this.product);
+
+  @override
+  List<Object> get props => [product];
+}
 
 final class ProductMutationLoading extends ProductMutationState {}
 
