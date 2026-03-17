@@ -14,7 +14,8 @@ class AuthDatasourceImpl implements AuthDatasource {
 
   @override
   Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
-    return await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password).guardDatasource();
+    final response = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password).guardDatasource();
+    return response;
   }
 
   @override

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:module_core/widget/snackbar.dart';
 import '../../domain/entities/create_product_input.dart';
+import '../../domain/entities/update_product_input.dart';
 import '../bloc/product_mutation_bloc.dart';
 
 class ProductSetting extends StatefulWidget {
@@ -37,6 +38,8 @@ class _ProductSettingState extends State<ProductSetting> {
   final ImagePicker _picker = ImagePicker();
   List<String> _gambarBase64List = [];
   List<String> _gambarNames = [];
+  List<String> _existingGambarPaths = []; // Untuk update: menyimpan path gambar lama yang masih dipertahankan
+  List<String> _existingGambarUrls = []; // Untuk update: menampung url gambar lama untuk UI
 
   @override
   void dispose() {
@@ -60,35 +63,52 @@ class _ProductSettingState extends State<ProductSetting> {
         names.add(image.name);
       }
       setState(() {
-        _gambarBase64List = base64List;
-        _gambarNames = names;
+        _gambarBase64List.addAll(base64List);
+        _gambarNames.addAll(names);
       });
     }
   }
 
   void _submit(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      if (_gambarBase64List.isEmpty) {
+      if (widget.productId == null && _gambarBase64List.isEmpty) {
         AppSnackbar.onFailure(
           context,
           'Gambar produk wajib dipilih (minimal 1)',
         );
         return;
       }
-
-      final input = CreateProductInput(
-        namaBrand: _brandController.text.trim(),
-        harga: double.tryParse(_hargaController.text.trim()) ?? 0.0,
-        deskripsi: _deskripsiController.text.trim(),
-        detail: _detailController.text.trim(),
-        diskon: double.tryParse(_diskonController.text.trim()),
-        gambarBase64: _gambarBase64List,
-        sizes: {'onesize': int.tryParse(_stokController.text.trim()) ?? 0},
-      );
+      if (widget.productId != null && _gambarBase64List.isEmpty && _existingGambarPaths.isEmpty) {
+        AppSnackbar.onFailure(
+          context,
+          'Gambar produk tidak boleh kosong',
+        );
+        return;
+      }
 
       if (widget.productId != null) {
+        final input = UpdateProductInput(
+          uid: widget.productId!,
+          namaBrand: _brandController.text.trim(),
+          harga: double.tryParse(_hargaController.text.trim()) ?? 0.0,
+          deskripsi: _deskripsiController.text.trim(),
+          detail: _detailController.text.trim(),
+          diskon: double.tryParse(_diskonController.text.trim()),
+          gambarBase64: _gambarBase64List,
+          keepGambarPaths: _existingGambarPaths,
+          sizes: {'onesize': int.tryParse(_stokController.text.trim()) ?? 0},
+        );
         context.read<ProductMutationBloc>().add(UpdateProductSubmitted(input));
       } else {
+        final input = CreateProductInput(
+          namaBrand: _brandController.text.trim(),
+          harga: double.tryParse(_hargaController.text.trim()) ?? 0.0,
+          deskripsi: _deskripsiController.text.trim(),
+          detail: _detailController.text.trim(),
+          diskon: double.tryParse(_diskonController.text.trim()),
+          gambarBase64: _gambarBase64List,
+          sizes: {'onesize': int.tryParse(_stokController.text.trim()) ?? 0},
+        );
         context.read<ProductMutationBloc>().add(CreateProductSubmitted(input));
       }
     }
@@ -97,7 +117,7 @@ class _ProductSettingState extends State<ProductSetting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Produk')),
+      appBar: AppBar(title: Text(widget.productId != null ? 'Edit Produk' : 'Tambah Produk')),
       body: BlocConsumer<ProductMutationBloc, ProductMutationState>(
         listener: (context, state) {
           if (state is ProductMutationLoaded) {
@@ -107,11 +127,13 @@ class _ProductSettingState extends State<ProductSetting> {
             _detailController.text = state.product.detail;
             _diskonController.text = state.product.diskon.toString();
             _stokController.text = state.product.sizes['onesize'].toString();
-            _gambarBase64List = state.product.gambar;
-            _gambarNames = state.product.gambarPaths;
+            _existingGambarUrls = List.from(state.product.gambar);
+            _existingGambarPaths = List.from(state.product.gambarPaths);
+            _gambarBase64List.clear();
+            _gambarNames.clear();
           }
           if (state is ProductMutationSuccess) {
-            AppSnackbar.onSuccess(context, 'Produk berhasil ditambahkan!');
+            AppSnackbar.onSuccess(context, 'Produk berhasil ditambahkan/diupdate!');
             _formKey.currentState?.reset();
             _brandController.clear();
             _hargaController.clear();
@@ -122,6 +144,8 @@ class _ProductSettingState extends State<ProductSetting> {
             setState(() {
               _gambarBase64List.clear();
               _gambarNames.clear();
+              _existingGambarUrls.clear();
+              _existingGambarPaths.clear();
             });
           } else if (state is ProductMutationError) {
             AppSnackbar.onFailure(context, state.message);
@@ -205,24 +229,18 @@ class _ProductSettingState extends State<ProductSetting> {
                     icon: const Icon(Icons.image),
                     label: const Text('Pilih Gambar (Multiple)'),
                   ),
-                  if (_gambarBase64List.isNotEmpty) ...[
+                  if (_gambarBase64List.isNotEmpty || _existingGambarUrls.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     SizedBox(
                       height: 100,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: _gambarBase64List.length,
+                        itemCount: _existingGambarUrls.length + _gambarBase64List.length,
                         itemBuilder: (context, index) {
-                          final imgString = _gambarBase64List[index];
-
-                          // Validasi apakah imgString berupa link cloud firestorage atau url biasa.
-                          // base64 murni biasanya diawali dengan pola tertentu tergantung format gambar atau langsung alfanumerik.
-                          // Teks Base64 encode *TIDAK MENGANDUNG* karakter titik (.)
-                          // Jadi jika mengandung titik (.) atau awalan 'http' atau '/', besar kemungkinan = file/url
-                          final isNetworkOrPath =
-                              imgString.startsWith('http') ||
-                              (imgString.contains('/') &&
-                                  imgString.contains('.'));
+                          final isExisting = index < _existingGambarUrls.length;
+                          final imgString = isExisting 
+                              ? _existingGambarUrls[index] 
+                              : _gambarBase64List[index - _existingGambarUrls.length];
 
                           return Padding(
                             padding: const EdgeInsets.only(right: 8.0),
@@ -230,7 +248,7 @@ class _ProductSettingState extends State<ProductSetting> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  child: isNetworkOrPath
+                                  child: isExisting
                                       ? Image.network(
                                           imgString,
                                           width: 100,
@@ -264,9 +282,17 @@ class _ProductSettingState extends State<ProductSetting> {
                                   child: InkWell(
                                     onTap: () {
                                       setState(() {
-                                        _gambarBase64List.removeAt(index);
-                                        if (_gambarNames.length > index) {
-                                          _gambarNames.removeAt(index);
+                                        if (isExisting) {
+                                          _existingGambarUrls.removeAt(index);
+                                          if (_existingGambarPaths.length > index) {
+                                            _existingGambarPaths.removeAt(index);
+                                          }
+                                        } else {
+                                          final newIndex = index - _existingGambarUrls.length;
+                                          _gambarBase64List.removeAt(newIndex);
+                                          if (_gambarNames.length > newIndex) {
+                                            _gambarNames.removeAt(newIndex);
+                                          }
                                         }
                                       });
                                     },

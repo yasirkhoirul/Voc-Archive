@@ -17,7 +17,7 @@ class GetProductByIdEvent extends ProductMutationEvent {
 }
 
 class UpdateProductSubmitted extends ProductMutationEvent {
-  final CreateProductInput input;
+  final UpdateProductInput input;
 
   const UpdateProductSubmitted(this.input);
 

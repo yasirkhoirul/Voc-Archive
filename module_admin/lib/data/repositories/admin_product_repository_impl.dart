@@ -1,6 +1,8 @@
 import 'package:dartz/dartz.dart';
 import '../../domain/entities/create_product_input.dart';
+import '../../domain/entities/update_product_input.dart';
 import '../models/create_product_input_model.dart';
+import '../models/update_product_input_model.dart';
 import 'package:module_core/utils/failure.dart';
 import 'package:module_core/utils/runcatching.dart';
 
@@ -19,11 +21,11 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
       await _datasource.createProduct(inputModel);
     })().guard();
   }
-  
+
   @override
-  Future<Either<Failure, void>> updateProduct(CreateProductInput input) async{
+  Future<Either<Failure, void>> updateProduct(UpdateProductInput input) async{  
     return await (() async {
-      final inputModel = CreateProductInputModel.fromEntity(input);
+      final inputModel = UpdateProductInputModel.fromEntity(input);
       await _datasource.updateProduct(inputModel);
     })().guard();
   }

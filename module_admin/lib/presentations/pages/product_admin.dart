@@ -4,7 +4,7 @@ import 'package:module_core/module_core.dart' as module_core;
 import '../bloc/product_list_bloc.dart';
 
 class ProductAdmin extends StatefulWidget {
-  final Function(String)? onDetailTap;
+  final Function(String?)? onDetailTap;
   const ProductAdmin({super.key, this.onDetailTap});
 
   @override
@@ -23,6 +23,12 @@ class _ProductAdminState extends State<ProductAdmin> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Produk'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          widget.onDetailTap?.call(null);
+        },
+        child: const Icon(Icons.add),
       ),
       body: BlocBuilder<ProductListBloc, ProductListState>(
         builder: (context, state) {

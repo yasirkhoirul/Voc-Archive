@@ -63,10 +63,14 @@ class AppRouter {
                   path: RouteName.adminproducts.path,
                   builder: (context, state) => ProductAdmin(
                     onDetailTap: (uidProduct) {
-                      context.goNamed(
-                        RouteName.adminproductssetting.name,
-                        pathParameters: {'id': uidProduct},
-                      );
+                      if (uidProduct != null) {
+                        context.goNamed(
+                          RouteName.adminproductssetting.name,
+                          pathParameters: {'id': uidProduct},
+                        );
+                      } else {
+                        context.goNamed(RouteName.adminproductssetting.name);
+                      }
                     },
                   ),
                   routes: [

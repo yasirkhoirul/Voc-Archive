@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:module_admin/domain/entities/update_product_input.dart';
 import 'package:module_admin/domain/usecases/update_product_usecase.dart';
 import 'package:module_core/shared_domain/shared_entities/product.dart';
 import 'package:module_core/shared_domain/shared_usecases/get_product_by_id.dart';

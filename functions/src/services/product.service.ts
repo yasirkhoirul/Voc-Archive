@@ -137,21 +137,43 @@ export class ProductService {
       harga_diskon: hargaDiskon,
     };
 
-    // Handle image update: delete old images, upload new ones
-    if (input.gambar_base64 !== undefined) {
-      // Delete old images from Storage
-      if (existingData.gambar_paths && existingData.gambar_paths.length > 0) {
-        await StorageService.deleteImages(existingData.gambar_paths);
+    // Handle image update: delete unkept old images, upload new ones
+    if (input.gambar_base64 !== undefined || input.keep_gambar_paths !== undefined) {
+      let finalGambarPaths: string[] = [];
+      let finalGambarUrls: string[] = [];
+
+      const pathsToKeep = input.keep_gambar_paths || [];
+      const currentPaths = existingData.gambar_paths || [];
+      const currentUrls = existingData.gambar || [];
+      
+      const pathsToDelete = currentPaths.filter((p) => !pathsToKeep.includes(p));
+
+      // Delete old images that are not kept
+      if (pathsToDelete.length > 0) {
+        await StorageService.deleteImages(pathsToDelete);
       }
 
-      // Upload new images
-      const uploadResults = await StorageService.uploadImages(
-        input.gambar_base64,
-        `products/${input.uid}`,
-      );
+      // Add kept images to final list
+      pathsToKeep.forEach((p) => {
+        const idx = currentPaths.indexOf(p);
+        if (idx !== -1) {
+          finalGambarPaths.push(p);
+          finalGambarUrls.push(currentUrls[idx]);
+        }
+      });
 
-      updateData.gambar = uploadResults.map((r) => r.url);
-      updateData.gambar_paths = uploadResults.map((r) => r.path);
+      // Upload new images
+      if (input.gambar_base64 && input.gambar_base64.length > 0) {
+        const uploadResults = await StorageService.uploadImages(
+          input.gambar_base64,
+          `products/${input.uid}`,
+        );
+        finalGambarUrls = finalGambarUrls.concat(uploadResults.map((r) => r.url));
+        finalGambarPaths = finalGambarPaths.concat(uploadResults.map((r) => r.path));
+      }
+
+      updateData.gambar = finalGambarUrls;
+      updateData.gambar_paths = finalGambarPaths;
     }
 
     if (input.nama_brand !== undefined) updateData.nama_brand = input.nama_brand;
