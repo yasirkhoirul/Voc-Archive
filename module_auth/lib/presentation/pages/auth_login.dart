@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:module_core/module_core.dart';
 import 'package:module_core/widget/snackbar.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -24,16 +25,13 @@ class _AuthLoginState extends State<AuthLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
+      appBar: AppBar(title: const Text('Login')),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             AppSnackbar.onFailure(context, state.message);
           } else if (state is Authenticated) {
             AppSnackbar.onSuccess(context, 'Login berhasil!');
-        
           }
         },
         builder: (context, state) {
@@ -44,6 +42,15 @@ class _AuthLoginState extends State<AuthLogin> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Button(textButton: "Login", onPressed: (){}),
+                Text(
+                  'Welcome Back!',
+                  style: Theme.of(context).textTheme.displayLarge,
+                ),
+                Text(
+                  'Welcome Back!',
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
                 TextField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -75,11 +82,16 @@ class _AuthLoginState extends State<AuthLogin> {
                             final password = _passwordController.text.trim();
 
                             if (email.isEmpty || password.isEmpty) {
-                              AppSnackbar.onInfo(context, 'Email dan Password tidak boleh kosong');
+                              AppSnackbar.onInfo(
+                                context,
+                                'Email dan Password tidak boleh kosong',
+                              );
                               return;
                             }
 
-                            context.read<AuthBloc>().add(AuthLoginEvent(email, password));
+                            context.read<AuthBloc>().add(
+                              AuthLoginEvent(email, password),
+                            );
                           },
                     child: isLoading
                         ? const SizedBox(

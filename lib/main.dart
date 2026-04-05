@@ -5,6 +5,7 @@ import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:voc_archive/dependency_injector.dart';
 import 'package:voc_archive/firebase_options.dart';
 import 'package:voc_archive/router/app_router.dart';
+import 'package:voc_archive/theme/text.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(routerConfig: AppRouter.routerConfig(getIt<AuthBloc>()),);
+    return MaterialApp.router(
+      theme: ThemeData(
+        textTheme: MyTheme.textStyle
+      ),
+      routerConfig: AppRouter.routerConfig(getIt<AuthBloc>()),);
   }
 }

@@ -17,12 +17,15 @@ class AppRouter {
       redirect: (context, state) {
         final isAuthenticated = authBloc.state is Authenticated;
         if (isAuthenticated) {
-          return RouteName.adminproductssetting.path;
+          return RouteName.home.path;
         }
         return null;
       },
       routes: [
-        GoRoute(path: RouteName.signIn.path, builder: (context, state) => const AuthLogin(),),
+        GoRoute(
+          path: RouteName.signIn.path,
+          builder: (context, state) => const AuthLogin(),
+        ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) =>
               MainScaffold(navigationShell: navigationShell),

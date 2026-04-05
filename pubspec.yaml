@@ -24,6 +24,7 @@ dependencies:
     path: module_user
   module_auth:
     path: module_auth
+  google_fonts: ^8.0.2
 
 dev_dependencies:
   flutter_test:
