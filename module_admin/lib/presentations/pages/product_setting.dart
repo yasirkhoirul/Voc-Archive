@@ -134,19 +134,8 @@ class _ProductSettingState extends State<ProductSetting> {
           }
           if (state is ProductMutationSuccess) {
             AppSnackbar.onSuccess(context, 'Produk berhasil ditambahkan/diupdate!');
-            _formKey.currentState?.reset();
-            _brandController.clear();
-            _hargaController.clear();
-            _deskripsiController.clear();
-            _detailController.clear();
-            _diskonController.clear();
-            _stokController.clear();
-            setState(() {
-              _gambarBase64List.clear();
-              _gambarNames.clear();
-              _existingGambarUrls.clear();
-              _existingGambarPaths.clear();
-            });
+            // Kembali ke halaman daftar produk setelah sukses
+            Navigator.of(context).pop();
           } else if (state is ProductMutationError) {
             AppSnackbar.onFailure(context, state.message);
           }

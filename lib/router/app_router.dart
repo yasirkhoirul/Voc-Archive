@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:module_admin/presentations/pages/product_admin.dart';
 import 'package:module_admin/presentations/pages/product_setting.dart';
+import 'package:module_admin/presentations/pages/admin_slider_page.dart';
+import 'package:module_admin/presentations/pages/admin_display_page.dart';
 import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:module_auth/presentation/pages/auth_login.dart';
 import 'package:module_core/module_core.dart';
@@ -69,7 +71,10 @@ class AppRouter {
                           pathParameters: {'id': uidProduct},
                         );
                       } else {
-                        context.goNamed(RouteName.adminproductssetting.name);
+                        context.goNamed(
+                          RouteName.adminproductssetting.name,
+                          pathParameters: {'id': 'new'},
+                        );
                       }
                     },
                   ),
@@ -78,11 +83,28 @@ class AppRouter {
                       path: RouteName.adminproductssetting.path,
                       name: RouteName.adminproductssetting.name,
                       builder: (context, state) {
-                        final String? productId = state.pathParameters['id'];
+                        final String? rawId = state.pathParameters['id'];
+                        final String? productId = rawId == 'new' ? null : rawId;
                         return ProductSetting(productId: productId);
                       },
                     ),
                   ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.adminsliders.path,
+                  builder: (context, state) => const AdminSliderPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.admindisplays.path,
+                  builder: (context, state) => const AdminDisplayPage(),
                 ),
               ],
             ),

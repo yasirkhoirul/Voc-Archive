@@ -13,7 +13,9 @@ enum RouteName {
   productDetail("/product/:id"),
   //admin
   adminproducts("/adminproducts"),
-  adminproductssetting("/product/:id");
+  adminproductssetting("/product/:id"),
+  adminsliders("/adminsliders"),
+  admindisplays("/admindisplays");
 
   const RouteName(this.path);
   final String path;

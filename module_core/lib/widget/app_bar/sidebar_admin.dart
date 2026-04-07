@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import '../../enums/currency_enum.dart';
 import '../../utils/currency_converter.dart';
 
@@ -23,7 +22,7 @@ class SidebarAdmin extends StatelessWidget {
             leading: const Icon(Icons.shopping_bag),
             title: const Text('Products'),
             onTap: () {
-              onTap(1);
+             
             },
           ),
           ListTile(
@@ -34,10 +33,17 @@ class SidebarAdmin extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
+            leading: const Icon(Icons.view_carousel),
+            title: const Text('Sliders'),
             onTap: () {
-              // Handle settings navigation
+              onTap(1);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.dvr),
+            title: const Text('Displays'),
+            onTap: () {
+              onTap(2);
             },
           ),
           const Divider(),
