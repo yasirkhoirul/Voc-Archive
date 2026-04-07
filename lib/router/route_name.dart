@@ -9,8 +9,13 @@ enum RouteName {
   contact("/contact"),
   profile("/profile"),
   settings("/settings"),
+  product("/product"),
+  productDetail("/product/:id"),
   //admin
-  adminproductssetting("/products-setting");
+  adminproducts("/adminproducts"),
+  adminproductssetting("/product/:id"),
+  adminsliders("/adminsliders"),
+  admindisplays("/admindisplays");
 
   const RouteName(this.path);
   final String path;

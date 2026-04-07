@@ -1,6 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:module_core/module_core.dart';
+import 'package:module_admin/presentations/bloc/product_list_bloc.dart';
+import 'package:module_admin/presentations/bloc/product_mutation_bloc.dart';
+import 'package:module_admin/presentations/bloc/slider_mutation_bloc.dart';
+import 'package:module_admin/presentations/bloc/display_mutation_bloc.dart';
 import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:voc_archive/dependency_injector.dart';
 import 'package:voc_archive/firebase_options.dart';
@@ -14,7 +19,12 @@ void main() async{
   );
   await dependencyInitializer();
   runApp(MultiBlocProvider(providers: [
-    BlocProvider<AuthBloc>(create: (_) => getIt<AuthBloc>(),)
+    BlocProvider<CurrencyCubit>(create: (_) => getIt<CurrencyCubit>(),),
+    BlocProvider<AuthBloc>(create: (_) => getIt<AuthBloc>(),),
+    BlocProvider<ProductMutationBloc>(create: (_) => getIt<ProductMutationBloc>(),),
+    BlocProvider<ProductListBloc>(create: (_) => getIt<ProductListBloc>(),),
+    BlocProvider<SliderMutationBloc>(create: (_) => getIt<SliderMutationBloc>(),),
+    BlocProvider<DisplayMutationBloc>(create: (_) => getIt<DisplayMutationBloc>(),),
   ], child: const MainApp()));
 }
 

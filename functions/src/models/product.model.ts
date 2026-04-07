@@ -29,6 +29,7 @@ export interface CreateProductInput {
 export interface UpdateProductInput {
   uid: string;
   gambar_base64?: string[];
+  keep_gambar_paths?: string[];
   nama_brand?: string;
   harga?: number;
   deskripsi?: string;

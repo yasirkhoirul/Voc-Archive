@@ -1,6 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:module_admin/presentations/product_setting.dart';
+import 'package:logger/logger.dart';
+import 'package:module_admin/presentations/pages/product_admin.dart';
+import 'package:module_admin/presentations/pages/product_setting.dart';
+import 'package:module_admin/presentations/pages/admin_slider_page.dart';
+import 'package:module_admin/presentations/pages/admin_display_page.dart';
 import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:module_auth/presentation/pages/auth_login.dart';
 import 'package:module_core/module_core.dart';
@@ -15,9 +19,19 @@ class AppRouter {
       initialLocation: RouteName.signIn.path,
       refreshListenable: RouterListener(authBloc),
       redirect: (context, state) {
+        Logger().i('Current route: ${state.fullPath}');
         final isAuthenticated = authBloc.state is Authenticated;
-        if (isAuthenticated) {
-          return RouteName.home.path;
+        final generalPath = [
+          RouteName.signIn.path,
+          RouteName.signUp.path,
+          RouteName.splash.path,
+        ];
+        // final adminPath = [
+        //   RouteName.adminproducts.path,
+        //   RouteName.adminproductssetting.path,
+        // ];
+        if (isAuthenticated && generalPath.contains(state.fullPath)) {
+          return RouteName.adminproducts.path;
         }
         return null;
       },
@@ -48,8 +62,49 @@ class AppRouter {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: RouteName.adminproductssetting.path,
-                  builder: (context, state) => const ProductSetting(),
+                  path: RouteName.adminproducts.path,
+                  builder: (context, state) => ProductAdmin(
+                    onDetailTap: (uidProduct) {
+                      if (uidProduct != null) {
+                        context.goNamed(
+                          RouteName.adminproductssetting.name,
+                          pathParameters: {'id': uidProduct},
+                        );
+                      } else {
+                        context.goNamed(
+                          RouteName.adminproductssetting.name,
+                          pathParameters: {'id': 'new'},
+                        );
+                      }
+                    },
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: RouteName.adminproductssetting.path,
+                      name: RouteName.adminproductssetting.name,
+                      builder: (context, state) {
+                        final String? rawId = state.pathParameters['id'];
+                        final String? productId = rawId == 'new' ? null : rawId;
+                        return ProductSetting(productId: productId);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.adminsliders.path,
+                  builder: (context, state) => const AdminSliderPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.admindisplays.path,
+                  builder: (context, state) => const AdminDisplayPage(),
                 ),
               ],
             ),

@@ -1,1 +1,1 @@
-export 'presentations/product_setting.dart';
+export 'presentations/pages/product_setting.dart';
