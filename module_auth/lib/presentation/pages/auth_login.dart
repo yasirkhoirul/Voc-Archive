@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:module_core/module_core.dart';
+import 'package:module_core/widget/button.dart';
 import 'package:module_core/widget/snackbar.dart';
 import '../bloc/auth_bloc.dart';
 
