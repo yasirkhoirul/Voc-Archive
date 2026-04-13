@@ -12,24 +12,17 @@ class SidebarAdmin extends StatelessWidget {
       child: Column(
         children: [
           ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
+            leading: const Icon(Icons.shopping_bag),
+            title: const Text('Products'),
             onTap: () {
               onTap(0);
             },
           ),
           ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: const Text('Products'),
+            leading: const Icon(Icons.monetization_on),
+            title: const Text('Settings'),
             onTap: () {
-             
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: const Text('Users'),
-            onTap: () {
-              // Handle users navigation
+              onTap(3);
             },
           ),
           ListTile(
@@ -46,17 +39,27 @@ class SidebarAdmin extends StatelessWidget {
               onTap(2);
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.branding_watermark),
+            title: const Text('Brands'),
+            onTap: () {
+              onTap(4);
+            },
+          ),
           const Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Currency (IDR/USD)'),
-                BlocBuilder<CurrencyCubit, CurrencyType>(
+                BlocBuilder<CurrencyCubit, CurrencyState>(
                   builder: (context, state) {
                     return Switch(
-                      value: state == CurrencyType.usd,
+                      value: state.currencyType == CurrencyType.usd,
                       onChanged: (value) {
                         context.read<CurrencyCubit>().toggleCurrency();
                       },
@@ -70,5 +73,4 @@ class SidebarAdmin extends StatelessWidget {
       ),
     );
   }
-
 }

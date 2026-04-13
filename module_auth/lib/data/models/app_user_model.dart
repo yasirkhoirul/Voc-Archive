@@ -6,13 +6,15 @@ class AppUserModel extends AppUser {
     required super.id,
     super.email,
     super.displayName,
+    super.role,
   });
 
-  factory AppUserModel.fromFirebaseUser(User user) {
+  factory AppUserModel.fromFirebaseUser(User user, {String role = 'user'}) {
     return AppUserModel(
       id: user.uid,
       email: user.email,
       displayName: user.displayName,
+      role: role,
     );
   }
 }

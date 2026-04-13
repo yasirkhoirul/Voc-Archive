@@ -13,11 +13,29 @@ dependencies:
     sdk: flutter
   module_core:
     path: ../module_core
+  cached_network_image: ^3.4.1
+  equatable: ^2.0.8
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.0
+  json_annotation: ^4.11.0
+  cloud_firestore: ^6.1.3
+  dartz: ^0.10.1
+  go_router: ^17.2.0
+  get_it: ^9.2.1
+  logger: ^2.7.0
+  webview_flutter: ^4.13.0
+  cloud_functions: ^6.0.7
+  webview_flutter_web: ^0.2.3+4
+  url_launcher: ^6.3.2
+  intl: ^0.20.2
+  firebase_auth: ^6.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  build_runner: ^2.12.2
+  json_serializable: ^6.13.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

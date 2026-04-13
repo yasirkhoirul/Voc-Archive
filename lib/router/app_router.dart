@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logger/logger.dart';
+import 'package:logger/web.dart';
+import 'package:module_admin/presentations/pages/admin_settings_page.dart';
+import 'package:module_admin/presentations/pages/admin_brand_page.dart';
 import 'package:module_admin/presentations/pages/product_admin.dart';
 import 'package:module_admin/presentations/pages/product_setting.dart';
 import 'package:module_admin/presentations/pages/admin_slider_page.dart';
@@ -9,6 +11,12 @@ import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:module_auth/presentation/pages/auth_login.dart';
 import 'package:module_core/module_core.dart';
 import 'package:module_user/module_user.dart';
+import 'package:module_user/presentation/pages/about_us.dart';
+import 'package:module_user/presentation/pages/catalog.dart';
+import 'package:module_user/presentation/pages/cart.dart';
+import 'package:module_user/presentation/pages/checkout/checkout.dart';
+import 'package:module_user/presentation/pages/detail_product.dart';
+import 'package:module_user/presentation/pages/history_user.dart';
 import 'package:voc_archive/router/route_name.dart';
 import 'package:voc_archive/router/router_listener.dart';
 
@@ -16,26 +24,87 @@ class AppRouter {
   AppRouter._();
   static GoRouter routerConfig(BlocBase authBloc) {
     return GoRouter(
-      initialLocation: RouteName.signIn.path,
+      initialLocation: RouteName.home.path,
       refreshListenable: RouterListener(authBloc),
       redirect: (context, state) {
-        Logger().i('Current route: ${state.fullPath}');
-        final isAuthenticated = authBloc.state is Authenticated;
+        final authState = authBloc.state;
+        
         final generalPath = [
+          RouteName.home.path,
+          RouteName.about.path,
+          RouteName.product.path,
+          RouteName.productDetail.path,
+        ];
+        
+        final authPath = [
           RouteName.signIn.path,
           RouteName.signUp.path,
           RouteName.splash.path,
         ];
-        // final adminPath = [
-        //   RouteName.adminproducts.path,
-        //   RouteName.adminproductssetting.path,
-        // ];
-        if (isAuthenticated && generalPath.contains(state.fullPath)) {
-          return RouteName.adminproducts.path;
+
+        final userPath = [
+          RouteName.cart.path,
+          RouteName.checkout.path,
+          RouteName.history.path,
+        ];
+        
+        final adminPath = [
+          RouteName.adminproducts.path,
+          RouteName.adminproductssetting.path,
+          RouteName.adminsliders.path,
+          RouteName.admindisplays.path,
+          RouteName.settings.path,
+          RouteName.adminbrands.path,
+        ];
+        // Cek jika butuh login
+        final isGoingToSecurePath = userPath.contains(state.fullPath) || adminPath.contains(state.fullPath);
+        
+        if (authState is! Authenticated) {
+          if (isGoingToSecurePath) {
+            return RouteName.signIn.path;
+          }
+          return null; // Boleh ke general path
         }
-        return null;
+        
+        // Handle User vs Admin
+        final role = authState.user.role;
+        Logger().i("role: $role, trying to access: ${state.fullPath}");
+        
+        if (role == 'admin') {
+          // Admin tidak usah lihat auth page maupun general page / user cart,
+          // lempar ke admin area
+          if (authPath.contains(state.fullPath) || generalPath.contains(state.fullPath) || userPath.contains(state.fullPath)) {
+             return RouteName.adminproducts.path;
+          }
+          return null; // Bebas akses adminPath
+          
+        } else {
+          // User Role
+          if (adminPath.contains(state.fullPath)) {
+            return RouteName.home.path; // Tidak boleh akses dashboard admin
+          }
+          if (authPath.contains(state.fullPath)) {
+             return RouteName.home.path; // Jangan tampilin login kalau udh login
+          }
+          return null; // Bebas akses general dan userPath
+        }
       },
       routes: [
+        GoRoute(
+          path: RouteName.cart.path,
+          name: RouteName.cart.name,
+          builder: (context, state) => const CartPage(),
+        ),
+        GoRoute(
+          path: RouteName.checkout.path,
+          name: RouteName.checkout.name,
+          builder: (context, state) => const CheckoutPage(),
+        ),
+        GoRoute(
+          path: RouteName.history.path,
+          name: RouteName.history.name,
+          builder: (context, state) => const HistoryUserPage(),
+        ),
         GoRoute(
           path: RouteName.signIn.path,
           builder: (context, state) => const AuthLogin(),
@@ -48,7 +117,34 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: RouteName.home.path,
+                  name: "home",
                   builder: (context, state) => const Home(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.product.path,
+                  builder: (context, state) => const Catalog(),
+                  routes: [
+                    GoRoute(
+                      name: RouteName.productDetail.name,
+                      path: ':id',
+                      builder: (context, state) {
+                        final id = state.pathParameters['id']!;
+                        return DetailProduct(uid: id);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.about.path,
+                  builder: (context, state) => const AboutUs(),
                 ),
               ],
             ),
@@ -80,7 +176,7 @@ class AppRouter {
                   ),
                   routes: [
                     GoRoute(
-                      path: RouteName.adminproductssetting.path,
+                      path: ':id',
                       name: RouteName.adminproductssetting.name,
                       builder: (context, state) {
                         final String? rawId = state.pathParameters['id'];
@@ -105,6 +201,22 @@ class AppRouter {
                 GoRoute(
                   path: RouteName.admindisplays.path,
                   builder: (context, state) => const AdminDisplayPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.settings.path,
+                  builder: (context, state) => const AdminSettingsPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.adminbrands.path,
+                  builder: (context, state) => const AdminBrandPage(),
                 ),
               ],
             ),

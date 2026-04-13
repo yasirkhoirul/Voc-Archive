@@ -36,8 +36,8 @@ class _ProductSettingState extends State<ProductSetting> {
   final _stokController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
-  List<String> _gambarBase64List = [];
-  List<String> _gambarNames = [];
+  final List<String> _gambarBase64List = [];
+  final List<String> _gambarNames = [];
   List<String> _existingGambarPaths = []; // Untuk update: menyimpan path gambar lama yang masih dipertahankan
   List<String> _existingGambarUrls = []; // Untuk update: menampung url gambar lama untuk UI
 

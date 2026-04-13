@@ -1,0 +1,542 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:module_core/shared_domain/shared_entities/product.dart';
+import 'package:module_core/widget/card/card.dart';
+import 'package:module_core/widget/footer/footer.dart';
+import 'package:module_core/widget/snackbar.dart';
+import 'package:module_user/presentation/bloc/catalog_bloc.dart';
+import 'package:module_user/presentation/cubit/detail_product_cubit.dart';
+import 'package:module_user/presentation/bloc/cart_bloc.dart';
+import 'package:module_user/domain/entities/cart_item.dart';
+
+class DetailProduct extends StatefulWidget {
+  final String uid;
+
+  const DetailProduct({super.key, required this.uid});
+
+  @override
+  State<DetailProduct> createState() => _DetailProductState();
+}
+
+class _DetailProductState extends State<DetailProduct> {
+  String? _selectedSize;
+  int _currentImageIndex = 0;
+  final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Memanggil API dengan Cubit ketika inisialisasi awal
+    context.read<DetailProductCubit>().fetchProduct(widget.uid);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Detail Product',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: BlocBuilder<DetailProductCubit, DetailProductState>(
+        builder: (context, state) {
+          if (state is DetailProductLoading || state is DetailProductInitial) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is DetailProductError) {
+            return Center(child: Text(state.message));
+          } else if (state is DetailProductLoaded) {
+            final product = state.product;
+
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  isMobile
+                      ? _buildMobileLayout(product, context)
+                      : _buildDesktopLayout(product, context),
+                  _buildRecommendedProducts(context, isMobile, product.uid),
+                  const SizedBox(height: 48),
+                  const CustomFooter(),
+                ],
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(Product product, BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final availableSizes = product.sizes.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          _buildImageSlider(product),
+          const SizedBox(height: 16),
+          _buildImageIndicator(product),
+          const SizedBox(height: 16),
+          Text(
+            product.namaBrand.isNotEmpty ? product.namaBrand : 'Unknown Brand',
+            style: textTheme.displayLarge,
+          ),
+          const SizedBox(height: 16),
+          _buildPriceAndCart(product, textTheme, context),
+          const SizedBox(height: 32),
+          _buildDescriptions(product, textTheme),
+          const SizedBox(height: 24),
+          _buildSizeOptions(product, availableSizes, textTheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(Product product, BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final availableSizes = product.sizes.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Gambar Kiri
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                _buildImageSlider(product),
+                const SizedBox(height: 16),
+                _buildImageIndicator(product),
+              ],
+            ),
+          ),
+          const SizedBox(width: 48),
+          // Detail Kanan
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.namaBrand.isNotEmpty
+                      ? product.namaBrand
+                      : 'Unknown Brand',
+                  style: textTheme.displayLarge,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '\$${product.harga.toStringAsFixed(2)} USD',
+                  style: textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildDescriptions(product, textTheme)),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: _buildSizeOptions(
+                        product,
+                        availableSizes,
+                        textTheme,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      if (_selectedSize == null) {
+                        AppSnackbar.onInfo(
+                          context,
+                          'Silakan pilih ukuran terlebih dahulu!',
+                        );
+                      } else {
+                        context.read<CartBloc>().add(
+                          AddToCart(
+                            CartItem(
+                              id: '${product.uid}-$_selectedSize',
+                              productId: product.uid,
+                              productName: product.deskripsi,
+                              brandName: product.namaBrand,
+                              imageUrls: product.gambar,
+                              selectedSize: _selectedSize!,
+                              price: product.hargaDiskon > 0
+                                  ? product.hargaDiskon
+                                  : product.harga,
+                            ),
+                          ),
+                        );
+                        AppSnackbar.onSuccess(
+                          context,
+                          'Berhasil ditambahkan ke keranjang',
+                        );
+                      }
+                    },
+                    child: const Text(
+                      'Add Cart',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageSlider(Product product) {
+    return AspectRatio(
+      aspectRatio: 3 / 4,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: product.gambar.isEmpty ? 1 : product.gambar.length,
+          onPageChanged: (index) {
+            setState(() {
+              _currentImageIndex = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            final imageUrl = product.gambar.isNotEmpty
+                ? product.gambar[index]
+                : 'https://picsum.photos/600/800';
+            return CachedNetworkImage(
+              imageUrl: imageUrl,
+              fit: BoxFit.cover,
+              placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageIndicator(Product product) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed: () {
+            if (_currentImageIndex > 0) {
+              _pageController.previousPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeIn,
+              );
+            }
+          },
+        ),
+        Text(
+          '${_currentImageIndex + 1}',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        IconButton(
+          icon: const Icon(Icons.chevron_right),
+          onPressed: () {
+            if (product.gambar.isNotEmpty &&
+                _currentImageIndex < product.gambar.length - 1) {
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeIn,
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceAndCart(
+    Product product,
+    TextTheme textTheme,
+    BuildContext context,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Text(
+            '\$${product.harga.toStringAsFixed(2)} USD',
+            style: textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: () {
+            if (_selectedSize == null) {
+              AppSnackbar.onInfo(
+                context,
+                'Silakan pilih ukuran terlebih dahulu!',
+              );
+            } else {
+              context.read<CartBloc>().add(
+                AddToCart(
+                  CartItem(
+                    id: '${product.uid}-$_selectedSize',
+                    productId: product.uid,
+                    productName: product.deskripsi,
+                    brandName: product.namaBrand,
+                    imageUrls: product.gambar,
+                    selectedSize: _selectedSize!,
+                    price: product.hargaDiskon > 0
+                        ? product.hargaDiskon
+                        : product.harga,
+                  ),
+                ),
+              );
+              AppSnackbar.onSuccess(
+                context,
+                'Berhasil ditambahkan ke keranjang',
+              );
+            }
+          },
+          child: const Text(
+            'Add Cart',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescriptions(Product product, TextTheme textTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Deskripsi', style: textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Text(
+          product.deskripsi.isNotEmpty
+              ? product.deskripsi
+              : 'Tidak ada deskripsi',
+          style: textTheme.bodySmall,
+        ),
+        const SizedBox(height: 24),
+        Text('Detail', style: textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Text(
+          product.detail.isNotEmpty
+              ? product.detail
+              : 'Tidak ada detail khusus',
+          style: textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSizeOptions(
+    Product product,
+    List<MapEntry<String, int>> availableSizes,
+    TextTheme textTheme,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Size Options', style: textTheme.titleLarge),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: availableSizes.map((entry) {
+            final size = entry.key;
+            final stock = entry.value;
+            final isAvailable = stock > 0;
+            final isSelected = _selectedSize == size;
+
+            return InkWell(
+              onTap: isAvailable
+                  ? () {
+                      setState(() {
+                        _selectedSize = size;
+                      });
+                    }
+                  : null,
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.black
+                        : isAvailable
+                        ? Colors.grey
+                        : Colors.grey.shade300,
+                    width: isSelected ? 2 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  color: isSelected
+                      ? Colors.black
+                      : isAvailable
+                      ? Colors.white
+                      : Colors.grey.shade200,
+                ),
+                child: Text(
+                  size.toUpperCase(),
+                  style: TextStyle(
+                    color: isSelected
+                        ? Colors.white
+                        : isAvailable
+                        ? Colors.black
+                        : Colors.grey,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+        if (_selectedSize != null)
+          Text(
+            'Stok tersedia: ${product.sizes[_selectedSize]}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildRecommendedProducts(
+    BuildContext context,
+    bool isMobile,
+    String currentUid,
+  ) {
+    return BlocBuilder<CatalogBloc, CatalogState>(
+      builder: (context, state) {
+        if (state is CatalogLoading || state is CatalogInitial) {
+          return const Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state is CatalogLoaded) {
+          final allProducts = state.products;
+          // Filter out current product
+          final recommendations = allProducts
+              .where((p) => p.uid != currentUid)
+              .toList();
+
+          if (recommendations.isEmpty) return const SizedBox.shrink();
+
+          final displayCount = isMobile ? 2 : 4;
+          final items = recommendations.take(displayCount).toList();
+
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16.0 : 48.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 48),
+                const Text(
+                  'Barang yang serupa',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 32),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: displayCount,
+                    crossAxisSpacing: 16.0,
+                    mainAxisSpacing: 16.0,
+                    childAspectRatio: isMobile ? 0.55 : 0.6,
+                  ),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final p = items[index];
+                    return GestureDetector(
+                      onTap: () {
+                        context.goNamed(
+                          'productDetail',
+                          pathParameters: {'id': p.uid},
+                        );
+                        // Refresh page for new item
+                        context.read<DetailProductCubit>().fetchProduct(p.uid);
+                      },
+                      child: MyCard(
+                        isMobile: isMobile,
+                        imageUrl: p.gambar.isNotEmpty
+                            ? p.gambar.first
+                            : 'https://picsum.photos/400/600',
+                        brand: p.namaBrand.isNotEmpty
+                            ? p.namaBrand
+                            : 'Unknown Brand',
+                        title: p.deskripsi.isNotEmpty
+                            ? p.deskripsi
+                            : 'No description',
+                        price: 'Rp ${p.harga.toStringAsFixed(0)}',
+                        discountPrice: p.hargaDiskon > 0
+                            ? 'Rp ${p.hargaDiskon.toStringAsFixed(0)}'
+                            : '',
+                        discountPercentage: p.diskon > 0 ? '${p.diskon}%' : '',
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+}

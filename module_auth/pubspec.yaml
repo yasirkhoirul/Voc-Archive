@@ -20,6 +20,7 @@ dependencies:
   equatable: ^2.0.8
   module_core:
     path: ../module_core
+  cloud_firestore: ^6.2.0
 
 dev_dependencies:
   flutter_test:

@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import * as admin from "firebase-admin";
 
 const app = admin.initializeApp();

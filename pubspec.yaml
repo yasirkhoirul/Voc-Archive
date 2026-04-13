@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   firebase_core: ^4.5.0
   firebase_auth: ^6.2.0
+  cached_network_image: ^3.4.1
   cloud_firestore: ^6.1.3
   cloud_functions: ^6.0.7
   go_router: ^17.1.0
@@ -29,6 +30,10 @@ dependencies:
   module_auth:
     path: module_auth
   google_fonts: ^8.0.2
+  flutter_svg: ^2.2.4
+  url_launcher: ^6.3.2
+  webview_flutter: ^4.13.0
+  webview_flutter_web: ^0.2.3+4
 
 dev_dependencies:
   flutter_test:
@@ -39,3 +44,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo.jpeg
+    - assets/svg/ig.svg
+    - assets/svg/tiktok.svg

@@ -8,14 +8,18 @@ enum RouteName {
   about("/about"),
   contact("/contact"),
   profile("/profile"),
+  cart("/cart"),
+  checkout("/checkout"),
+  history("/history"),
   settings("/settings"),
   product("/product"),
   productDetail("/product/:id"),
   //admin
   adminproducts("/adminproducts"),
-  adminproductssetting("/product/:id"),
+  adminproductssetting("/adminproducts/:id"),
   adminsliders("/adminsliders"),
-  admindisplays("/admindisplays");
+  admindisplays("/admindisplays"),
+  adminbrands("/adminbrands");
 
   const RouteName(this.path);
   final String path;

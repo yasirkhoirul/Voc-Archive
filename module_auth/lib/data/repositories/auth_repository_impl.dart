@@ -16,7 +16,8 @@ class AuthRepositoryImpl implements AuthRepository {
     return await (() async {
       final userCredential = await _authDatasource.signInWithEmailAndPassword(email, password);
       if (userCredential.user != null) {
-        return AppUserModel.fromFirebaseUser(userCredential.user!);
+        String role = await _authDatasource.getUserRole(userCredential.user!.uid);
+        return AppUserModel.fromFirebaseUser(userCredential.user!, role: role);
       } else {
         throw Exception('User is null');
       }
@@ -28,7 +29,8 @@ class AuthRepositoryImpl implements AuthRepository {
     return await (() async {
       final userCredential = await _authDatasource.registerWithEmailAndPassword(email, password);
       if (userCredential.user != null) {
-        return AppUserModel.fromFirebaseUser(userCredential.user!);
+        String role = await _authDatasource.getUserRole(userCredential.user!.uid);
+        return AppUserModel.fromFirebaseUser(userCredential.user!, role: role);
       } else {
         throw Exception('User is null');
       }
@@ -37,9 +39,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<AppUser?> authStateChanges() {
-    return _authDatasource.authStateChanges().map((user) {
+    return _authDatasource.authStateChanges().asyncMap((user) async {
       if (user != null) {
-        return AppUserModel.fromFirebaseUser(user);
+        String role = await _authDatasource.getUserRole(user.uid);
+        return AppUserModel.fromFirebaseUser(user, role: role);
       }
       return null;
     });

@@ -49,5 +49,30 @@ service cloud.firestore {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
+
+    // ============================================
+    // Settings Collection (exchange rate, shipping)
+    // ============================================
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ============================================
+    // Brands Collection
+    // ============================================
+    match /brands/{brandId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ============================================
+    // Order History Collection
+    // ============================================
+    match /order_history/{orderId} {
+      allow read: if request.auth != null &&
+                     (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
   }
 }

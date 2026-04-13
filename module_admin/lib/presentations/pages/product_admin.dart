@@ -21,9 +21,7 @@ class _ProductAdminState extends State<ProductAdmin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Produk'),
-      ),
+      appBar: AppBar(title: const Text('Daftar Produk')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           widget.onDetailTap?.call(null);
@@ -50,10 +48,12 @@ class _ProductAdminState extends State<ProductAdmin> {
               itemCount: state.products.length,
               itemBuilder: (context, index) {
                 final product = state.products[index];
-                final imageUrl = (product.gambar.isNotEmpty) ? product.gambar.first : null;
+                final imageUrl = (product.gambar.isNotEmpty)
+                    ? product.gambar.first
+                    : null;
 
                 return InkWell(
-                  onTap: (){
+                  onTap: () {
                     widget.onDetailTap?.call(product.uid);
                   },
                   child: Card(
@@ -67,7 +67,8 @@ class _ProductAdminState extends State<ProductAdmin> {
                                   imageUrl,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 50),
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.broken_image, size: 50),
                                 )
                               : Container(
                                   width: double.infinity,
@@ -82,14 +83,21 @@ class _ProductAdminState extends State<ProductAdmin> {
                             children: [
                               Text(
                                 product.namaBrand,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
-                              BlocBuilder<module_core.CurrencyCubit, module_core.CurrencyType>(
+                              BlocBuilder<
+                                module_core.CurrencyCubit,
+                                module_core.CurrencyState
+                              >(
                                 builder: (context, currencyState) {
-                                  final formattedPrice = context.read<module_core.CurrencyCubit>().format(product.harga);
+                                  final formattedPrice = context
+                                      .read<module_core.CurrencyCubit>()
+                                      .format(product.harga);
                                   return Text(
                                     formattedPrice,
                                     style: const TextStyle(color: Colors.green),
