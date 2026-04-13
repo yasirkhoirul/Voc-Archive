@@ -48,6 +48,34 @@ class ProcessMidtransPaymentEvent extends CheckoutEvent {
       [items, shippingArea, name, email, phone, city, postalCode, address];
 }
 
+class ProcessPaypalPaymentEvent extends CheckoutEvent {
+  final List<Map<String, dynamic>> items;
+  final String shippingArea;
+  final String name;
+  final String email;
+  final String phone;
+  final String city;
+  final String postalCode;
+  final String address;
+  final Uint8List proofImageBytes;
+
+  const ProcessPaypalPaymentEvent({
+    required this.items,
+    required this.shippingArea,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.city,
+    required this.postalCode,
+    required this.address,
+    required this.proofImageBytes,
+  });
+
+  @override
+  List<Object?> get props =>
+      [items, shippingArea, name, email, phone, city, postalCode, address, proofImageBytes];
+}
+
 class CheckPaymentStatusEvent extends CheckoutEvent {
   final String orderId;
 

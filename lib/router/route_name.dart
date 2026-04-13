@@ -5,6 +5,7 @@ enum RouteName {
   splash("/splash"),
   //user
   home("/"),
+  discount("/discount"),
   about("/about"),
   contact("/contact"),
   profile("/profile"),

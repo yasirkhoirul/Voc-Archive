@@ -8,7 +8,7 @@ class GetDiscountProductsUseCase {
 
   GetDiscountProductsUseCase(this._repository);
 
-  Future<Either<Failure, List<Product>>> call() {
-    return _repository.getDiscountProducts();
+  Future<Either<Failure, List<Product>>> call({String? query}) {
+    return _repository.getDiscountProducts(query: query);
   }
 }

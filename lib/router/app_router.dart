@@ -13,6 +13,7 @@ import 'package:module_core/module_core.dart';
 import 'package:module_user/module_user.dart';
 import 'package:module_user/presentation/pages/about_us.dart';
 import 'package:module_user/presentation/pages/catalog.dart';
+import 'package:module_user/presentation/pages/catalog_discount.dart';
 import 'package:module_user/presentation/pages/cart.dart';
 import 'package:module_user/presentation/pages/checkout/checkout.dart';
 import 'package:module_user/presentation/pages/detail_product.dart';
@@ -22,7 +23,7 @@ import 'package:voc_archive/router/router_listener.dart';
 
 class AppRouter {
   AppRouter._();
-  static GoRouter routerConfig(BlocBase authBloc) {
+  static GoRouter routerConfig(AuthBloc authBloc) {
     return GoRouter(
       initialLocation: RouteName.home.path,
       refreshListenable: RouterListener(authBloc),
@@ -31,6 +32,7 @@ class AppRouter {
         
         final generalPath = [
           RouteName.home.path,
+          RouteName.discount.path,
           RouteName.about.path,
           RouteName.product.path,
           RouteName.productDetail.path,
@@ -83,9 +85,8 @@ class AppRouter {
           if (adminPath.contains(state.fullPath)) {
             return RouteName.home.path; // Tidak boleh akses dashboard admin
           }
-          if (authPath.contains(state.fullPath)) {
-             return RouteName.home.path; // Jangan tampilin login kalau udh login
-          }
+          // Biarkan halaman Auth tertangani oleh listener di dalamnya agar bisa melakukan context.pop()
+          // ke halaman sebelumnya (misal Catalog) tanpa harus force redirect ke "/"
           return null; // Bebas akses general dan userPath
         }
       },
@@ -110,8 +111,29 @@ class AppRouter {
           builder: (context, state) => const AuthLogin(),
         ),
         StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) =>
-              MainScaffold(navigationShell: navigationShell),
+          builder: (context, state, navigationShell) {
+            return BlocBuilder<AuthBloc, AuthState>(
+              bloc: authBloc,
+              builder: (context, authState) {
+                bool isAuthenticated = authState is Authenticated;
+                bool isAuthLoading = authState is AuthLoading;
+                String? userName;
+                if (authState is Authenticated) {
+                  userName = authState.user.displayName ?? authState.user.email;
+                }
+                return MainScaffold(
+                  navigationShell: navigationShell,
+                  isAuthenticated: isAuthenticated,
+                  isAuthLoading: isAuthLoading,
+                  userName: userName,
+                  onLogin: () => context.push(RouteName.signIn.path),
+                  onLogout: () {
+                    authBloc.add(AuthLogoutEvent());
+                  },
+                );
+              },
+            );
+          },
           branches: [
             StatefulShellBranch(
               routes: [
@@ -119,6 +141,15 @@ class AppRouter {
                   path: RouteName.home.path,
                   name: "home",
                   builder: (context, state) => const Home(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.discount.path,
+                  name: RouteName.discount.name,
+                  builder: (context, state) => const CatalogDiscount(),
                 ),
               ],
             ),

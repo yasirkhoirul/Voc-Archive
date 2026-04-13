@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../utils/search_notifier.dart';
 import '../logo/voc_logo.dart';
 
 class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
   final StatefulNavigationShell statefulNavigationShell;
-  const AppbarUser({super.key, required this.statefulNavigationShell});
+  final bool isAuthenticated;
+  final bool isAuthLoading;
+  final String? userName;
+  final VoidCallback onLogin;
+  final VoidCallback onLogout;
+
+  const AppbarUser({
+    super.key, 
+    required this.statefulNavigationShell,
+    required this.isAuthenticated,
+    this.isAuthLoading = false,
+    this.userName,
+    required this.onLogin,
+    required this.onLogout,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -25,43 +40,50 @@ class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
               statefulNavigationShell.goBranch(0);
             }),
             const SizedBox(width: 24),
-            _buildNavItem(context, 'Discount', () {}),
-            const SizedBox(width: 24),
-            _buildNavItem(context, 'Catalog', () {
+            _buildNavItem(context, 'Discount', () {
               statefulNavigationShell.goBranch(1);
             }),
             const SizedBox(width: 24),
-            _buildNavItem(context, 'About', () {
+            _buildNavItem(context, 'Catalog', () {
               statefulNavigationShell.goBranch(2);
             }),
             const SizedBox(width: 24),
-            SizedBox(
-              width: 250,
-              height: 36,
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search something?',
-                  hintStyle: const TextStyle(fontSize: 14),
-                  suffixIcon: const Icon(Icons.search, size: 20),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 0,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+            _buildNavItem(context, 'About', () {
+              statefulNavigationShell.goBranch(3);
+            }),
+            const SizedBox(width: 24),
+            if (statefulNavigationShell.currentIndex == 1 || statefulNavigationShell.currentIndex == 2)
+              SizedBox(
+                width: 250,
+                height: 36,
+                child: TextField(
+                  onSubmitted: (value) {
+                    searchNotifier.value = value;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search brand / description',
+                    hintStyle: const TextStyle(fontSize: 14),
+                    suffixIcon: const Icon(Icons.search, size: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 0,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
                 ),
               ),
-            ),
             const SizedBox(width: 24),
-            IconButton(
-              icon: const Icon(Icons.receipt_long_outlined),
-              onPressed: () {
-                context.pushNamed('history');
-              },
-            ),
+            if (isAuthenticated)
+              IconButton(
+                icon: const Icon(Icons.receipt_long_outlined),
+                onPressed: () {
+                  context.pushNamed('history');
+                },
+              ),
             const SizedBox(width: 16),
-            const Icon(Icons.person_outline),
+            _buildUserIcon(context),
           ],
         ),
       );
@@ -81,10 +103,71 @@ class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
               },
             ),
             const Expanded(child: Center(child: VocLogo())),
-            const Icon(Icons.person_outline),
+            if (isAuthenticated)
+              IconButton(
+                icon: const Icon(Icons.receipt_long_outlined),
+                onPressed: () {
+                  context.pushNamed('history');
+                },
+              ),
+            _buildUserIcon(context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildUserIcon(BuildContext context) {
+    if (isAuthLoading) {
+      return const Padding(
+        padding: EdgeInsets.all(12.0),
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+
+    if (!isAuthenticated) {
+      return IconButton(
+        icon: const Icon(Icons.login),
+        onPressed: onLogin,
+        tooltip: 'Login',
+      );
+    }
+
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.person_outline),
+      offset: const Offset(0, 48),
+      itemBuilder: (context) => [
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text(
+            userName ?? 'User',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem<String>(
+          value: 'logout',
+          child: Row(
+            children: [
+              Icon(Icons.logout, size: 20),
+              SizedBox(width: 8),
+              Text('Logout'),
+            ],
+          ),
+        ),
+      ],
+      onSelected: (value) {
+        if (value == 'logout') {
+          onLogout();
+        }
+      },
     );
   }
 

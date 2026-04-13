@@ -34,6 +34,8 @@ dependencies:
   url_launcher: ^6.3.2
   webview_flutter: ^4.13.0
   webview_flutter_web: ^0.2.3+4
+  image_picker: ^1.2.1
+  firebase_storage: ^13.3.0
 
 dev_dependencies:
   flutter_test:

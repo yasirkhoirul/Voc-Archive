@@ -200,9 +200,9 @@ class _HomeState extends State<Home> {
                                           ? product.deskripsi
                                           : 'No description',
                                       price:
-                                          'Rp ${product.harga.toStringAsFixed(0)}',
+                                          '\$ ${product.harga.toStringAsFixed(0)}',
                                       discountPrice: product.hargaDiskon > 0
-                                          ? 'Rp ${product.hargaDiskon.toStringAsFixed(0)}'
+                                          ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
                                           : '',
                                       discountPercentage: discountPercentageStr,
                                     ),

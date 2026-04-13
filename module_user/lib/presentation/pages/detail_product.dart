@@ -522,9 +522,9 @@ class _DetailProductState extends State<DetailProduct> {
                         title: p.deskripsi.isNotEmpty
                             ? p.deskripsi
                             : 'No description',
-                        price: 'Rp ${p.harga.toStringAsFixed(0)}',
+                        price: '\$ ${p.harga.toStringAsFixed(0)}',
                         discountPrice: p.hargaDiskon > 0
-                            ? 'Rp ${p.hargaDiskon.toStringAsFixed(0)}'
+                            ? '\$ ${p.hargaDiskon.toStringAsFixed(0)}'
                             : '',
                         discountPercentage: p.diskon > 0 ? '${p.diskon}%' : '',
                       ),

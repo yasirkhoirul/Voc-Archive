@@ -67,6 +67,7 @@ import 'package:module_user/domain/usecases/get_sliders_usecase.dart';
 import 'package:module_user/presentation/bloc/catalog_bloc.dart';
   import 'package:module_user/presentation/bloc/cart_bloc.dart';
   import 'package:module_user/presentation/bloc/checkout_bloc.dart';
+  import 'package:module_user/presentation/cubit/catalog_discount_cubit.dart';
   import 'package:module_user/presentation/cubit/history_user_cubit.dart';
 import 'package:module_user/presentation/cubit/detail_product_cubit.dart';
 import 'package:module_user/presentation/cubit/display_cubit.dart';
@@ -163,5 +164,6 @@ Future<void> dependencyInitializer() async {
   getIt.registerCachedFactory(() => HomeCubit(getIt()));
   getIt.registerCachedFactory(() => DisplayCubit(getIt()));
   getIt.registerCachedFactory(() => CatalogBloc(getIt()));
+  getIt.registerCachedFactory(() => CatalogDiscountCubit(getIt()));
   getIt.registerFactory(() => HistoryUserCubit(getIt()));
 }

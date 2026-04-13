@@ -1,6 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:module_core/widget/animation/slider_animation.dart';
 import 'package:module_core/widget/textfield/textfield_normal.dart';
@@ -508,6 +510,18 @@ class _CheckoutViewState extends State<CheckoutView> {
                   ),
                 );
               }
+            } else if (state.orderId != null &&
+                state.redirectUrl == null &&
+                !state.isProcessingPayment &&
+                state.paymentStatus == 'pending') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Payment proof uploaded! Waiting for verification.'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              context.read<CartBloc>().add(ClearCart());
+              context.go('/');
             }
           },
           builder: (context, state) {
@@ -624,10 +638,109 @@ class _CheckoutViewState extends State<CheckoutView> {
             ),
           );
     } else {
-      // PayPal — placeholder for future
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PayPal payment coming soon')),
-      );
+      if (checkoutState.selectedShippingRate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pilih shipping area terlebih dahulu')),
+        );
+        return;
+      }
+      final cartItems = context.read<CartBloc>().state.items;
+      if (cartItems.isEmpty) return;
+      _showPaypalDialog(context, checkoutState, cartItems);
     }
   }
+
+  void _showPaypalDialog(BuildContext context, CheckoutState checkoutState, List cartItems) {
+    Uint8List? selectedImageBytes;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.black,
+              title: const Text('PayPal Payment', style: TextStyle(color: Colors.white)),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Pay pal email:\nfootballfans1976@gmail.com\n\n*note family&friend method only*',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 24),
+                    if (selectedImageBytes != null)
+                      Image.memory(selectedImageBytes!, height: 150, fit: BoxFit.cover)
+                    else
+                      Container(
+                        height: 150,
+                        width: double.infinity,
+                        color: Colors.grey[800],
+                        child: const Icon(Icons.image, color: Colors.white54, size: 50),
+                      ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text('Upload Payment Proof'),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[200], foregroundColor: Colors.black),
+                      onPressed: () async {
+                        final picker = ImagePicker();
+                        final picked = await picker.pickImage(source: ImageSource.gallery);
+                        if (picked != null) {
+                          final bytes = await picked.readAsBytes();
+                          setState(() {
+                            selectedImageBytes = bytes;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
+                  onPressed: () {
+                    if (selectedImageBytes == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please upload the payment proof image.')));
+                      return;
+                    }
+                    Navigator.pop(dialogContext); // close dialog
+                    final shippingArea = checkoutState.selectedShippingRate!['nama_area'] as String? ?? '';
+                    final items = cartItems.map((item) => {
+                      'product_id': item.productId,
+                      'quantity': item.quantity,
+                      'size': item.selectedSize,
+                    }).toList();
+                    
+                    context.read<CheckoutBloc>().add(
+                      ProcessPaypalPaymentEvent(
+                        items: items,
+                        shippingArea: shippingArea,
+                        name: _nameCtrl.text.trim(),
+                        email: _emailCtrl.text.trim(),
+                        phone: _phoneCtrl.text.trim(),
+                        city: _cityCtrl.text.trim(),
+                        postalCode: _postalCtrl.text.trim(),
+                        address: _addressCtrl.text.trim(),
+                        proofImageBytes: selectedImageBytes!,
+                      ),
+                    );
+                  },
+                  child: const Text('Confirm Payment'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }
+

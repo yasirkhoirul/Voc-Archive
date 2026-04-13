@@ -12,8 +12,7 @@ import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:module_user/presentation/cubit/display_cubit.dart';
 import 'package:module_user/presentation/cubit/home_cubit.dart';
 import 'package:module_user/presentation/bloc/catalog_bloc.dart';
-import 'package:module_user/presentation/bloc/cart_bloc.dart';
-import 'package:module_user/presentation/bloc/checkout_bloc.dart';
+import 'package:module_user/presentation/bloc/cart_bloc.dart';import 'package:module_user/presentation/cubit/catalog_discount_cubit.dart';import 'package:module_user/presentation/bloc/checkout_bloc.dart';
 import 'package:module_user/presentation/cubit/history_user_cubit.dart';
 import 'package:module_user/presentation/cubit/detail_product_cubit.dart';
 import 'package:voc_archive/dependency_injector.dart';
@@ -49,6 +48,9 @@ void main() async {
         ),
         BlocProvider<CatalogBloc>(
           create: (_) => getIt<CatalogBloc>()..add(FetchCatalogProducts()),
+        ),
+        BlocProvider<CatalogDiscountCubit>(
+          create: (_) => getIt<CatalogDiscountCubit>()..fetchDiscountProducts(),
         ),
         BlocProvider<DetailProductCubit>(
           create: (_) => getIt<DetailProductCubit>(),

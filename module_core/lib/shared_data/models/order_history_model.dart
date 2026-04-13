@@ -42,6 +42,7 @@ class CustomerInfoModel extends CustomerInfoEntity {
 }
 
 @JsonSerializable(explicitToJson: true)
+@NullableTimestampConverter()
 class OrderHistoryModel extends OrderHistoryEntity {
   const OrderHistoryModel({
     @JsonKey(name: 'order_id') required super.orderId,
@@ -57,8 +58,8 @@ class OrderHistoryModel extends OrderHistoryEntity {
     @JsonKey(name: 'subtotal_usd', defaultValue: 0) required super.subtotalUsd,
     @JsonKey(name: 'total_idr', defaultValue: 0) required super.totalIdr,
     @JsonKey(name: 'total_usd', defaultValue: 0) required super.totalUsd,
-    @TimestampConverter() @JsonKey(name: 'created_at') super.createdAt,
-    @TimestampConverter() @JsonKey(name: 'updated_at') super.updatedAt,
+    @NullableTimestampConverter() @JsonKey(name: 'created_at') super.createdAt,
+    @NullableTimestampConverter() @JsonKey(name: 'updated_at') super.updatedAt,
     required CustomerInfoModel customerInfo,
     required List<OrderItemModel> orderItems,
   }) : super(

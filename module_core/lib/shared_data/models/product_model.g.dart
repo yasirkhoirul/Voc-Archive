@@ -20,6 +20,7 @@ ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
   totalStok: (json['total_stok'] as num).toInt(),
   diskon: (json['diskon'] as num).toDouble(),
   hargaDiskon: (json['harga_diskon'] as num).toDouble(),
+  type: json['type'] as String? ?? '',
   createdAt: const TimestampConverter().fromJson(json['created_at']),
   updatedAt: const TimestampConverter().fromJson(json['updated_at']),
 );
@@ -37,6 +38,7 @@ Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
       'total_stok': instance.totalStok,
       'diskon': instance.diskon,
       'harga_diskon': instance.hargaDiskon,
+      'type': instance.type,
       'created_at': const TimestampConverter().toJson(instance.createdAt),
       'updated_at': const TimestampConverter().toJson(instance.updatedAt),
     };

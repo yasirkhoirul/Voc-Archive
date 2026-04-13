@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:equatable/equatable.dart';
 import 'package:module_core/shared_domain/shared_usecases/get_shipping_rates_usecase.dart';
 
@@ -13,8 +16,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   CheckoutBloc({
     required this.getShippingRatesUsecase,
     required FirebaseFunctions functions,
-  })  : _functions = functions,
-        super(const CheckoutState()) {
+  }) : _functions = functions,
+       super(const CheckoutState()) {
     on<NextStepEvent>((event, emit) {
       if (state.step < 2) {
         emit(state.copyWith(step: state.step + 1));
@@ -34,9 +37,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         (failure) => emit(
           state.copyWith(isLoadingRates: false, ratesError: failure.message),
         ),
-        (rates) => emit(
-          state.copyWith(isLoadingRates: false, shippingRates: rates),
-        ),
+        (rates) =>
+            emit(state.copyWith(isLoadingRates: false, shippingRates: rates)),
       );
     });
 
@@ -45,6 +47,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     });
 
     on<ProcessMidtransPaymentEvent>(_onProcessPayment);
+    on<ProcessPaypalPaymentEvent>(_onProcessPaypalPayment);
     on<CheckPaymentStatusEvent>(_onCheckPaymentStatus);
     on<ResetCheckoutEvent>((event, emit) {
       emit(CheckoutState(shippingRates: state.shippingRates));
@@ -73,20 +76,71 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       });
 
       final data = result.data['data'] as Map<String, dynamic>;
-      emit(state.copyWith(
-        isProcessingPayment: false,
-        snapToken: data['snap_token'] as String?,
-        redirectUrl: data['redirect_url'] as String?,
-        orderId: data['order_id'] as String?,
-        totalIdr: (data['total_idr'] as num?)?.toDouble(),
-        totalUsd: (data['total_usd'] as num?)?.toDouble(),
-        paymentStatus: 'pending',
-      ));
+      emit(
+        state.copyWith(
+          isProcessingPayment: false,
+          snapToken: data['snap_token'] as String?,
+          redirectUrl: data['redirect_url'] as String?,
+          orderId: data['order_id'] as String?,
+          totalIdr: (data['total_idr'] as num?)?.toDouble(),
+          totalUsd: (data['total_usd'] as num?)?.toDouble(),
+          paymentStatus: 'pending',
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        isProcessingPayment: false,
-        paymentError: e.toString(),
-      ));
+      emit(
+        state.copyWith(isProcessingPayment: false, paymentError: e.toString()),
+      );
+    }
+  }
+
+  Future<void> _onProcessPaypalPayment(
+    ProcessPaypalPaymentEvent event,
+    Emitter<CheckoutState> emit,
+  ) async {
+    emit(state.copyWith(isProcessingPayment: true, paymentError: null));
+    try {
+      final fileName = 'proof_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final storageRef = FirebaseStorage.instance.ref().child(
+        'payment_proofs/$fileName',
+      );
+      await storageRef.putData(
+        event.proofImageBytes,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+      final proofUrl = await storageRef.getDownloadURL();
+
+      final callable = _functions.httpsCallable(
+        'createPaypalManualTransaction',
+      );
+      final result = await callable.call({
+        'items': event.items,
+        'shipping_area': event.shippingArea,
+        'proof_url': proofUrl,
+        'customer': {
+          'name': event.name,
+          'email': event.email,
+          'phone': event.phone,
+          'city': event.city,
+          'postal_code': event.postalCode,
+          'address': event.address,
+        },
+      });
+
+      final data = result.data['data'] as Map<String, dynamic>;
+      emit(
+        state.copyWith(
+          isProcessingPayment: false,
+          orderId: data['order_id'] as String?,
+          totalIdr: (data['total_idr'] as num?)?.toDouble(),
+          totalUsd: (data['total_usd'] as num?)?.toDouble(),
+          paymentStatus: 'pending',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(isProcessingPayment: false, paymentError: e.toString()),
+      );
     }
   }
 
@@ -99,9 +153,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       final result = await callable.call({'order_id': event.orderId});
 
       final data = result.data['data'] as Map<String, dynamic>;
-      emit(state.copyWith(
-        paymentStatus: data['status'] as String?,
-      ));
+      emit(state.copyWith(paymentStatus: data['status'] as String?));
     } catch (e) {
       emit(state.copyWith(paymentError: e.toString()));
     }

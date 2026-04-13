@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:module_core/utils/search_notifier.dart';
 import 'package:module_core/widget/card/card.dart';
 import 'package:module_core/widget/footer/footer.dart';
 import 'package:module_user/presentation/bloc/cart_bloc.dart';
@@ -25,6 +26,7 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    searchNotifier.addListener(_onSearchChanged);
 
     _animationController = AnimationController(
       vsync: this,
@@ -56,8 +58,33 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
     _animationController.value = 1.0;
   }
 
+  List<String> _selectedTypes = [];
+  double? _minPrice;
+  double? _maxPrice;
+
+  void _onSearchChanged() {
+    if (mounted) {
+      context.read<CatalogBloc>().add(FetchCatalogProducts(
+        query: searchNotifier.value,
+        types: _selectedTypes,
+        minPrice: _minPrice,
+        maxPrice: _maxPrice,
+      ));
+    }
+  }
+
+  void _onFilterSet(List<String> types, double? minPrice, double? maxPrice) {
+    setState(() {
+      _selectedTypes = types;
+      _minPrice = minPrice;
+      _maxPrice = maxPrice;
+    });
+    _onSearchChanged();
+  }
+
   @override
   void dispose() {
+    searchNotifier.removeListener(_onSearchChanged);
     _animationController.dispose();
     super.dispose();
   }
@@ -91,7 +118,7 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 controller: scrollController,
-                child: const MobileFilterContent(),
+                child: MobileFilterContent(onSet: _onFilterSet),
               ),
             );
           },
@@ -143,9 +170,9 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
               title: product.deskripsi.isNotEmpty
                   ? product.deskripsi
                   : 'No description',
-              price: 'Rp ${product.harga.toStringAsFixed(0)}',
+              price: '\$ ${product.harga.toStringAsFixed(0)}',
               discountPrice: product.hargaDiskon > 0
-                  ? 'Rp ${product.hargaDiskon.toStringAsFixed(0)}'
+                  ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
                   : '',
               discountPercentage: product.diskon > 0
                   ? '${product.diskon}%'
@@ -201,9 +228,9 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
                 title: product.deskripsi.isNotEmpty
                     ? product.deskripsi
                     : 'No description',
-                price: 'Rp ${product.harga.toStringAsFixed(0)}',
+                price: '\$ ${product.harga.toStringAsFixed(0)}',
                 discountPrice: product.hargaDiskon > 0
-                    ? 'Rp ${product.hargaDiskon.toStringAsFixed(0)}'
+                    ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
                     : '',
                 discountPercentage: product.diskon > 0
                     ? '${product.diskon}%'
@@ -324,6 +351,7 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
                       child: DesktopFilter(
                         onToggle: _toggleFilter,
                         animation: _animationController,
+                        onSet: _onFilterSet,
                       ),
                     ),
 

@@ -27,3 +27,19 @@ class TimestampConverter implements JsonConverter<DateTime, dynamic> {
   @override
   dynamic toJson(DateTime date) => date.millisecondsSinceEpoch;
 }
+
+class NullableTimestampConverter implements JsonConverter<DateTime?, dynamic> {
+  const NullableTimestampConverter();
+
+  @override
+  DateTime? fromJson(dynamic timestamp) {
+    if (timestamp == null) return null;
+    return const TimestampConverter().fromJson(timestamp);
+  }
+
+  @override
+  dynamic toJson(DateTime? date) {
+    if (date == null) return null;
+    return const TimestampConverter().toJson(date);
+  }
+}

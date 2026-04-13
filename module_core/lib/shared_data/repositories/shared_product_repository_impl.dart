@@ -11,16 +11,26 @@ class SharedProductRepositoryImpl implements SharedProductRepository {
   SharedProductRepositoryImpl(this._datasource);
 
   @override
-  Future<Either<Failure, List<Product>>> getAllProducts() async {
+  Future<Either<Failure, List<Product>>> getAllProducts({
+    String? query,
+    List<String>? types,
+    double? minPrice,
+    double? maxPrice,
+  }) async {
     return await (() async {
-      return await _datasource.getAllProducts();
+      return await _datasource.getAllProducts(
+        query: query,
+        types: types,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+      );
     })().guard();
   }
 
   @override
-  Future<Either<Failure, List<Product>>> getDiscountProducts() async {
+  Future<Either<Failure, List<Product>>> getDiscountProducts({String? query}) async {
     return await (() async {
-      return await _datasource.getDiscountProducts();
+      return await _datasource.getDiscountProducts(query: query);
     })().guard();
   }
   

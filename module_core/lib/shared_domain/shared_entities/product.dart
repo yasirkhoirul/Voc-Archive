@@ -10,6 +10,7 @@ class Product {
   final int totalStok;
   final double diskon;
   final double hargaDiskon;
+  final String type;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -25,6 +26,7 @@ class Product {
     required this.totalStok,
     required this.diskon,
     required this.hargaDiskon,
+    required this.type,
     required this.createdAt,
     required this.updatedAt,
   });

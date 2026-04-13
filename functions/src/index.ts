@@ -46,6 +46,7 @@ export {
 // Payment Functions
 export {
   createMidtransTransaction,
+  createPaypalManualTransaction,
   checkMidtransStatus,
   midtransWebhook,
 } from "./functions/payment.functions";

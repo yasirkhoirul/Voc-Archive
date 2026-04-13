@@ -19,6 +19,7 @@ class ProductModel extends Product {
     @JsonKey(name: 'total_stok') required super.totalStok,
     required super.diskon,
     @JsonKey(name: 'harga_diskon') required super.hargaDiskon,
+    @JsonKey(name: 'type', defaultValue: '') required super.type,
     @JsonKey(name: 'created_at') required super.createdAt,
     @JsonKey(name: 'updated_at') required super.updatedAt,
   });

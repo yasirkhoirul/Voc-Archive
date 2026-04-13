@@ -48,6 +48,7 @@ export interface OrderHistory {
   total_idr: number;
   snap_token: string;
   redirect_url: string;
+  proof_url?: string;
   midtrans_response?: Record<string, unknown>;
   created_at: FirebaseFirestore.Timestamp;
   updated_at: FirebaseFirestore.Timestamp;

@@ -1,4 +1,10 @@
-import { db } from "../config/firebase";
+import * as crypto from "crypto";
+import {
+  db,
+  midtransServerKey,
+  midtransClientKey,
+  midtransIsProduction,
+} from "../config/firebase";
 import {
   CreateTransactionInput,
   OrderHistoryItem,
@@ -11,34 +17,68 @@ const ORDER_HISTORY_COLLECTION = "order_history";
 
 function getSnapClient() {
   return new midtransClient.Snap({
-    isProduction: process.env.MIDTRANS_IS_PRODUCTION === "true",
-    serverKey: process.env.MIDTRANS_SERVER_KEY,
-    clientKey: process.env.MIDTRANS_CLIENT_KEY,
+    isProduction: midtransIsProduction.value() === "true",
+    serverKey: midtransServerKey.value(),
+    clientKey: midtransClientKey.value(),
   });
 }
 
 function getCoreApiClient() {
   return new midtransClient.CoreApi({
-    isProduction: process.env.MIDTRANS_IS_PRODUCTION === "true",
-    serverKey: process.env.MIDTRANS_SERVER_KEY,
-    clientKey: process.env.MIDTRANS_CLIENT_KEY,
+    isProduction: midtransIsProduction.value() === "true",
+    serverKey: midtransServerKey.value(),
+    clientKey: midtransClientKey.value(),
   });
+}
+
+/**
+ * Verify Midtrans signature key to prevent spoofed notifications.
+ * signature_key = SHA512(order_id + status_code + gross_amount + server_key)
+ */
+function verifySignature(notification: Record<string, unknown>): boolean {
+  const orderId = notification.order_id as string;
+  const statusCode = notification.status_code as string;
+  const grossAmount = notification.gross_amount as string;
+  const serverKey = midtransServerKey.value();
+
+  if (!orderId || !statusCode || !grossAmount) return false;
+
+  const payload = orderId + statusCode + grossAmount + serverKey;
+  const expectedSignature = crypto
+    .createHash("sha512")
+    .update(payload)
+    .digest("hex");
+
+  return expectedSignature === (notification.signature_key as string);
+}
+
+function resolveStatus(
+  transactionStatus: string,
+  fraudStatus?: string
+): string {
+  if (transactionStatus === "capture") {
+    return fraudStatus === "accept" ? "settlement" : "deny";
+  } else if (transactionStatus === "settlement") {
+    return "settlement";
+  } else if (
+    transactionStatus === "cancel" ||
+    transactionStatus === "deny"
+  ) {
+    return "cancel";
+  } else if (transactionStatus === "expire") {
+    return "expire";
+  }
+  return "pending";
 }
 
 export class PaymentService {
   /**
-   * Creates a Midtrans Snap transaction.
-   * 1. Verify product prices from Firestore
-   * 2. Fetch exchange rate
-   * 3. Fetch shipping cost
-   * 4. Create Snap token
-   * 5. Save order history
+   * Creates a manual PayPal transaction
    */
-  static async createTransaction(
+  static async createPaypalManualTransaction(
     userId: string,
-    input: CreateTransactionInput
+    input: CreateTransactionInput & { proof_url?: string }
   ) {
-    // 1. Validate input
     if (!input.items || input.items.length === 0) {
       throw new Error("Items cannot be empty.");
     }
@@ -49,7 +89,114 @@ export class PaymentService {
       throw new Error("Customer info (name, email) is required.");
     }
 
-    // 2. Fetch exchange rate from Firestore
+    // Fetch exchange rate
+    const exchangeDoc = await db.collection("settings").doc("exchange_rate").get();
+    if (!exchangeDoc.exists) throw new Error("Exchange rate has not been configured.");
+    const exchangeRate = exchangeDoc.data()?.usd_to_idr as number;
+    if (!exchangeRate || exchangeRate <= 0) throw new Error("Invalid exchange rate.");
+
+    // Fetch shipping rate
+    const shippingDoc = await db.collection("settings").doc("shipping_rates").get();
+    if (!shippingDoc.exists) throw new Error("Shipping rates have not been configured.");
+    const shippingRates =
+      (shippingDoc.data()?.rates as Array<{ nama_area: string; harga: number; }>) || [];
+    const shippingRate = shippingRates.find((r) => r.nama_area.toLowerCase() === input.shipping_area.toLowerCase());
+    if (!shippingRate) throw new Error(`Shipping rate for "${input.shipping_area}" not found.`);
+    const shippingCostUsd = shippingRate.harga;
+    const shippingCostIdr = Math.round(shippingCostUsd * exchangeRate);
+
+    // Fetch products
+    const productIds = [...new Set(input.items.map((i) => i.product_id))];
+    const productMap: Record<string, FirebaseFirestore.DocumentData> = {};
+    for (let i = 0; i < productIds.length; i += 10) {
+      const batch = productIds.slice(i, i + 10);
+      const snapshot = await db.collection("products").where("uid", "in", batch).get();
+      for (const doc of snapshot.docs) productMap[doc.id] = doc.data();
+    }
+
+    const orderItems: OrderHistoryItem[] = [];
+    let subtotalUsd = 0;
+
+    for (const item of input.items) {
+      const product = productMap[item.product_id];
+      if (!product) throw new Error(`Product with ID ${item.product_id} not found.`);
+
+      const originalPriceUsd = product.harga as number;
+      const discountPercent = (product.diskon as number) || 0;
+      const discountedPriceUsd = discountPercent > 0 ? (product.harga_diskon as number) : originalPriceUsd;
+
+      const finalPriceUsd = discountedPriceUsd;
+      const finalPriceIdr = Math.round(finalPriceUsd * exchangeRate);
+
+      subtotalUsd += finalPriceUsd * item.quantity;
+      orderItems.push({
+        product_id: item.product_id,
+        product_name: product.deskripsi || product.nama_brand || "Unknown",
+        brand_name: product.nama_brand || "Unknown",
+        size: item.size,
+        quantity: item.quantity,
+        price_usd: originalPriceUsd,
+        discount_percent: discountPercent,
+        final_price_usd: finalPriceUsd,
+        final_price_idr: finalPriceIdr,
+      });
+    }
+
+    const subtotalIdr = Math.round(subtotalUsd * exchangeRate);
+    const totalUsd = subtotalUsd + shippingCostUsd;
+    const totalIdr = subtotalIdr + shippingCostIdr;
+
+    const orderId = `VOC-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+    // Save order history as pending manual paypal
+    await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).set({
+      order_id: orderId,
+      user_id: userId,
+      status: "pending",
+      payment_method: "paypal_manual",
+      items: orderItems,
+      customer: input.customer,
+      shipping_area: input.shipping_area,
+      shipping_cost_usd: shippingCostUsd,
+      shipping_cost_idr: shippingCostIdr,
+      exchange_rate: exchangeRate,
+      subtotal_usd: subtotalUsd,
+      subtotal_idr: subtotalIdr,
+      total_usd: totalUsd,
+      total_idr: totalIdr,
+      proof_url: input.proof_url || "",
+      redirect_url: "",
+      snap_token: "",
+      created_at: FieldValue.serverTimestamp(),
+      updated_at: FieldValue.serverTimestamp(),
+    });
+
+    return {
+      order_id: orderId,
+      status: "pending",
+      total_idr: totalIdr,
+      total_usd: totalUsd,
+    };
+  }
+
+  /**
+   * Creates a Midtrans Snap transaction.
+   */
+  static async createTransaction(
+    userId: string,
+    input: CreateTransactionInput
+  ) {
+    if (!input.items || input.items.length === 0) {
+      throw new Error("Items cannot be empty.");
+    }
+    if (!input.shipping_area) {
+      throw new Error("Shipping area is required.");
+    }
+    if (!input.customer || !input.customer.email || !input.customer.name) {
+      throw new Error("Customer info (name, email) is required.");
+    }
+
+    // Fetch exchange rate
     const exchangeDoc = await db
       .collection("settings")
       .doc("exchange_rate")
@@ -62,7 +209,7 @@ export class PaymentService {
       throw new Error("Invalid exchange rate.");
     }
 
-    // 3. Fetch shipping rate
+    // Fetch shipping rate
     const shippingDoc = await db
       .collection("settings")
       .doc("shipping_rates")
@@ -70,10 +217,11 @@ export class PaymentService {
     if (!shippingDoc.exists) {
       throw new Error("Shipping rates have not been configured.");
     }
-    const shippingRates = (shippingDoc.data()?.rates as Array<{
-      nama_area: string;
-      harga: number;
-    }>) || [];
+    const shippingRates =
+      (shippingDoc.data()?.rates as Array<{
+        nama_area: string;
+        harga: number;
+      }>) || [];
     const shippingRate = shippingRates.find(
       (r) => r.nama_area.toLowerCase() === input.shipping_area.toLowerCase()
     );
@@ -85,11 +233,10 @@ export class PaymentService {
     const shippingCostUsd = shippingRate.harga;
     const shippingCostIdr = Math.round(shippingCostUsd * exchangeRate);
 
-    // 4. Fetch all product prices from Firestore (server-side verification)
+    // Fetch product prices (server-side verification)
     const productIds = [...new Set(input.items.map((i) => i.product_id))];
     const productMap: Record<string, FirebaseFirestore.DocumentData> = {};
 
-    // Batch fetch in groups of 10
     for (let i = 0; i < productIds.length; i += 10) {
       const batch = productIds.slice(i, i + 10);
       const snapshot = await db
@@ -101,10 +248,9 @@ export class PaymentService {
       }
     }
 
-    // 5. Calculate prices
+    // Calculate prices
     const orderItems: OrderHistoryItem[] = [];
     let subtotalUsd = 0;
-
     const midtransItems: Array<{
       id: string;
       price: number;
@@ -118,7 +264,6 @@ export class PaymentService {
         throw new Error(`Product "${item.product_id}" not found.`);
       }
 
-      // Use discounted price if available, else regular price
       const originalPriceUsd = product.harga as number;
       const discountPercent = (product.diskon as number) || 0;
       const discountedPriceUsd =
@@ -154,7 +299,6 @@ export class PaymentService {
       });
     }
 
-    // Add shipping as a Midtrans item
     midtransItems.push({
       id: "SHIPPING",
       price: shippingCostIdr,
@@ -166,15 +310,14 @@ export class PaymentService {
     const totalUsd = subtotalUsd + shippingCostUsd;
     const totalIdr = subtotalIdr + shippingCostIdr;
 
-    // 6. Generate order ID
     const orderId = `VOC-${Date.now()}-${Math.random()
       .toString(36)
       .substring(2, 8)
       .toUpperCase()}`;
 
-    // 7. Create Snap transaction
+    // Create Snap transaction
     const snap = getSnapClient();
-    const snapParameter = {
+    const snapResponse = await snap.createTransaction({
       transaction_details: {
         order_id: orderId,
         gross_amount: totalIdr,
@@ -192,14 +335,13 @@ export class PaymentService {
           address: input.customer.address,
         },
       },
-    };
+    });
 
-    const snapResponse = await snap.createTransaction(snapParameter);
     const snapToken = snapResponse.token as string;
     const redirectUrl = snapResponse.redirect_url as string;
 
-    // 8. Save order history to Firestore
-    const orderData = {
+    // Save order history
+    await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).set({
       order_id: orderId,
       user_id: userId,
       status: "pending",
@@ -218,9 +360,7 @@ export class PaymentService {
       redirect_url: redirectUrl,
       created_at: FieldValue.serverTimestamp(),
       updated_at: FieldValue.serverTimestamp(),
-    };
-
-    await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).set(orderData);
+    });
 
     return {
       order_id: orderId,
@@ -241,25 +381,8 @@ export class PaymentService {
     const transactionStatus = statusResponse.transaction_status as string;
     const fraudStatus = statusResponse.fraud_status as string;
     const paymentType = statusResponse.payment_type as string;
+    const status = resolveStatus(transactionStatus, fraudStatus);
 
-    let status = "pending";
-
-    if (transactionStatus === "capture") {
-      status = fraudStatus === "accept" ? "settlement" : "deny";
-    } else if (transactionStatus === "settlement") {
-      status = "settlement";
-    } else if (
-      transactionStatus === "cancel" ||
-      transactionStatus === "deny"
-    ) {
-      status = "cancel";
-    } else if (transactionStatus === "expire") {
-      status = "expire";
-    } else if (transactionStatus === "pending") {
-      status = "pending";
-    }
-
-    // Update Firestore
     await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).update({
       status,
       payment_method: paymentType || "midtrans",
@@ -277,56 +400,63 @@ export class PaymentService {
   }
 
   /**
-   * Handles Midtrans notification webhook.
-   * Verifies signature and updates order status.
+   * Handles Midtrans webhook notification.
+   * Verifies signature and updates order status in Firestore.
+   *
+   * Based on: https://docs.midtrans.com/docs/https-notification-webhooks
+   *
+   * Midtrans expects HTTP 200 response. Must respond quickly.
    */
   static async handleNotification(notificationBody: Record<string, unknown>) {
-    const coreApi = getCoreApiClient();
-    const statusResponse =
-      await coreApi.transaction.notification(notificationBody);
+    const orderId = notificationBody.order_id as string;
+    const transactionStatus =
+      notificationBody.transaction_status as string;
+    const fraudStatus = notificationBody.fraud_status as string;
+    const paymentType = notificationBody.payment_type as string;
 
-    const orderId = statusResponse.order_id as string;
-    const transactionStatus = statusResponse.transaction_status as string;
-    const fraudStatus = statusResponse.fraud_status as string;
-    const paymentType = statusResponse.payment_type as string;
+    console.log(
+      `[Webhook] Received: order_id=${orderId}, ` +
+        `transaction_status=${transactionStatus}, ` +
+        `fraud_status=${fraudStatus}, payment_type=${paymentType}`
+    );
 
-    let status = "pending";
-
-    if (transactionStatus === "capture") {
-      status = fraudStatus === "accept" ? "settlement" : "deny";
-    } else if (transactionStatus === "settlement") {
-      status = "settlement";
-    } else if (
-      transactionStatus === "cancel" ||
-      transactionStatus === "deny"
-    ) {
-      status = "cancel";
-    } else if (transactionStatus === "expire") {
-      status = "expire";
-    } else if (transactionStatus === "pending") {
-      status = "pending";
+    // If no order_id, it might be a test ping from Midtrans dashboard
+    if (!orderId) {
+      console.log("[Webhook] No order_id — likely a test notification.");
+      return { status: "ok", message: "Test notification acknowledged." };
     }
 
-    // Check if order exists
-    const orderDoc = await db
-      .collection(ORDER_HISTORY_COLLECTION)
-      .doc(orderId)
-      .get();
+    // Verify signature
+    const isValid = verifySignature(notificationBody);
+    if (!isValid) {
+      console.error(`[Webhook] Invalid signature for order ${orderId}`);
+      return { status: "error", message: "Invalid signature." };
+    }
+
+    // Resolve status
+    const status = resolveStatus(transactionStatus, fraudStatus);
+
+    // Update Firestore (if order exists)
+    const orderRef = db.collection(ORDER_HISTORY_COLLECTION).doc(orderId);
+    const orderDoc = await orderRef.get();
+
     if (!orderDoc.exists) {
-      console.error(`Order ${orderId} not found for notification.`);
-      return { status: "error", message: "Order not found." };
+      console.error(`[Webhook] Order ${orderId} not found in Firestore.`);
+      // Still return 200 so Midtrans doesn't retry
+      return { status: "ok", message: "Order not found, acknowledged." };
     }
 
-    await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).update({
+    await orderRef.update({
       status,
       payment_method: paymentType || "midtrans",
-      midtrans_response: statusResponse,
+      midtrans_response: notificationBody,
       updated_at: FieldValue.serverTimestamp(),
     });
 
     console.log(
-      `[Webhook] Order ${orderId}: status=${status}, payment=${paymentType}`
+      `[Webhook] Updated order ${orderId}: status=${status}, payment=${paymentType}`
     );
+
     return { status: "ok", order_id: orderId, transaction_status: status };
   }
 }

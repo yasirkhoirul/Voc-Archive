@@ -8,7 +8,17 @@ class GetAllProductsUseCase {
 
   GetAllProductsUseCase(this._repository);
 
-  Future<Either<Failure, List<Product>>> call() {
-    return _repository.getAllProducts();
+  Future<Either<Failure, List<Product>>> call({
+    String? query,
+    List<String>? types,
+    double? minPrice,
+    double? maxPrice,
+  }) {
+    return _repository.getAllProducts(
+      query: query,
+      types: types,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+    );
   }
 }

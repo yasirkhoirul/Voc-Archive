@@ -12,7 +12,12 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
   CatalogBloc(this._getAllProductsUseCase) : super(CatalogInitial()) {
     on<FetchCatalogProducts>((event, emit) async {
       emit(CatalogLoading());
-      final result = await _getAllProductsUseCase();
+      final result = await _getAllProductsUseCase(
+        query: event.query,
+        types: event.types,
+        minPrice: event.minPrice,
+        maxPrice: event.maxPrice,
+      );
       result.fold(
         (failure) => emit(CatalogError(failure.message)),
         (products) => emit(CatalogLoaded(products)),
