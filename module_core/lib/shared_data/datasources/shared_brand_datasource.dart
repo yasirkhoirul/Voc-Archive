@@ -18,7 +18,11 @@ class SharedBrandDatasourceImpl implements SharedBrandDatasource {
           .orderBy('nama')
           .get();
       return snapshot.docs
-          .map((doc) => {'uid': doc.id, 'nama': doc.data()['nama'] as String})
+          .map((doc) => {
+                'uid': doc.id,
+                'nama': doc.data()['nama'] as String,
+                'jenis_produk': doc.data()['jenis_produk'] as List<dynamic>? ?? [],
+              })
           .toList();
     })().guardDatasource();
   }

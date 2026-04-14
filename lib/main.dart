@@ -14,6 +14,7 @@ import 'package:module_user/presentation/cubit/home_cubit.dart';
 import 'package:module_user/presentation/bloc/catalog_bloc.dart';
 import 'package:module_user/presentation/bloc/cart_bloc.dart';import 'package:module_user/presentation/cubit/catalog_discount_cubit.dart';import 'package:module_user/presentation/bloc/checkout_bloc.dart';
 import 'package:module_user/presentation/cubit/history_user_cubit.dart';
+import 'package:module_admin/presentations/cubit/history_cubit.dart';
 import 'package:module_user/presentation/cubit/detail_product_cubit.dart';
 import 'package:voc_archive/dependency_injector.dart';
 import 'package:voc_archive/firebase_options.dart';
@@ -63,6 +64,9 @@ void main() async {
         ),
         BlocProvider<HistoryUserCubit>(
           create: (_) => getIt<HistoryUserCubit>(),
+        ),
+        BlocProvider<HistoryCubit>(
+          create: (_) => getIt<HistoryCubit>(),
         ),
       ],
       child: const MainApp(),

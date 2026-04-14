@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:module_admin/data/datasources/admin_home_datasource.dart';
 import 'package:module_admin/domain/usecases/update_product_usecase.dart';
+import 'package:module_admin/presentations/bloc/brand_bloc.dart';
+import 'package:module_admin/presentations/bloc/settings_bloc.dart';
 
 // Module Core / Shared
 import 'package:module_core/module_core.dart';
@@ -35,6 +37,7 @@ import 'package:module_admin/domain/usecases/update_display_usecase.dart';
 import 'package:module_admin/domain/usecases/delete_display_usecase.dart';
 import 'package:module_admin/presentations/bloc/slider_mutation_bloc.dart';
 import 'package:module_admin/presentations/bloc/display_mutation_bloc.dart';
+import 'package:module_admin/presentations/cubit/history_cubit.dart';
 import 'package:module_admin/data/datasources/admin_settings_datasource.dart';
 import 'package:module_admin/data/repositories/admin_settings_repository_impl.dart';
 import 'package:module_admin/domain/repositories/admin_settings_repository.dart';
@@ -148,8 +151,9 @@ Future<void> dependencyInitializer() async {
 
   // Blocs
   getIt.registerLazySingleton<CurrencyCubit>(() => CurrencyCubit());
+  getIt.registerFactory<SettingsBloc>(() => SettingsBloc(getIt(), getIt(), getIt(), getIt(), getIt(), getIt()));
   getIt.registerLazySingleton<AuthBloc>(() => AuthBloc(getIt(), getIt(), getIt(), getIt()));
-  getIt.registerFactory<ProductMutationBloc>(() => ProductMutationBloc(getIt(),getIt(), getIt()));
+  getIt.registerFactory<ProductMutationBloc>(() => ProductMutationBloc(getIt(),getIt(), getIt(),getIt()));
   getIt.registerFactory<ProductListBloc>(() => ProductListBloc(getIt()));
   getIt.registerFactory<SliderMutationBloc>(() => SliderMutationBloc(getIt(), getIt()));
   getIt.registerFactory<DisplayMutationBloc>(() => DisplayMutationBloc(getIt(), getIt(), getIt()));
@@ -158,6 +162,7 @@ Future<void> dependencyInitializer() async {
     getShippingRatesUsecase: getIt(),
     functions: getIt(),
   ));
+  getIt.registerFactory<BrandBloc>(() => BrandBloc(getIt(), getIt(), getIt(), getIt()),);
 
   //cubit
   getIt.registerCachedFactory(() => DetailProductCubit(getIt()),);
@@ -166,4 +171,5 @@ Future<void> dependencyInitializer() async {
   getIt.registerCachedFactory(() => CatalogBloc(getIt()));
   getIt.registerCachedFactory(() => CatalogDiscountCubit(getIt()));
   getIt.registerFactory(() => HistoryUserCubit(getIt()));
+  getIt.registerFactory(() => HistoryCubit(getAllHistoryUseCase: getIt()));
 }

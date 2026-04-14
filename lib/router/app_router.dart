@@ -7,6 +7,7 @@ import 'package:module_admin/presentations/pages/product_admin.dart';
 import 'package:module_admin/presentations/pages/product_setting.dart';
 import 'package:module_admin/presentations/pages/admin_slider_page.dart';
 import 'package:module_admin/presentations/pages/admin_display_page.dart';
+import 'package:module_admin/presentations/pages/history_admin_page.dart';
 import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:module_auth/presentation/pages/auth_login.dart';
 import 'package:module_core/module_core.dart';
@@ -57,6 +58,7 @@ class AppRouter {
           RouteName.admindisplays.path,
           RouteName.settings.path,
           RouteName.adminbrands.path,
+          RouteName.adminhistory.path,
         ];
         // Cek jika butuh login
         final isGoingToSecurePath = userPath.contains(state.fullPath) || adminPath.contains(state.fullPath);
@@ -248,6 +250,14 @@ class AppRouter {
                 GoRoute(
                   path: RouteName.adminbrands.path,
                   builder: (context, state) => const AdminBrandPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.adminhistory.path,
+                  builder: (context, state) => const HistoryAdminPage(),
                 ),
               ],
             ),

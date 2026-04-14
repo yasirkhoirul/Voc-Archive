@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,11 +19,9 @@ class ProductSetting extends StatefulWidget {
 class _ProductSettingState extends State<ProductSetting> {
   @override
   void initState() {
-    if (widget.productId != null) {
-      context.read<ProductMutationBloc>().add(
-        GetProductByIdEvent(widget.productId!),
-      );
-    }
+    context.read<ProductMutationBloc>().add(
+          LoadProductFormEvent(productId: widget.productId),
+        );
     super.initState();
   }
 
@@ -33,13 +31,26 @@ class _ProductSettingState extends State<ProductSetting> {
   final _deskripsiController = TextEditingController();
   final _detailController = TextEditingController();
   final _diskonController = TextEditingController();
-  final _stokController = TextEditingController();
+
+  String? _selectedType;
+  
+  final Map<String, int> _stocks = {
+    'onesize': 0,
+    'xs': 0,
+    's': 0,
+    'm': 0,
+    'l': 0,
+    'xl': 0,
+    'xxl': 0,
+  };
 
   final ImagePicker _picker = ImagePicker();
   final List<String> _gambarBase64List = [];
   final List<String> _gambarNames = [];
-  List<String> _existingGambarPaths = []; // Untuk update: menyimpan path gambar lama yang masih dipertahankan
-  List<String> _existingGambarUrls = []; // Untuk update: menampung url gambar lama untuk UI
+  List<String> _existingGambarPaths = []; 
+  List<String> _existingGambarUrls = []; 
+  
+  List<Map<String, dynamic>> _brands = [];
 
   @override
   void dispose() {
@@ -48,7 +59,6 @@ class _ProductSettingState extends State<ProductSetting> {
     _deskripsiController.dispose();
     _detailController.dispose();
     _diskonController.dispose();
-    _stokController.dispose();
     super.dispose();
   }
 
@@ -71,6 +81,16 @@ class _ProductSettingState extends State<ProductSetting> {
 
   void _submit(BuildContext context) {
     if (_formKey.currentState!.validate()) {
+      if (_brandController.text.trim().isEmpty || _selectedType == null) {
+        AppSnackbar.onFailure(context, 'Brand dan Tipe harus diisi/dipilih');
+        return;
+      }
+      
+      if (_stocks.values.every((val) => val == 0)) {
+        AppSnackbar.onFailure(context, 'Minimal satu ukuran harus memiliki stok');
+        return;
+      }
+
       if (widget.productId == null && _gambarBase64List.isEmpty) {
         AppSnackbar.onFailure(
           context,
@@ -90,24 +110,26 @@ class _ProductSettingState extends State<ProductSetting> {
         final input = UpdateProductInput(
           uid: widget.productId!,
           namaBrand: _brandController.text.trim(),
+          type: _selectedType!,
           harga: double.tryParse(_hargaController.text.trim()) ?? 0.0,
           deskripsi: _deskripsiController.text.trim(),
           detail: _detailController.text.trim(),
           diskon: double.tryParse(_diskonController.text.trim()),
-          gambarBase64: _gambarBase64List,
+          gambarBase64: _gambarBase64List.isNotEmpty ? _gambarBase64List : null,
           keepGambarPaths: _existingGambarPaths,
-          sizes: {'onesize': int.tryParse(_stokController.text.trim()) ?? 0},
+          sizes: _stocks,
         );
         context.read<ProductMutationBloc>().add(UpdateProductSubmitted(input));
       } else {
         final input = CreateProductInput(
           namaBrand: _brandController.text.trim(),
+          type: _selectedType!,
           harga: double.tryParse(_hargaController.text.trim()) ?? 0.0,
           deskripsi: _deskripsiController.text.trim(),
           detail: _detailController.text.trim(),
           diskon: double.tryParse(_diskonController.text.trim()),
           gambarBase64: _gambarBase64List,
-          sizes: {'onesize': int.tryParse(_stokController.text.trim()) ?? 0},
+          sizes: _stocks,
         );
         context.read<ProductMutationBloc>().add(CreateProductSubmitted(input));
       }
@@ -120,28 +142,51 @@ class _ProductSettingState extends State<ProductSetting> {
       appBar: AppBar(title: Text(widget.productId != null ? 'Edit Produk' : 'Tambah Produk')),
       body: BlocConsumer<ProductMutationBloc, ProductMutationState>(
         listener: (context, state) {
-          if (state is ProductMutationLoaded) {
-            _brandController.text = state.product.namaBrand;
-            _hargaController.text = state.product.harga.toString();
-            _deskripsiController.text = state.product.deskripsi;
-            _detailController.text = state.product.detail;
-            _diskonController.text = state.product.diskon.toString();
-            _stokController.text = state.product.sizes['onesize'].toString();
-            _existingGambarUrls = List.from(state.product.gambar);
-            _existingGambarPaths = List.from(state.product.gambarPaths);
-            _gambarBase64List.clear();
-            _gambarNames.clear();
+          if (state is ProductFormLoaded) {
+            _brands = state.brands;
+            
+            if (state.product != null && _brandController.text.isEmpty) {
+              _brandController.text = state.product!.namaBrand;
+              _selectedType = state.product!.type;
+              _hargaController.text = state.product!.harga.toString();
+              _deskripsiController.text = state.product!.deskripsi;
+              _detailController.text = state.product!.detail;
+              _diskonController.text = state.product!.diskon.toString();
+              
+              _existingGambarUrls = List.from(state.product!.gambar);
+              _existingGambarPaths = List.from(state.product!.gambarPaths);
+              
+              _stocks.updateAll((key, value) => 0);
+              state.product!.sizes.forEach((key, value) {
+                if (_stocks.containsKey(key)) {
+                  _stocks[key] = value;
+                }
+              });
+              
+              _gambarBase64List.clear();
+              _gambarNames.clear();
+            }
+            setState(() {});
           }
           if (state is ProductMutationSuccess) {
-            AppSnackbar.onSuccess(context, 'Produk berhasil ditambahkan/diupdate!');
-            // Kembali ke halaman daftar produk setelah sukses
+            AppSnackbar.onSuccess(context, 'Produk berhasil disimpan!');
             Navigator.of(context).pop();
           } else if (state is ProductMutationError) {
             AppSnackbar.onFailure(context, state.message);
           }
         },
         builder: (context, state) {
+          if (state is ProductMutationLoading && _brandController.text.isEmpty && _selectedType == null && widget.productId != null) {
+             return const Center(child: CircularProgressIndicator());
+          }
+
           final isLoading = state is ProductMutationLoading;
+          
+          List<String> allTypes = _brands.map((b) => b['nama'] as String).toSet().toList();
+          
+          if (_selectedType != null && !allTypes.contains(_selectedType)) {
+             allTypes.add(_selectedType!);
+          }
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -157,6 +202,24 @@ class _ProductSettingState extends State<ProductSetting> {
                     ),
                     validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
                     enabled: !isLoading,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      labelText: 'Type',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: allTypes.contains(_selectedType) ? _selectedType : null,
+                    items: allTypes.map((t) => DropdownMenuItem<String>(
+                      value: t,
+                      child: Text(t),
+                    )).toList(),
+                    onChanged: isLoading ? null : (val) {
+                      setState(() {
+                        _selectedType = val;
+                      });
+                    },
+                    validator: (v) => v == null ? 'Wajib dipilih' : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -202,15 +265,50 @@ class _ProductSettingState extends State<ProductSetting> {
                     enabled: !isLoading,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _stokController,
-                    decoration: const InputDecoration(
-                      labelText: 'Total Stok (Onesize)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                    enabled: !isLoading,
+                  const Text('Atur Stok Per Ukuran:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 16.0,
+                    runSpacing: 16.0,
+                    children: _stocks.keys.map((sz) {
+                      return IntrinsicWidth(
+                        child: Column(
+                          children: [
+                            Text(sz.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove),
+                                    onPressed: isLoading ? null : () {
+                                      if (_stocks[sz]! > 0) {
+                                        setState(() => _stocks[sz] = _stocks[sz]! - 1);
+                                      }
+                                    },
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Text('${_stocks[sz]}', style: const TextStyle(fontSize: 16)),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    onPressed: isLoading ? null : () {
+                                      setState(() => _stocks[sz] = _stocks[sz]! + 1);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
@@ -244,13 +342,8 @@ class _ProductSettingState extends State<ProductSetting> {
                                           height: 100,
                                           fit: BoxFit.cover,
                                           errorBuilder: (_, err, stac) {
-                                            Logger().e(
-                                              'Failed to load image from network: $err $stac',
-                                            );
-                                            return const Icon(
-                                              Icons.broken_image,
-                                              size: 50,
-                                            );
+                                            Logger().e('Failed to load image: $err $stac');
+                                            return const Icon(Icons.broken_image, size: 50);
                                           },
                                         )
                                       : Image.memory(
@@ -258,11 +351,7 @@ class _ProductSettingState extends State<ProductSetting> {
                                           width: 100,
                                           height: 100,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) =>
-                                              const Icon(
-                                                Icons.broken_image,
-                                                size: 50,
-                                              ),
+                                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50),
                                         ),
                                 ),
                                 Positioned(
@@ -291,11 +380,7 @@ class _ProductSettingState extends State<ProductSetting> {
                                         color: Colors.red,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
+                                      child: const Icon(Icons.close, color: Colors.white, size: 16),
                                     ),
                                   ),
                                 ),

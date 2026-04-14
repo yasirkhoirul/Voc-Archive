@@ -18,6 +18,7 @@ CreateProductInputModel _$CreateProductInputModelFromJson(
   detail: json['detail'] as String,
   sizes: Map<String, int>.from(json['sizes'] as Map),
   diskon: (json['diskon'] as num?)?.toDouble(),
+  type: json['type'] as String,
 );
 
 Map<String, dynamic> _$CreateProductInputModelToJson(
@@ -30,4 +31,5 @@ Map<String, dynamic> _$CreateProductInputModelToJson(
   'detail': instance.detail,
   'sizes': instance.sizes,
   'diskon': instance.diskon,
+  'type': instance.type,
 };

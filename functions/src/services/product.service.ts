@@ -54,6 +54,7 @@ export class ProductService {
     // Validate input
     validateBase64Images(input.gambar_base64);
     validateRequiredString(input.nama_brand, "nama_brand");
+    validateRequiredString(input.type, "type");
     validateNonNegativeNumber(input.harga, "harga");
     validateRequiredString(input.deskripsi, "deskripsi");
     validateRequiredString(input.detail, "detail");
@@ -83,6 +84,7 @@ export class ProductService {
       gambar: gambarUrls,
       gambar_paths: gambarPaths,
       nama_brand: input.nama_brand,
+      type: input.type,
       harga: input.harga,
       deskripsi: input.deskripsi,
       detail: input.detail,
@@ -117,6 +119,7 @@ export class ProductService {
     // Validate provided fields
     if (input.gambar_base64 !== undefined) validateBase64Images(input.gambar_base64);
     if (input.nama_brand !== undefined) validateRequiredString(input.nama_brand, "nama_brand");
+    if (input.type !== undefined) validateRequiredString(input.type, "type");
     if (input.harga !== undefined) validateNonNegativeNumber(input.harga, "harga");
     if (input.deskripsi !== undefined) validateRequiredString(input.deskripsi, "deskripsi");
     if (input.detail !== undefined) validateRequiredString(input.detail, "detail");
@@ -177,6 +180,7 @@ export class ProductService {
     }
 
     if (input.nama_brand !== undefined) updateData.nama_brand = input.nama_brand;
+    if (input.type !== undefined) updateData.type = input.type;
     if (input.harga !== undefined) updateData.harga = input.harga;
     if (input.deskripsi !== undefined) updateData.deskripsi = input.deskripsi;
     if (input.detail !== undefined) updateData.detail = input.detail;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:module_core/widget/app_bar/appbar_mobile.dart';
 import 'package:module_core/widget/app_bar/appbar_user.dart';
-import 'package:module_core/widget/drawer/drawer.dart';
 
 class MainScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -24,7 +24,14 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const CustomDrawer(),
+      drawer: CustomDrawer(
+        statefulNavigationShell: navigationShell,
+        isAuthenticated: isAuthenticated,
+        isAuthLoading: isAuthLoading,
+        userName: userName,
+        onLogin: onLogin,
+        onLogout: onLogout,
+      ),
       appBar: AppbarUser(
         statefulNavigationShell: navigationShell,
         isAuthenticated: isAuthenticated,

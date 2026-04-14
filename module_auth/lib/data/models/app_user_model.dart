@@ -18,3 +18,4 @@ class AppUserModel extends AppUser {
     );
   }
 }
+

@@ -36,21 +36,37 @@ class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
           children: [
             const VocLogo(),
             const Spacer(),
-            _buildNavItem(context, 'Home', () {
-              statefulNavigationShell.goBranch(0);
-            }),
+            AnimatedNavItem(
+              title: 'Home',
+              isActive: statefulNavigationShell.currentIndex == 0,
+              onTap: () {
+                statefulNavigationShell.goBranch(0);
+              },
+            ),
             const SizedBox(width: 24),
-            _buildNavItem(context, 'Discount', () {
-              statefulNavigationShell.goBranch(1);
-            }),
+            AnimatedNavItem(
+              title: 'Discount',
+              isActive: statefulNavigationShell.currentIndex == 1,
+              onTap: () {
+                statefulNavigationShell.goBranch(1);
+              },
+            ),
             const SizedBox(width: 24),
-            _buildNavItem(context, 'Catalog', () {
-              statefulNavigationShell.goBranch(2);
-            }),
+            AnimatedNavItem(
+              title: 'Catalog',
+              isActive: statefulNavigationShell.currentIndex == 2,
+              onTap: () {
+                statefulNavigationShell.goBranch(2);
+              },
+            ),
             const SizedBox(width: 24),
-            _buildNavItem(context, 'About', () {
-              statefulNavigationShell.goBranch(3);
-            }),
+            AnimatedNavItem(
+              title: 'About',
+              isActive: statefulNavigationShell.currentIndex == 3,
+              onTap: () {
+                statefulNavigationShell.goBranch(3);
+              },
+            ),
             const SizedBox(width: 24),
             if (statefulNavigationShell.currentIndex == 1 || statefulNavigationShell.currentIndex == 2)
               SizedBox(
@@ -170,15 +186,78 @@ class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
       },
     );
   }
+}
 
-  Widget _buildNavItem(BuildContext context, String title, VoidCallback ontap) {
-    return InkWell(
-      onTap: ontap,
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+class AnimatedNavItem extends StatefulWidget {
+  final String title;
+  final VoidCallback onTap;
+  final bool isActive;
+
+  const AnimatedNavItem({
+    super.key,
+    required this.title,
+    required this.onTap,
+    required this.isActive,
+  });
+
+  @override
+  State<AnimatedNavItem> createState() => _AnimatedNavItemState();
+}
+
+class _AnimatedNavItemState extends State<AnimatedNavItem> {
+  bool _isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final showLine = widget.isActive || _isHovering;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovering = true),
+      onExit: (_) => setState(() => _isHovering = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6.0), // Jarak untuk garis
+              child: Text(
+                widget.title,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutQuad,
+                tween: Tween<double>(
+                  begin: 0.0,
+                  end: showLine ? 1.0 : 0.0,
+                ),
+                builder: (context, value, child) {
+                  return FractionallySizedBox(
+                    widthFactor: value,
+                    alignment: Alignment.center,
+                    child: child,
+                  );
+                },
+                child: Container(
+                  height: 2,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

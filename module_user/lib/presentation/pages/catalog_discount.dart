@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:module_core/utils/search_notifier.dart';
+import 'package:module_core/widget/animation/slider_animation.dart';
 import 'package:module_core/widget/card/card.dart';
 import 'package:module_core/widget/footer/footer.dart';
 import 'package:module_user/presentation/bloc/cart_bloc.dart';
@@ -61,31 +62,35 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
         itemCount: products.length,
         itemBuilder: (context, index) {
           final product = products[index];
-          return InkWell(
-            onTap: () {
-              context.goNamed(
-                'productDetail',
-                pathParameters: {'id': product.uid},
-              );
-            },
-            child: MyCard(
-              isMobile: false,
-              imageUrl: product.gambar.isNotEmpty
-                  ? product.gambar.first
-                  : 'https://picsum.photos/400/600',
-              brand: product.namaBrand.isNotEmpty
-                  ? product.namaBrand
-                  : 'Brand Dummy',
-              title: product.deskripsi.isNotEmpty
-                  ? product.deskripsi
-                  : 'No description',
-              price: '\$ ${product.harga.toStringAsFixed(0)}',
-              discountPrice: product.hargaDiskon > 0
-                  ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
-                  : '',
-              discountPercentage: product.diskon > 0
-                  ? '${product.diskon}%'
-                  : '',
+          return SliderAnimation(
+            direction: SlideDirection.up,
+            delay: Duration(milliseconds: 100 * (index % (isTablet ? 4 : 6))),
+            child: InkWell(
+              onTap: () {
+                context.goNamed(
+                  'productDetail',
+                  pathParameters: {'id': product.uid},
+                );
+              },
+              child: MyCard(
+                isMobile: false,
+                imageUrl: product.gambar.isNotEmpty
+                    ? product.gambar.first
+                    : 'https://picsum.photos/400/600',
+                brand: product.namaBrand.isNotEmpty
+                    ? product.namaBrand
+                    : 'Brand Dummy',
+                title: product.deskripsi.isNotEmpty
+                    ? product.deskripsi
+                    : 'No description',
+                price: '\$ ${product.harga.toStringAsFixed(0)}',
+                discountPrice: product.hargaDiskon > 0
+                    ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
+                    : '',
+                discountPercentage: product.diskon > 0
+                    ? '${product.diskon}%'
+                    : '',
+              ),
             ),
           );
         },
@@ -119,31 +124,35 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
           ),
           delegate: SliverChildBuilderDelegate((context, index) {
             final product = products[index];
-            return InkWell(
-              onTap: () {
-                context.goNamed(
-                  'productDetail',
-                  pathParameters: {'id': product.uid},
-                );
-              },
-              child: MyCard(
-                isMobile: true,
-                imageUrl: product.gambar.isNotEmpty
-                    ? product.gambar.first
-                    : 'https://picsum.photos/400/600',
-                brand: product.namaBrand.isNotEmpty
-                    ? product.namaBrand
-                    : 'Brand Dummy',
-                title: product.deskripsi.isNotEmpty
-                    ? product.deskripsi
-                    : 'No description',
-                price: '\$ ${product.harga.toStringAsFixed(0)}',
-                discountPrice: product.hargaDiskon > 0
-                    ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
-                    : '',
-                discountPercentage: product.diskon > 0
-                    ? '${product.diskon}%'
-                    : '',
+            return SliderAnimation(
+              direction: SlideDirection.up,
+              delay: Duration(milliseconds: 100 * (index % 2)),
+              child: InkWell(
+                onTap: () {
+                  context.goNamed(
+                    'productDetail',
+                    pathParameters: {'id': product.uid},
+                  );
+                },
+                child: MyCard(
+                  isMobile: true,
+                  imageUrl: product.gambar.isNotEmpty
+                      ? product.gambar.first
+                      : 'https://picsum.photos/400/600',
+                  brand: product.namaBrand.isNotEmpty
+                      ? product.namaBrand
+                      : 'Brand Dummy',
+                  title: product.deskripsi.isNotEmpty
+                      ? product.deskripsi
+                      : 'No description',
+                  price: '\$ ${product.harga.toStringAsFixed(0)}',
+                  discountPrice: product.hargaDiskon > 0
+                      ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
+                      : '',
+                  discountPercentage: product.diskon > 0
+                      ? '${product.diskon}%'
+                      : '',
+                ),
               ),
             );
           }, childCount: products.length),
@@ -169,6 +178,9 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
                 sliver: SliverToBoxAdapter(
                   child: isMobile
                       ? TextField(
+                          onSubmitted: (value) {
+                            searchNotifier.value = value;
+                          },
                           decoration: InputDecoration(
                             hintText: 'Search',
                             prefixIcon: const Icon(Icons.search),

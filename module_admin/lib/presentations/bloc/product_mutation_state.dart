@@ -29,3 +29,13 @@ final class ProductMutationError extends ProductMutationState {
   @override
   List<Object> get props => [message];
 }
+
+final class ProductFormLoaded extends ProductMutationState {
+  final Product? product;
+  final List<Map<String, dynamic>> brands;
+
+  const ProductFormLoaded({this.product, required this.brands});
+
+  @override
+  List<Object> get props => [if (product != null) product!, brands];
+}

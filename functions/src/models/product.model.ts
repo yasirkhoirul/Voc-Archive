@@ -5,6 +5,7 @@ export interface Product {
   gambar: string[];
   gambar_paths: string[];
   nama_brand: string;
+  type: string;
   harga: number;
   deskripsi: string;
   detail: string;
@@ -19,6 +20,7 @@ export interface Product {
 export interface CreateProductInput {
   gambar_base64: string[];
   nama_brand: string;
+  type: string;
   harga: number;
   deskripsi: string;
   detail: string;
@@ -31,6 +33,7 @@ export interface UpdateProductInput {
   gambar_base64?: string[];
   keep_gambar_paths?: string[];
   nama_brand?: string;
+  type?: string;
   harga?: number;
   deskripsi?: string;
   detail?: string;

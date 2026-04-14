@@ -133,27 +133,42 @@ class AboutUs extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "voc.archive",
-                            style: Theme.of(context).textTheme.displayLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
+                          SliderAnimation(
+                            direction: SlideDirection.up,
+                            child: Text(
+                              "voc.archive",
+                              style: Theme.of(context).textTheme.displayLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                            ),
                           ),
                           const SizedBox(height: 32),
-                          const Text(
-                            "WORLDWIDE SHIPPING\n6-17 days arrive with tracking number",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          const SliderAnimation(
+                            direction: SlideDirection.up,
+                            delay: Duration(milliseconds: 200),
+                            child: Text(
+                              "WORLDWIDE SHIPPING\n6-17 days arrive with tracking number",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            "NO REFUND / NO RETRUN\nPlease carefully check the description and the measurements posted for the item you're interested in Take a look at all the photos (defects, tags, etc).\nif you have doubts please don't buy.\n\nDon't worry about customs tax or fees. We always declare as \"GIFT\" and put the value item \$ 10 - 40 \$",
+                          const SliderAnimation(
+                            direction: SlideDirection.up,
+                            delay: Duration(milliseconds: 400),
+                            child: Text(
+                              "NO REFUND / NO RETRUN\nPlease carefully check the description and the measurements posted for the item you're interested in Take a look at all the photos (defects, tags, etc).\nif you have doubts please don't buy.\n\nDon't worry about customs tax or fees. We always declare as \"GIFT\" and put the value item \$ 10 - 40 \$",
+                            ),
                           ),
                           const SizedBox(height: 24),
-                          const Text(
-                            "ALL SALES ARE FINAL",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          const SliderAnimation(
+                            direction: SlideDirection.up,
+                            delay: Duration(milliseconds: 600),
+                            child: Text(
+                              "ALL SALES ARE FINAL",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),
@@ -164,25 +179,33 @@ class AboutUs extends StatelessWidget {
                           child: Row(
                             children: [
                               Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: CachedNetworkImage(
-                                    imageUrl: 'https://picsum.photos/400/300?1', // Placeholder
-                                    fit: BoxFit.cover,
-                                    height: double.infinity,
-                                    width: double.infinity,
+                                child: SliderAnimation(
+                                  direction: SlideDirection.up,
+                                  delay: const Duration(milliseconds: 800),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: CachedNetworkImage(
+                                      imageUrl: 'https://picsum.photos/400/300?1', // Placeholder
+                                      fit: BoxFit.cover,
+                                      height: double.infinity,
+                                      width: double.infinity,
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: CachedNetworkImage(
-                                    imageUrl: 'https://picsum.photos/400/300?2', // Placeholder
-                                    fit: BoxFit.cover,
-                                    height: double.infinity,
-                                    width: double.infinity,
+                                child: SliderAnimation(
+                                  direction: SlideDirection.up,
+                                  delay: const Duration(milliseconds: 1000),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: CachedNetworkImage(
+                                      imageUrl: 'https://picsum.photos/400/300?2', // Placeholder
+                                      fit: BoxFit.cover,
+                                      height: double.infinity,
+                                      width: double.infinity,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -192,24 +215,28 @@ class AboutUs extends StatelessWidget {
                       ],
                     );
 
-                    Widget buildImage(String url) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(16.0),
-                        child: CachedNetworkImage(
-                          imageUrl: url,
-                          fit: BoxFit.cover,
-                          height: double.infinity,
-                          width: double.infinity,
+                    Widget buildImage(String url, int delayMs) {
+                      return SliderAnimation(
+                        direction: SlideDirection.up,
+                        delay: Duration(milliseconds: delayMs),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16.0),
+                          child: CachedNetworkImage(
+                            imageUrl: url,
+                            fit: BoxFit.cover,
+                            height: double.infinity,
+                            width: double.infinity,
+                          ),
                         ),
                       );
                     }
 
-                    Widget buildRightRow(String url1, String url2) {
+                    Widget buildRightRow(String url1, String url2, int baseDelay) {
                       return Row(
                         children: [
-                          Expanded(child: buildImage(url1)),
+                          Expanded(child: buildImage(url1, baseDelay)),
                           const SizedBox(width: 16),
-                          Expanded(child: buildImage(url2)),
+                          Expanded(child: buildImage(url2, baseDelay + 200)),
                         ],
                       );
                     }
@@ -222,6 +249,7 @@ class AboutUs extends StatelessWidget {
                             child: buildRightRow(
                               'https://picsum.photos/400/600?3',
                               'https://picsum.photos/400/600?4',
+                              200
                             ),
                           )
                         else
@@ -229,6 +257,7 @@ class AboutUs extends StatelessWidget {
                             child: buildRightRow(
                               'https://picsum.photos/400/600?3',
                               'https://picsum.photos/400/600?4',
+                              200
                             ),
                           ),
                         const SizedBox(height: 16),
@@ -237,6 +266,7 @@ class AboutUs extends StatelessWidget {
                           child: buildRightRow(
                             'https://picsum.photos/400/300?5',
                             'https://picsum.photos/400/300?6',
+                            600
                           ),
                         ),
                       ],

@@ -4,6 +4,7 @@ import 'package:module_admin/domain/entities/update_product_input.dart';
 import 'package:module_admin/domain/usecases/update_product_usecase.dart';
 import 'package:module_core/shared_domain/shared_entities/product.dart';
 import 'package:module_core/shared_domain/shared_usecases/get_product_by_id.dart';
+import 'package:module_core/shared_domain/shared_usecases/get_brands_usecase.dart';
 import '../../domain/entities/create_product_input.dart';
 import '../../domain/usecases/create_product_usecase.dart';
 
@@ -15,15 +16,60 @@ class ProductMutationBloc
   final CreateProductUseCase _createProductUseCase;
   final UpdateProductUsecase _updateProductSubmitted;
   final GetProductById _getProductById;
+  final GetBrandsUsecase _getBrandsUsecase;
 
   ProductMutationBloc(
     this._createProductUseCase,
     this._updateProductSubmitted,
     this._getProductById,
+    this._getBrandsUsecase,
   ) : super(ProductMutationInitial()) {
     on<CreateProductSubmitted>(_onCreateProduct);
     on<GetProductByIdEvent>(_onGetProductById);
     on<UpdateProductSubmitted>(_onUpdateProduct);
+    on<LoadProductFormEvent>(_onLoadProductForm);
+  }
+
+  Future<void> _onLoadProductForm(
+    LoadProductFormEvent event,
+    Emitter<ProductMutationState> emit,
+  ) async {
+    emit(ProductMutationLoading());
+
+    final brandsFuture = _getBrandsUsecase();
+    final productFuture =
+        event.productId != null ? _getProductById(event.productId!) : null;
+
+    final brandsResult = await brandsFuture;
+
+    List<Map<String, dynamic>>? brands;
+    String? errorMessage;
+
+    brandsResult.fold(
+      (failure) => errorMessage = failure.message,
+      (data) => brands = data,
+    );
+
+    if (errorMessage != null) {
+      emit(ProductMutationError(errorMessage!));
+      return;
+    }
+
+    Product? product;
+    if (productFuture != null) {
+      final productResult = await productFuture;
+      productResult.fold(
+        (failure) => errorMessage = failure.message,
+        (data) => product = data,
+      );
+    }
+
+    if (errorMessage != null) {
+      emit(ProductMutationError(errorMessage!));
+      return;
+    }
+
+    emit(ProductFormLoaded(product: product, brands: brands!));
   }
 
   Future<void> _onCreateProduct(

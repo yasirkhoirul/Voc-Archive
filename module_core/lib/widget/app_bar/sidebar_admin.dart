@@ -4,58 +4,47 @@ import '../../enums/currency_enum.dart';
 import '../../utils/currency_converter.dart';
 
 class SidebarAdmin extends StatelessWidget {
+  final int currentIndex;
   final Function(int index) onTap;
-  const SidebarAdmin({super.key, required this.onTap});
+  const SidebarAdmin({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      color: Colors.white,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: const Text('Products'),
-            onTap: () {
-              onTap(0);
-            },
+          const Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Text(
+              'Selamat Datang Admin',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.monetization_on),
-            title: const Text('Settings'),
-            onTap: () {
-              onTap(3);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.view_carousel),
-            title: const Text('Sliders'),
-            onTap: () {
-              onTap(1);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.dvr),
-            title: const Text('Displays'),
-            onTap: () {
-              onTap(2);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.branding_watermark),
-            title: const Text('Brands'),
-            onTap: () {
-              onTap(4);
-            },
-          ),
-          const Divider(),
+          const SizedBox(height: 8),
+          _buildMenuItem(1, 'Setting Dashboard'),
+          _buildMenuItem(2, 'Setting Display'), // Sesuaikan index branch jika beda
+          _buildMenuItem(3, 'Setting Harga'),
+          _buildMenuItem(0, 'Setting Produk'),
+          _buildMenuItem(4, 'Brands produk'),
+          _buildMenuItem(5, 'History Transaksi'),
+          // _buildMenuItem(6, 'User'), // Optional
+          const Spacer(),
+          const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
+              horizontal: 24.0,
+              vertical: 16.0,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Currency (IDR/USD)'),
+                const Text('Currency (IDR/USD)', style: TextStyle(fontSize: 12)),
                 BlocBuilder<CurrencyCubit, CurrencyState>(
                   builder: (context, state) {
                     return Switch(
@@ -70,6 +59,25 @@ class SidebarAdmin extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(int index, String title) {
+    final bool isSelected = currentIndex == index;
+    return InkWell(
+      onTap: () => onTap(index),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 24.0),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? Colors.black : Colors.grey.shade700,
+          ),
+        ),
       ),
     );
   }

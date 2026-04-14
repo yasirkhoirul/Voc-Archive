@@ -1,4 +1,4 @@
-import 'package:json_annotation/json_annotation.dart';
+﻿import 'package:json_annotation/json_annotation.dart';
 import '../../shared_domain/shared_entities/order_history.dart';
 import 'timestamp_converter.dart';
 

@@ -20,6 +20,7 @@ enum RouteName {
   adminproductssetting("/adminproducts/:id"),
   adminsliders("/adminsliders"),
   admindisplays("/admindisplays"),
+  adminhistory("/adminhistory"),
   adminbrands("/adminbrands");
 
   const RouteName(this.path);
