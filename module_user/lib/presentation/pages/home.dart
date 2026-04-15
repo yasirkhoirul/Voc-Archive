@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:module_core/module_core.dart'; // Memanggil SliderData & CachedNetworkImage dari module_core
 import 'package:module_core/widget/animation/slider_animation.dart';
 import 'package:module_core/widget/card/card.dart';
 import 'package:module_core/widget/footer/footer.dart';
@@ -255,12 +254,15 @@ class _SliderItemState extends State<_SliderItem>
       fit: StackFit.expand,
       children: [
         // Loading image dengan CachedNetworkImage
-        CachedNetworkImage(
-          imageUrl: slider.gambar,
+        Image.network(
+          slider.gambar,
           fit: BoxFit.cover,
-          placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator()),
-          errorWidget: (context, url, error) =>
+          cacheWidth: 800, // Sama seperti memCacheWidth
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return const Center(child: CircularProgressIndicator());
+          },
+          errorBuilder: (context, error, stackTrace) =>
               const Center(child: Icon(Icons.error, color: Colors.grey)),
         ),
         Container(

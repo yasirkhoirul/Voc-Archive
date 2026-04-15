@@ -78,6 +78,7 @@ class _MyCardState extends State<MyCard> {
                           aspectRatio: 3 / 4,
                           child: CachedNetworkImage(
                             imageUrl: widget.imageUrl,
+                            memCacheWidth: 800,
                             fit: BoxFit.cover,
                             errorWidget: (context, url, error) =>
                                 const Icon(Icons.error),
