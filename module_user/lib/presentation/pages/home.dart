@@ -241,23 +241,23 @@ class _SliderItem extends StatefulWidget {
   State<_SliderItem> createState() => _SliderItemState();
 }
 
-class _SliderItemState extends State<_SliderItem>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class _SliderItemState extends State<_SliderItem> {
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final slider = widget.slider;
+    
+    // Sesuaikan cacheWidth untuk mobile browser agar tidak boros memori
+    final screenWidth = MediaQuery.of(context).size.width;
+    final int optimizedCacheWidth = screenWidth > 800 ? 800 : (screenWidth * 1.5).toInt();
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Loading image dengan CachedNetworkImage
+        // Menggunakan resolusi optimal untuk mencegah CanvasKit OOM Web (Crash)
         Image.network(
           slider.gambar,
           fit: BoxFit.cover,
-          cacheWidth: 800,
+          cacheWidth: optimizedCacheWidth,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return const Center(child: CircularProgressIndicator());
@@ -295,17 +295,15 @@ class _SliderItemState extends State<_SliderItem>
                   mainAxisSize: MainAxisSize.min,
                   spacing: 10,
                   children: [
-                    RepaintBoundary(
-                      child: SliderAnimation(
-                        direction: SlideDirection.up,
-                        child: Text(
-                          slider.judul,
-                          style: Theme.of(context).textTheme.displayLarge
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
+                    SliderAnimation(
+                      direction: SlideDirection.up,
+                      child: Text(
+                        slider.judul,
+                        style: Theme.of(context).textTheme.displayLarge
+                            ?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                     ),
                     if (slider.deskripsi.isNotEmpty) ...[
