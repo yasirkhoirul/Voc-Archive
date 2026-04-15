@@ -101,124 +101,124 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          BlocBuilder<DisplayCubit, DisplayState>(
-            builder: (context, state) {
-              if (state is DisplayLoading) {
-                return const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              } else if (state is DisplayError) {
-                return SliverToBoxAdapter(
-                  child: Center(child: Text(state.message)),
-                );
-              } else if (state is DisplaySuccess) {
-                final sections = state.displaySections;
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: SliderAnimation(
-                          direction: SlideDirection.up,
-                          delay: const Duration(milliseconds: 500),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Welcome",
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
+          // BlocBuilder<DisplayCubit, DisplayState>(
+          //   builder: (context, state) {
+          //     if (state is DisplayLoading) {
+          //       return const SliverFillRemaining(
+          //         child: Center(child: CircularProgressIndicator()),
+          //       );
+          //     } else if (state is DisplayError) {
+          //       return SliverToBoxAdapter(
+          //         child: Center(child: Text(state.message)),
+          //       );
+          //     } else if (state is DisplaySuccess) {
+          //       final sections = state.displaySections;
+          //       return SliverList(
+          //         delegate: SliverChildBuilderDelegate((context, index) {
+          //           if (index == 0) {
+          //             return Padding(
+          //               padding: const EdgeInsets.symmetric(vertical: 16.0),
+          //               child: SliderAnimation(
+          //                 direction: SlideDirection.up,
+          //                 delay: const Duration(milliseconds: 500),
+          //                 child: Column(
+          //                   mainAxisAlignment: MainAxisAlignment.center,
+          //                   crossAxisAlignment: CrossAxisAlignment.center,
+          //                   children: [
+          //                     Text(
+          //                       "Welcome",
+          //                       style: Theme.of(context).textTheme.titleLarge,
+          //                     ),
 
-                              Text(
-                                "To Our Store",
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
+          //                     Text(
+          //                       "To Our Store",
+          //                       style: Theme.of(context).textTheme.titleMedium,
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //             );
+          //           }
 
-                    final section = sections[index - 1];
-                    // Use a horizontal ListView for each section's products
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: SliderAnimation(
-                              direction: SlideDirection.up,
-                              child: Text(
-                                section.judul,
-                                style: Theme.of(context).textTheme.headlineSmall
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            height: isMobile
-                                ? 380
-                                : 540, // Memberikan tinggi pasti agar performa tetap ringan (lazy-loading)
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: section.products.length,
-                              itemBuilder: (context, pIndex) {
-                                final product = section.products[pIndex];
-                                final String discountPercentageStr =
-                                    product.diskon > 0
-                                    ? '${product.diskon}%'
-                                    : '';
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    left: pIndex == 0 ? 16.0 : 8.0,
-                                    right: pIndex == section.products.length - 1
-                                        ? 16.0
-                                        : 0.0,
-                                  ),
-                                  child: SliderAnimation(
-                                    direction: SlideDirection.right,
-                                    delay: Duration(
-                                      milliseconds:
-                                          500 * (pIndex > 5 ? 0 : pIndex),
-                                    ), // Cascade effect untuk 5 item pertama
-                                    child: MyCard(
-                                      isMobile: isMobile,
-                                      imageUrl: product.gambar.isNotEmpty
-                                          ? product.gambar.first
-                                          : 'https://picsum.photos/400/600',
-                                      brand: product.namaBrand.isNotEmpty
-                                          ? product.namaBrand
-                                          : 'Brand Dummy',
-                                      title: product.deskripsi.isNotEmpty
-                                          ? product.deskripsi
-                                          : 'No description',
-                                      price:
-                                          '\$ ${product.harga.toStringAsFixed(0)}',
-                                      discountPrice: product.hargaDiskon > 0
-                                          ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
-                                          : '',
-                                      discountPercentage: discountPercentageStr,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }, childCount: sections.length + 1),
-                );
-              }
-              return const SliverToBoxAdapter(child: SizedBox.shrink());
-            },
-          ),
+          //           final section = sections[index - 1];
+          //           // Use a horizontal ListView for each section's products
+          //           return Padding(
+          //             padding: const EdgeInsets.symmetric(vertical: 16.0),
+          //             child: Column(
+          //               crossAxisAlignment: CrossAxisAlignment.start,
+          //               children: [
+          //                 Padding(
+          //                   padding: const EdgeInsets.symmetric(
+          //                     horizontal: 16.0,
+          //                   ),
+          //                   child: SliderAnimation(
+          //                     direction: SlideDirection.up,
+          //                     child: Text(
+          //                       section.judul,
+          //                       style: Theme.of(context).textTheme.headlineSmall
+          //                           ?.copyWith(fontWeight: FontWeight.bold),
+          //                     ),
+          //                   ),
+          //                 ),
+          //                 const SizedBox(height: 16),
+          //                 SizedBox(
+          //                   height: isMobile
+          //                       ? 380
+          //                       : 540, // Memberikan tinggi pasti agar performa tetap ringan (lazy-loading)
+          //                   child: ListView.builder(
+          //                     scrollDirection: Axis.horizontal,
+          //                     itemCount: section.products.length,
+          //                     itemBuilder: (context, pIndex) {
+          //                       final product = section.products[pIndex];
+          //                       final String discountPercentageStr =
+          //                           product.diskon > 0
+          //                           ? '${product.diskon}%'
+          //                           : '';
+          //                       return Padding(
+          //                         padding: EdgeInsets.only(
+          //                           left: pIndex == 0 ? 16.0 : 8.0,
+          //                           right: pIndex == section.products.length - 1
+          //                               ? 16.0
+          //                               : 0.0,
+          //                         ),
+          //                         child: SliderAnimation(
+          //                           direction: SlideDirection.right,
+          //                           delay: Duration(
+          //                             milliseconds:
+          //                                 500 * (pIndex > 5 ? 0 : pIndex),
+          //                           ), // Cascade effect untuk 5 item pertama
+          //                           child: MyCard(
+          //                             isMobile: isMobile,
+          //                             imageUrl: product.gambar.isNotEmpty
+          //                                 ? product.gambar.first
+          //                                 : 'https://picsum.photos/400/600',
+          //                             brand: product.namaBrand.isNotEmpty
+          //                                 ? product.namaBrand
+          //                                 : 'Brand Dummy',
+          //                             title: product.deskripsi.isNotEmpty
+          //                                 ? product.deskripsi
+          //                                 : 'No description',
+          //                             price:
+          //                                 '\$ ${product.harga.toStringAsFixed(0)}',
+          //                             discountPrice: product.hargaDiskon > 0
+          //                                 ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
+          //                                 : '',
+          //                             discountPercentage: discountPercentageStr,
+          //                           ),
+          //                         ),
+          //                       );
+          //                     },
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //           );
+          //         }, childCount: sections.length + 1),
+          //       );
+          //     }
+          //     return const SliverToBoxAdapter(child: SizedBox.shrink());
+          //   },
+          // ),
           const SliverToBoxAdapter(child: CustomFooter()),
         ],
       ),
