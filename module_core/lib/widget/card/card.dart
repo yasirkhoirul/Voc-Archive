@@ -82,7 +82,7 @@ class _MyCardState extends State<MyCard> {
                           aspectRatio: 3 / 4,
                           child: Image.network(
                             widget.imageUrl,
-                            cacheWidth: 600,
+                            cacheWidth: 200,
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;

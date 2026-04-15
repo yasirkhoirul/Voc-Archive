@@ -257,7 +257,7 @@ class _SliderItemState extends State<_SliderItem>
         Image.network(
           slider.gambar,
           fit: BoxFit.cover,
-          cacheWidth: 800, // Sama seperti memCacheWidth
+          cacheWidth: 800,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return const Center(child: CircularProgressIndicator());
@@ -295,15 +295,17 @@ class _SliderItemState extends State<_SliderItem>
                   mainAxisSize: MainAxisSize.min,
                   spacing: 10,
                   children: [
-                    SliderAnimation(
-                      direction: SlideDirection.up,
-                      child: Text(
-                        slider.judul,
-                        style: Theme.of(context).textTheme.displayLarge
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    RepaintBoundary(
+                      child: SliderAnimation(
+                        direction: SlideDirection.up,
+                        child: Text(
+                          slider.judul,
+                          style: Theme.of(context).textTheme.displayLarge
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
                       ),
                     ),
                     if (slider.deskripsi.isNotEmpty) ...[
