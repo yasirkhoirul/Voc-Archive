@@ -49,7 +49,11 @@ class _MyCardState extends State<MyCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        transform: Matrix4.translationValues(0.0, _isHovering ? -8.0 : 0.0, 0.0),
+        transform: Matrix4.translationValues(
+          0.0,
+          _isHovering ? -8.0 : 0.0,
+          0.0,
+        ),
         child: SizedBox(
           width: widget.isMobile ? 200 : 300,
           height: widget.isMobile ? 400 : 540,
@@ -76,14 +80,20 @@ class _MyCardState extends State<MyCard> {
                         borderRadius: BorderRadius.circular(15),
                         child: AspectRatio(
                           aspectRatio: 3 / 4,
-                          child: CachedNetworkImage(
-                            imageUrl: widget.imageUrl,
-                            memCacheWidth: 800,
+                          child: Image.network(
+                            widget.imageUrl,
+                            cacheWidth: 600,
                             fit: BoxFit.cover,
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                            placeholder: (context, url) =>
-                                const Center(child: CircularProgressIndicator()),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Center(
+                                  child: Icon(Icons.error, color: Colors.grey),
+                                ),
                           ),
                         ),
                       ),
@@ -128,10 +138,13 @@ class _MyCardState extends State<MyCard> {
                                 children: [
                                   Text(
                                     widget.price,
-                                    style: Theme.of(context).textTheme.labelLarge
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
                                         ?.copyWith(
                                           color: Colors.grey,
-                                          decoration: TextDecoration.lineThrough,
+                                          decoration:
+                                              TextDecoration.lineThrough,
                                         ),
                                   ),
                                   const Icon(
@@ -141,7 +154,9 @@ class _MyCardState extends State<MyCard> {
                                   ),
                                   Text(
                                     widget.discountPrice!,
-                                    style: Theme.of(context).textTheme.labelLarge
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
                                         ?.copyWith(
                                           color: Colors.red,
                                           fontWeight: FontWeight.bold,
