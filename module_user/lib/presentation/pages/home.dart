@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:module_core/widget/animation/slider_animation.dart';
 import 'package:module_core/widget/card/card.dart';
 import 'package:module_core/widget/footer/footer.dart';
 import 'package:module_user/domain/entities/slider.dart';
+import 'package:module_core/utils/currency_converter.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/display_cubit.dart';
 
@@ -75,8 +77,8 @@ class _HomeState extends State<Home> {
                     _sliderCount = sliders.length;
 
                     if (sliders.isEmpty) {
-                      return const Center(
-                        child: Text('Tidak ada slider terbaru'),
+                      return Center(
+                        child: Text(context.tr('Tidak ada slider terbaru', 'No recent sliders')),
                       );
                     }
 
@@ -126,11 +128,11 @@ class _HomeState extends State<Home> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                "Welcome",
+                                context.tr('Selamat Datang', 'Welcome'),
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               Text(
-                                "To Our Store",
+                                context.tr('Di Toko Kami', 'To Our Store'),
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
@@ -182,23 +184,28 @@ class _HomeState extends State<Home> {
                                         : 0.0,
                                   ),
                                   // Menghapus SliderAnimation di sini karena membebani performa memori saat dirender berulang di dalam ListView
-                                  child: MyCard(
-                                    isMobile: isMobile,
-                                    imageUrl: product.gambar.isNotEmpty
-                                        ? product.gambar.first
-                                        : 'https://picsum.photos/400/600',
-                                    brand: product.namaBrand.isNotEmpty
-                                        ? product.namaBrand
-                                        : 'Brand Dummy',
-                                    title: product.deskripsi.isNotEmpty
-                                        ? product.deskripsi
-                                        : 'No description',
-                                    price:
-                                        '\$ ${product.harga.toStringAsFixed(0)}',
-                                    discountPrice: product.hargaDiskon > 0
-                                        ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
-                                        : '',
-                                    discountPercentage: discountPercentageStr,
+                                  child: InkWell(
+                                    onTap: () {
+                                      context.goNamed(
+                                        'productDetail',
+                                        pathParameters: {'id': product.uid},
+                                      );
+                                    },
+                                    child: MyCard(
+                                      isMobile: isMobile,
+                                      imageUrl: product.gambar.isNotEmpty
+                                          ? product.gambar.first
+                                          : 'https://picsum.photos/400/600',
+                                      brand: product.namaBrand.isNotEmpty
+                                          ? product.namaBrand
+                                          : 'Brand Dummy',
+                                      title: product.deskripsi.isNotEmpty
+                                          ? product.deskripsi
+                                          : 'No description',
+                                      price: product.harga,
+                                      discountPrice: product.hargaDiskon,
+                                      discountPercentage: discountPercentageStr,
+                                    ),
                                   ),
                                 );
                               },

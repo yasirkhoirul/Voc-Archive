@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:module_core/shared_domain/shared_usecases/get_brands_usecase.dart';
 import 'package:get_it/get_it.dart';
+import 'package:module_core/enums/currency_enum.dart';
+import 'package:module_core/utils/currency_converter.dart';
 
 typedef FilterCallback = void Function(List<String> types, double? minPrice, double? maxPrice);
 typedef BrandSelectionCallback = void Function(String brand, bool isSelected);
@@ -62,7 +65,7 @@ class _MobileFilterContentState extends State<MobileFilterContent> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(context.tr('Tipe', 'Type'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 12),
             FutureBuilder(
               future: _brandsFuture,
@@ -77,7 +80,7 @@ class _MobileFilterContentState extends State<MobileFilterContent> {
                     runSpacing: 8,
                     children: [
                       _BrandFilterButton(
-                        label: 'Show All',
+                        label: context.tr('Tampilkan Semua', 'Show All'),
                         isSelected: _selectedTypes.isEmpty,
                         onPressed: _showAll,
                       ),
@@ -92,7 +95,26 @@ class _MobileFilterContentState extends State<MobileFilterContent> {
                     ],
                   );
                 }
-                return const Text('Failed to load types');
+                return Text(context.tr('Gagal memuat tipe', 'Failed to load types'));
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        const Divider(),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            BlocBuilder<CurrencyCubit, CurrencyState>(
+              builder: (context, state) {
+                return Switch(
+                  value: state.currencyType == CurrencyType.usd,
+                  onChanged: (value) {
+                    context.read<CurrencyCubit>().toggleCurrency();
+                  },
+                );
               },
             ),
           ],
@@ -184,13 +206,13 @@ class _DesktopFilterState extends State<DesktopFilter> {
     return FutureBuilder(
       future: _brandsFuture,
       builder: (context, snapshot) {
-        List<Widget> brandWidgets = [const Text('Loading types...')];
+        List<Widget> brandWidgets = [Text(context.tr('Memuat tipe...', 'Loading types...'))];
         if (snapshot.hasData && snapshot.data!.isRight()) {
           final brandsData = snapshot.data!.getOrElse(() => <Map<String, dynamic>>[]);
           final brands = (brandsData as List?)?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
           brandWidgets = [
             _BrandFilterButton(
-              label: 'Show All',
+              label: context.tr('Tampilkan Semua', 'Show All'),
               isSelected: _selectedTypes.isEmpty,
               onPressed: _showAll,
             ),
@@ -212,7 +234,7 @@ class _DesktopFilterState extends State<DesktopFilter> {
         }
 
         final filterItems = [
-          const Text('Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(context.tr('Tipe', 'Type'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 12),
           ...brandWidgets,
         ];
@@ -236,7 +258,7 @@ class _DesktopFilterState extends State<DesktopFilter> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Filter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text(context.tr('Saring', 'Filter'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                         IconButton(
                           icon: const Icon(Icons.arrow_back_ios, size: 16),
                           onPressed: widget.onToggle,
@@ -253,10 +275,25 @@ class _DesktopFilterState extends State<DesktopFilter> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(24.0),
-                color: Colors.grey[400],
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                color: Colors.grey[200],
                 width: double.infinity,
-                child: const Text('USD \$ | United State', textAlign: TextAlign.center),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    BlocBuilder<CurrencyCubit, CurrencyState>(
+                      builder: (context, state) {
+                        return Switch(
+                          value: state.currencyType == CurrencyType.usd,
+                          onChanged: (value) {
+                            context.read<CurrencyCubit>().toggleCurrency();
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

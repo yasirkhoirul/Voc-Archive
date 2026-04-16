@@ -1,6 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../enums/currency_enum.dart';
+import '../shared_domain/shared_usecases/get_exchange_rate_usecase.dart';
+
+extension LocalizationExtension on BuildContext {
+  bool get isIdr => watch<CurrencyCubit>().state.currencyType == CurrencyType.idr;
+  String tr(String idr, String eng) => isIdr ? idr : eng;
+
+  bool get isIdrRead => read<CurrencyCubit>().state.currencyType == CurrencyType.idr;
+  String trRead(String idr, String eng) => isIdrRead ? idr : eng;
+}
 
 class CurrencyState {
   final CurrencyType currencyType;
@@ -23,7 +33,25 @@ class CurrencyState {
 }
 
 class CurrencyCubit extends Cubit<CurrencyState> {
-  CurrencyCubit() : super(const CurrencyState());
+  final GetExchangeRateUsecase getExchangeRateUsecase;
+
+  CurrencyCubit({required this.getExchangeRateUsecase}) : super(const CurrencyState()) {
+    _fetchExchangeRate();
+  }
+
+  Future<void> _fetchExchangeRate() async {
+    final result = await getExchangeRateUsecase();
+    result.fold(
+      (failure) {
+        // Biarkan 0 atau tangani error sesuai kebutuhan
+      },
+      (rate) {
+        if (rate != null) {
+          setExchangeRate(rate);
+        }
+      },
+    );
+  }
 
   /// Set the exchange rate from Firestore (called on app startup).
   void setExchangeRate(double rate) {

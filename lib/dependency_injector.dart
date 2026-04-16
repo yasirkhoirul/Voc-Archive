@@ -150,7 +150,7 @@ Future<void> dependencyInitializer() async {
   getIt.registerLazySingleton(() => GetHistoryByUserIdUseCase(getIt()));
 
   // Blocs
-  getIt.registerLazySingleton<CurrencyCubit>(() => CurrencyCubit());
+  getIt.registerLazySingleton<CurrencyCubit>(() => CurrencyCubit( getExchangeRateUsecase: getIt()));
   getIt.registerFactory<SettingsBloc>(() => SettingsBloc(getIt(), getIt(), getIt(), getIt(), getIt(), getIt()));
   getIt.registerLazySingleton<AuthBloc>(() => AuthBloc(getIt(), getIt(), getIt(), getIt()));
   getIt.registerFactory<ProductMutationBloc>(() => ProductMutationBloc(getIt(),getIt(), getIt(),getIt()));

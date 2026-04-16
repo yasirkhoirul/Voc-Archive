@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:module_core/utils/currency_converter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:module_core/utils/search_notifier.dart';
 import 'package:module_core/widget/animation/slider_animation.dart';
@@ -139,7 +140,7 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
     } else if (state is CatalogLoaded) {
       final products = state.products;
       if (products.isEmpty) {
-        return const Center(child: Text("No products found"));
+        return Center(child: Text(context.tr("Tidak ada produk", "No products found")));
       }
       return GridView.builder(
         shrinkWrap: true,
@@ -174,10 +175,8 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
                 title: product.deskripsi.isNotEmpty
                     ? product.deskripsi
                     : 'No description',
-                price: '\$ ${product.harga.toStringAsFixed(0)}',
-                discountPrice: product.hargaDiskon > 0
-                    ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
-                    : '',
+                price: product.harga,
+                discountPrice: product.hargaDiskon,
                 discountPercentage: product.diskon > 0
                     ? '${product.diskon}%'
                     : '',
@@ -187,7 +186,7 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
         },
       );
     }
-    return const Center(child: Text("Initializing..."));
+    return Center(child: Text(context.tr("Memuat...", "Initializing...")));
   }
 
   Widget _buildMobileGrid(CatalogState state) {
@@ -200,8 +199,8 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
     } else if (state is CatalogLoaded) {
       final products = state.products;
       if (products.isEmpty) {
-        return const SliverFillRemaining(
-          child: Center(child: Text("No products found")),
+        return SliverFillRemaining(
+          child: Center(child: Text(context.tr("Tidak ada produk", "No products found"))),
         );
       }
       return SliverPadding(
@@ -236,10 +235,8 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
                   title: product.deskripsi.isNotEmpty
                       ? product.deskripsi
                       : 'No description',
-                  price: '\$ ${product.harga.toStringAsFixed(0)}',
-                  discountPrice: product.hargaDiskon > 0
-                      ? '\$ ${product.hargaDiskon.toStringAsFixed(0)}'
-                      : '',
+                  price: product.harga,
+                  discountPrice: product.hargaDiskon,
                   discountPercentage: product.diskon > 0
                       ? '${product.diskon}%'
                       : '',
@@ -250,8 +247,8 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
         ),
       );
     }
-    return const SliverFillRemaining(
-      child: Center(child: Text("Initializing...")),
+    return SliverFillRemaining(
+      child: Center(child: Text(context.tr("Memuat...", "Initializing..."))),
     );
   }
 

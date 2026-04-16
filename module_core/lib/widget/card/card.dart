@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:module_core/module_core.dart';
+import '../../utils/currency_converter.dart';
 
 class MyCard extends StatefulWidget {
   final bool isMobile;
   final String imageUrl;
   final String brand;
   final String title;
-  final String price;
-  final String? discountPrice;
+  final num price;
+  final num? discountPrice;
   final String? discountPercentage;
   const MyCard({
     super.key,
@@ -34,7 +36,7 @@ class _MyCardState extends State<MyCard> {
       return false;
     }
     if (widget.discountPrice == null ||
-        widget.discountPrice!.isEmpty ||
+        widget.discountPrice! <= 0 ||
         widget.price == widget.discountPrice) {
       return false;
     }
@@ -132,47 +134,58 @@ class _MyCardState extends State<MyCard> {
                                 ),
                               ),
                             ),
-                            if (_hasDiscount)
-                              Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  Text(
-                                    widget.price,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelLarge
+                            // Render formatted price based on CurrencyCubit
+                            BlocBuilder<CurrencyCubit, CurrencyState>(
+                              builder: (context, currencyState) {
+                                final formattedPrice = context.read<CurrencyCubit>().format(widget.price);
+                                final formattedDiscount = widget.discountPrice != null 
+                                    ? context.read<CurrencyCubit>().format(widget.discountPrice!)
+                                    : null;
+
+                                if (_hasDiscount) {
+                                  return Wrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text(
+                                        formattedPrice,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                              color: Colors.grey,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                            ),
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_right_alt,
+                                        color: Colors.grey,
+                                        size: 18,
+                                      ),
+                                      Text(
+                                        formattedDiscount!,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Text(
+                                    formattedPrice,
+                                    style: Theme.of(context).textTheme.labelLarge
                                         ?.copyWith(
-                                          color: Colors.grey,
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                        ),
-                                  ),
-                                  const Icon(
-                                    Icons.arrow_right_alt,
-                                    color: Colors.grey,
-                                    size: 18,
-                                  ),
-                                  Text(
-                                    widget.discountPrice!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelLarge
-                                        ?.copyWith(
-                                          color: Colors.red,
+                                          color: Colors.black,
                                           fontWeight: FontWeight.bold,
                                         ),
-                                  ),
-                                ],
-                              )
-                            else
-                              Text(
-                                widget.price,
-                                style: Theme.of(context).textTheme.labelLarge
-                                    ?.copyWith(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
+                                  );
+                                }
+                              },
+                            ),
                           ],
                         ),
                       ),

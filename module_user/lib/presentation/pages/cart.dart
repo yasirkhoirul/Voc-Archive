@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:module_core/utils/currency_converter.dart';
 import 'package:module_user/presentation/bloc/cart_bloc.dart';
 import 'package:module_user/presentation/widget/card_cart.dart';
 
@@ -17,7 +18,7 @@ class CartPage extends StatelessWidget {
           ? AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
-              title: const Text('Shopping Cart', style: TextStyle(color: Colors.black)),
+              title: Text(context.tr('Keranjang Belanja', 'Shopping Cart'), style: TextStyle(color: Colors.black)),
               iconTheme: const IconThemeData(color: Colors.black),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -40,7 +41,7 @@ class CartPage extends StatelessWidget {
                 children: [
                   const Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  const Text('Your cart is empty', style: TextStyle(fontSize: 18)),
+                  Text(context.tr('Keranjang Anda kosong', 'Your cart is empty'), style: TextStyle(fontSize: 18)),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.goNamed('catalog'),
@@ -48,7 +49,7 @@ class CartPage extends StatelessWidget {
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Start Shopping'),
+                    child: Text(context.tr('Mulai Belanja', 'Start Shopping')),
                   ),
                 ],
               ),
@@ -150,19 +151,23 @@ class CartPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Subtotal', style: TextStyle(fontSize: 14)),
-              Text(
-                'Rp ${state.totalPrice.toStringAsFixed(0)}',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              Text(context.tr('Subtotal', 'Subtotal'), style: TextStyle(fontSize: 14)),
+              BlocBuilder<CurrencyCubit, CurrencyState>(
+                builder: (context, currencyState) {
+                  return Text(
+                    context.read<CurrencyCubit>().format(state.totalPrice),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  );
+                },
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Estimasi Pengiriman', style: TextStyle(fontSize: 14)),
-              Text(
+              Text(context.tr('Estimasi Pengiriman', 'Estimated Shipping'), style: const TextStyle(fontSize: 14)),
+              const Text(
                 'Gratis',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
@@ -174,10 +179,14 @@ class CartPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              Text(
-                'Rp ${state.totalPrice.toStringAsFixed(0)}',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              Text(context.tr('Total', 'Total'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              BlocBuilder<CurrencyCubit, CurrencyState>(
+                builder: (context, currencyState) {
+                  return Text(
+                    context.read<CurrencyCubit>().format(state.totalPrice),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  );
+                },
               ),
             ],
           ),
@@ -248,13 +257,17 @@ class CartPage extends StatelessWidget {
                   'Total Price:',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  'Rp ${state.totalPrice.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
-                  ),
+                BlocBuilder<CurrencyCubit, CurrencyState>(
+                  builder: (context, currencyState) {
+                    return Text(
+                      context.read<CurrencyCubit>().format(state.totalPrice),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -271,7 +284,7 @@ class CartPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text('Lanjut Checkout'),
+              child: Text(context.tr('Lanjut Checkout', 'Proceed to Checkout')),
             ),
           ],
         ),
@@ -279,3 +292,7 @@ class CartPage extends StatelessWidget {
     );
   }
 }
+
+
+
+

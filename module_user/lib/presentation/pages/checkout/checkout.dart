@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:module_core/utils/currency_converter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
@@ -201,7 +202,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Back', style: TextStyle(fontSize: 16)),
+                child: Text(context.tr('Kembali', 'Back'), style: TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(width: 16),
@@ -212,8 +213,8 @@ class _CheckoutViewState extends State<CheckoutView> {
                       _nameCtrl.text.trim().isEmpty || 
                       _phoneCtrl.text.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Harap lengkapi semua Personal Data.'),
+                       SnackBar(
+                        content: Text(context.trRead('Harap lengkapi semua Personal Data.', 'Please complete all Personal Data.')),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -229,7 +230,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Next', style: TextStyle(fontSize: 16)),
+                child: Text(context.tr('Selanjutnya', 'Next'), style: const TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -268,7 +269,7 @@ class _CheckoutViewState extends State<CheckoutView> {
               return DropdownMenuItem<Map<String, dynamic>>(
                 value: rate,
                 child: Text(
-                  '${rate['nama_area'] ?? ''} - \$ ${rate['harga'] ?? 0} ',
+                  '${rate['nama_area'] ?? ''} - ${context.read<CurrencyCubit>().format(rate['harga'] ?? 0)} ',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               );
@@ -307,7 +308,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Back', style: TextStyle(fontSize: 16)),
+                child: Text(context.tr('Kembali', 'Back'), style: TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(width: 16),
@@ -319,8 +320,8 @@ class _CheckoutViewState extends State<CheckoutView> {
                       _addressCtrl.text.trim().isEmpty ||
                       context.read<CheckoutBloc>().state.selectedShippingRate == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select shipping and fill in all data.'),
+                      SnackBar(
+                        content: Text(context.trRead('Silakan pilih pengiriman dan isi semua data.', 'Please select shipping and fill in all data.')),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -336,7 +337,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Next', style: TextStyle(fontSize: 16)),
+                child: Text(context.tr('Selanjutnya', 'Next'), style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -354,7 +355,7 @@ class _CheckoutViewState extends State<CheckoutView> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 24),
-        const Text('Detail Item', style: TextStyle(fontSize: 14)),
+        Text(context.tr('Detail Item', 'Detail Item'), style: TextStyle(fontSize: 14)),
         const SizedBox(height: 8),
         BlocBuilder<CartBloc, CartState>(
           builder: (context, cartState) {
@@ -375,7 +376,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                           ),
                         ),
                         Text(
-                          '\$ ${(item.price * item.quantity).toStringAsFixed(2)}',
+                            context.read<CurrencyCubit>().format(item.price * item.quantity),
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -388,7 +389,7 @@ class _CheckoutViewState extends State<CheckoutView> {
         ),
         const Divider(color: Colors.black),
         const SizedBox(height: 16),
-        const Text('Shipping', style: TextStyle(fontSize: 14)),
+        Text(context.tr('Pengiriman', 'Shipping'), style: TextStyle(fontSize: 14)),
         const SizedBox(height: 8),
         BlocBuilder<CheckoutBloc, CheckoutState>(
           builder: (context, state) {
@@ -421,7 +422,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '\$ ${cost.toStringAsFixed(0)}',
+                      context.read<CurrencyCubit>().format(cost),
                       style: const TextStyle(fontSize: 14),
                     ),
                   ],
@@ -433,7 +434,7 @@ class _CheckoutViewState extends State<CheckoutView> {
           },
         ),
         const SizedBox(height: 16),
-        const Text('Total', style: TextStyle(fontSize: 14)),
+        Text(context.tr('Total', 'Total'), style: TextStyle(fontSize: 14)),
         const SizedBox(height: 8),
         BlocBuilder<CheckoutBloc, CheckoutState>(
           builder: (context, state) {
@@ -441,11 +442,15 @@ class _CheckoutViewState extends State<CheckoutView> {
             final shippingCost = (rate != null ? rate['harga'] ?? 0 : 0) as num;
             final cartTotal = context.read<CartBloc>().state.totalPrice;
             final total = cartTotal + shippingCost;
+            
+            final exchangeRate = context.read<CurrencyCubit>().exchangeRate;
+            final totalIdr = total * exchangeRate;
+
             return Column(
               children: [
                 Center(
                   child: Text(
-                    '\$ ${total.toStringAsFixed(2)} USD',
+                    '\$ ${total.toStringAsFixed(2)} USD / Rp ${totalIdr.toStringAsFixed(0)}',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -515,8 +520,8 @@ class _CheckoutViewState extends State<CheckoutView> {
                 !state.isProcessingPayment &&
                 state.paymentStatus == 'pending') {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Payment proof uploaded! Waiting for verification.'),
+                SnackBar(
+                  content: Text(context.trRead('Bukti pembayaran diunggah! Menunggu verifikasi.', 'Payment proof uploaded! Waiting for verification.')),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -543,7 +548,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Back', style: TextStyle(fontSize: 16)),
+                    child: Text(context.tr('Kembali', 'Back'), style: TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -569,7 +574,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text('Pay', style: TextStyle(fontSize: 16)),
+                        : Text(context.tr('Bayar', 'Pay'), style: TextStyle(fontSize: 16)),
                   ),
                 ),
               ],
@@ -601,7 +606,7 @@ class _CheckoutViewState extends State<CheckoutView> {
       // Midtrans payment
       if (checkoutState.selectedShippingRate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pilih shipping area terlebih dahulu')),
+          SnackBar(content: Text(context.trRead('Pilih shipping area terlebih dahulu', 'Please select shipping area first'))),
         );
         return;
       }
@@ -609,7 +614,7 @@ class _CheckoutViewState extends State<CheckoutView> {
       final cartItems = context.read<CartBloc>().state.items;
       if (cartItems.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cart kosong')),
+          SnackBar(content: Text(context.trRead('Cart kosong', 'Cart is empty'))),
         );
         return;
       }
@@ -640,7 +645,7 @@ class _CheckoutViewState extends State<CheckoutView> {
     } else {
       if (checkoutState.selectedShippingRate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pilih shipping area terlebih dahulu')),
+          SnackBar(content: Text(context.trRead('Pilih shipping area terlebih dahulu', 'Please select shipping area first'))),
         );
         return;
       }
@@ -660,7 +665,7 @@ class _CheckoutViewState extends State<CheckoutView> {
           builder: (context, setState) {
             return AlertDialog(
               backgroundColor: Colors.black,
-              title: const Text('PayPal Payment', style: TextStyle(color: Colors.white)),
+              title: Text(context.tr('Pembayaran PayPal', 'PayPal Payment'), style: TextStyle(color: Colors.white)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -683,7 +688,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.upload_file),
-                      label: const Text('Upload Payment Proof'),
+                      label: Text(context.tr('Unggah Bukti Bayar', 'Upload Payment Proof')),
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[200], foregroundColor: Colors.black),
                       onPressed: () async {
                         final picker = ImagePicker();
@@ -702,13 +707,13 @@ class _CheckoutViewState extends State<CheckoutView> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                  child: Text(context.tr('Batal', 'Cancel'), style: TextStyle(color: Colors.white70)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
                   onPressed: () {
                     if (selectedImageBytes == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please upload the payment proof image.')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.trRead('Harap unggah gambar bukti pembayaran.', 'Please upload the payment proof image.'))));
                       return;
                     }
                     Navigator.pop(dialogContext); // close dialog
@@ -733,7 +738,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                       ),
                     );
                   },
-                  child: const Text('Confirm Payment'),
+                  child: Text(context.tr('Konfirmasi Pembayaran', 'Confirm Payment')),
                 ),
               ],
             );
@@ -743,4 +748,9 @@ class _CheckoutViewState extends State<CheckoutView> {
     );
   }
 }
+
+
+
+
+
 

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:module_core/utils/currency_converter.dart';
 import 'package:module_core/shared_domain/shared_entities/product.dart';
 import 'package:module_core/widget/card/card.dart';
 import 'package:module_core/widget/footer/footer.dart';
@@ -38,8 +39,7 @@ class _DetailProductState extends State<DetailProduct> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Detail Product',
+        title: Text(context.tr('Detail Produk', 'Detail Product'),
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         centerTitle: true,
@@ -141,12 +141,16 @@ class _DetailProductState extends State<DetailProduct> {
                   style: textTheme.displayLarge,
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  '\$${product.harga.toStringAsFixed(2)} USD',
-                  style: textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                BlocBuilder<CurrencyCubit, CurrencyState>(
+                  builder: (context, currencyState) {
+                    return Text(
+                      context.read<CurrencyCubit>().format(product.harga),
+                      style: textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -203,8 +207,7 @@ class _DetailProductState extends State<DetailProduct> {
                         );
                       }
                     },
-                    child: const Text(
-                      'Add Cart',
+                    child: Text(context.tr('Tambah ke Keranjang', 'Add Cart'),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -295,12 +298,16 @@ class _DetailProductState extends State<DetailProduct> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Text(
-            '\$${product.harga.toStringAsFixed(2)} USD',
-            style: textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+          child: BlocBuilder<CurrencyCubit, CurrencyState>(
+            builder: (context, currencyState) {
+              return Text(
+                context.read<CurrencyCubit>().format(product.harga),
+                style: textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              );
+            },
           ),
         ),
         ElevatedButton(
@@ -340,8 +347,7 @@ class _DetailProductState extends State<DetailProduct> {
               );
             }
           },
-          child: const Text(
-            'Add Cart',
+          child: Text(context.tr('Tambah ke Keranjang', 'Add Cart'),
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -353,7 +359,7 @@ class _DetailProductState extends State<DetailProduct> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Deskripsi', style: textTheme.titleLarge),
+        Text(context.tr('Deskripsi', 'Description'), style: textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(
           product.deskripsi.isNotEmpty
@@ -362,7 +368,7 @@ class _DetailProductState extends State<DetailProduct> {
           style: textTheme.bodySmall,
         ),
         const SizedBox(height: 24),
-        Text('Detail', style: textTheme.titleLarge),
+        Text(context.tr('Detail', 'Detail'), style: textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(
           product.detail.isNotEmpty
@@ -382,7 +388,7 @@ class _DetailProductState extends State<DetailProduct> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Size Options', style: textTheme.titleLarge),
+        Text(context.tr('Pilihan Ukuran', 'Size Options'), style: textTheme.titleLarge),
         const SizedBox(height: 12),
         Wrap(
           spacing: 12,
@@ -442,17 +448,16 @@ class _DetailProductState extends State<DetailProduct> {
         ),
         const SizedBox(height: 16),
         if (_selectedSize != null)
-          Text(
-            'Stok tersedia: ${product.sizes[_selectedSize]}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black54,
+            Text(
+              context.tr('Stok tersedia: ${product.sizes[_selectedSize]}', 'Stock available: ${product.sizes[_selectedSize]}'),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black54,
+              ),
             ),
-          ),
-      ],
-    );
-  }
-
+        ],
+      );
+    }
   Widget _buildRecommendedProducts(
     BuildContext context,
     bool isMobile,
@@ -485,8 +490,7 @@ class _DetailProductState extends State<DetailProduct> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 48),
-                const Text(
-                  'Barang yang serupa',
+                Text(context.tr('Barang yang serupa', 'Similar Items'),
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 32),
@@ -522,10 +526,8 @@ class _DetailProductState extends State<DetailProduct> {
                         title: p.deskripsi.isNotEmpty
                             ? p.deskripsi
                             : 'No description',
-                        price: '\$ ${p.harga.toStringAsFixed(0)}',
-                        discountPrice: p.hargaDiskon > 0
-                            ? '\$ ${p.hargaDiskon.toStringAsFixed(0)}'
-                            : '',
+                        price: p.harga,
+                        discountPrice: p.hargaDiskon,
                         discountPercentage: p.diskon > 0 ? '${p.diskon}%' : '',
                       ),
                     );
@@ -540,3 +542,6 @@ class _DetailProductState extends State<DetailProduct> {
     );
   }
 }
+
+
+
