@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -78,24 +79,32 @@ class _HomeState extends State<Home> {
 
                     if (sliders.isEmpty) {
                       return Center(
-                        child: Text(context.tr('Tidak ada slider terbaru', 'No recent sliders')),
+                        child: Text(
+                          context.tr(
+                            'Tidak ada slider terbaru',
+                            'No recent sliders',
+                          ),
+                        ),
                       );
                     }
 
                     // Use pre-instantiated widgets mapped to avoid dispose during swipe
                     // Or AutomaticKeepAlive if wrapping them
-                    return PageView(
+                    return PageView.builder(
+                      // Gunakan .builder
                       controller: _pageController,
+                      itemCount: sliders.length, // Tambahkan itemCount
                       onPageChanged: (index) {
                         _currentPageNotifier.value = index;
                       },
-                      children: List.generate(sliders.length, (index) {
+                      itemBuilder: (context, index) {
+                        // Gunakan itemBuilder
                         return _SliderItem(
                           slider: sliders[index],
                           index: index,
                           pageNotifier: _currentPageNotifier,
                         );
-                      }),
+                      },
                     );
                   }
                   return const Center(child: CircularProgressIndicator());
@@ -103,123 +112,116 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          // BlocBuilder<DisplayCubit, DisplayState>(
-          //   builder: (context, state) {
-          //     if (state is DisplayLoading) {
-          //       return const SliverFillRemaining(
-          //         child: Center(child: CircularProgressIndicator()),
-          //       );
-          //     } else if (state is DisplayError) {
-          //       return SliverToBoxAdapter(
-          //         child: Center(child: Text(state.message)),
-          //       );
-          //     } else if (state is DisplaySuccess) {
-          //       final sections = state.displaySections;
-          //       return SliverList(
-          //         delegate: SliverChildBuilderDelegate((context, index) {
-          //           if (index == 0) {
-          //             return Padding(
-          //               padding: const EdgeInsets.symmetric(vertical: 16.0),
-          //               child: SliderAnimation(
-          //                 direction: SlideDirection.up,
-          //                 delay: const Duration(milliseconds: 500),
-          //                 child: Column(
-          //                   mainAxisAlignment: MainAxisAlignment.center,
-          //                   crossAxisAlignment: CrossAxisAlignment.center,
-          //                   children: [
-          //                     Text(
-          //                       context.tr('Selamat Datang', 'Welcome'),
-          //                       style: Theme.of(context).textTheme.titleLarge,
-          //                     ),
-          //                     Text(
-          //                       context.tr('Di Toko Kami', 'To Our Store'),
-          //                       style: Theme.of(context).textTheme.titleMedium,
-          //                     ),
-          //                   ],
-          //                 ),
-          //               ),
-          //             );
-          //           }
+          BlocBuilder<DisplayCubit, DisplayState>(
+            builder: (context, state) {
+              if (state is DisplayLoading) {
+                return const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              } else if (state is DisplayError) {
+                return SliverToBoxAdapter(
+                  child: Center(child: Text(state.message)),
+                );
+              } else if (state is DisplaySuccess) {
+                final sections = state.displaySections;
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              context.tr('Selamat Datang', 'Welcome'),
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            Text(
+                              context.tr('Di Toko Kami', 'To Our Store'),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
 
-          //           final section = sections[index - 1];
-          //           // Use a horizontal ListView for each section's products
-          //           return Padding(
-          //             padding: const EdgeInsets.symmetric(vertical: 16.0),
-          //             child: Column(
-          //               crossAxisAlignment: CrossAxisAlignment.start,
-          //               children: [
-          //                 Padding(
-          //                   padding: const EdgeInsets.symmetric(
-          //                     horizontal: 16.0,
-          //                   ),
-          //                   child: SliderAnimation(
-          //                     direction: SlideDirection.up,
-          //                     child: Text(
-          //                       section.judul,
-          //                       style: Theme.of(context).textTheme.headlineSmall
-          //                           ?.copyWith(fontWeight: FontWeight.bold),
-          //                     ),
-          //                   ),
-          //                 ),
-          //                 const SizedBox(height: 16),
-          //                 SizedBox(
-          //                   height: isMobile
-          //                       ? 380
-          //                       : 540, // Memberikan tinggi pasti agar performa tetap ringan (lazy-loading)
-          //                   child: ListView.builder(
-          //                     scrollDirection: Axis.horizontal,
-          //                     // Tambahkan itemExtent atau cacheExtent agar browser tidak menghitung ukuran terus menerus (Opsional tapi membantu)
-          //                     itemCount: section.products.length,
-          //                     itemBuilder: (context, pIndex) {
-          //                       final product = section.products[pIndex];
-          //                       final String discountPercentageStr =
-          //                           product.diskon > 0
-          //                           ? '${product.diskon}%'
-          //                           : '';
-          //                       return Padding(
-          //                         padding: EdgeInsets.only(
-          //                           left: pIndex == 0 ? 16.0 : 8.0,
-          //                           right: pIndex == section.products.length - 1
-          //                               ? 16.0
-          //                               : 0.0,
-          //                         ),
-          //                         // Menghapus SliderAnimation di sini karena membebani performa memori saat dirender berulang di dalam ListView
-          //                         child: InkWell(
-          //                           onTap: () {
-          //                             context.goNamed(
-          //                               'productDetail',
-          //                               pathParameters: {'id': product.uid},
-          //                             );
-          //                           },
-          //                           child: MyCard(
-          //                             isMobile: isMobile,
-          //                             imageUrl: product.gambar.isNotEmpty
-          //                                 ? product.gambar.first
-          //                                 : 'https://picsum.photos/400/600',
-          //                             brand: product.namaBrand.isNotEmpty
-          //                                 ? product.namaBrand
-          //                                 : 'Brand Dummy',
-          //                             title: product.deskripsi.isNotEmpty
-          //                                 ? product.deskripsi
-          //                                 : 'No description',
-          //                             price: product.harga,
-          //                             discountPrice: product.hargaDiskon,
-          //                             discountPercentage: discountPercentageStr,
-          //                           ),
-          //                         ),
-          //                       );
-          //                     },
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //           );
-          //         }, childCount: sections.length + 1),
-          //       );
-          //     }
-          //     return const SliverToBoxAdapter(child: SizedBox.shrink());
-          //   },
-          // ),
+                    final section = sections[index - 1];
+                    // Use a horizontal ListView for each section's products
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Text(
+                              section.judul,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: isMobile
+                                ? 380
+                                : 540, // Memberikan tinggi pasti agar performa tetap ringan (lazy-loading)
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              // Tambahkan itemExtent atau cacheExtent agar browser tidak menghitung ukuran terus menerus (Opsional tapi membantu)
+                              itemCount: section.products.length,
+                              itemBuilder: (context, pIndex) {
+                                final product = section.products[pIndex];
+                                final String discountPercentageStr =
+                                    product.diskon > 0
+                                    ? '${product.diskon}%'
+                                    : '';
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    left: pIndex == 0 ? 16.0 : 8.0,
+                                    right: pIndex == section.products.length - 1
+                                        ? 16.0
+                                        : 0.0,
+                                  ),
+                                  // Menghapus SliderAnimation di sini karena membebani performa memori saat dirender berulang di dalam ListView
+                                  child: InkWell(
+                                    onTap: () {
+                                      context.goNamed(
+                                        'productDetail',
+                                        pathParameters: {'id': product.uid},
+                                      );
+                                    },
+                                    child: MyCard(
+                                      isMobile: isMobile,
+                                      imageUrl: product.gambar.isNotEmpty
+                                          ? product.gambar.first
+                                          : 'https://picsum.photos/400/600',
+                                      brand: product.namaBrand.isNotEmpty
+                                          ? product.namaBrand
+                                          : 'Brand Dummy',
+                                      title: product.deskripsi.isNotEmpty
+                                          ? product.deskripsi
+                                          : 'No description',
+                                      price: product.harga,
+                                      discountPrice: product.hargaDiskon,
+                                      discountPercentage: discountPercentageStr,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }, childCount: sections.length + 1),
+                );
+              }
+              return const SliverToBoxAdapter(child: SizedBox.shrink());
+            },
+          ),
           const SliverToBoxAdapter(child: CustomFooter()),
         ],
       ),
@@ -246,24 +248,24 @@ class _SliderItemState extends State<_SliderItem> {
   @override
   Widget build(BuildContext context) {
     final slider = widget.slider;
-    
+
     // Sesuaikan cacheWidth untuk mobile browser agar tidak boros memori
     final screenWidth = MediaQuery.of(context).size.width;
-    final int optimizedCacheWidth = screenWidth > 800 ? 800 : (screenWidth * 1.5).toInt();
+    final int optimizedCacheWidth = screenWidth > 800
+        ? 800
+        : (screenWidth * 1.5).toInt();
 
     return Stack(
       fit: StackFit.expand,
       children: [
         // Menggunakan resolusi optimal untuk mencegah CanvasKit OOM Web (Crash)
-        Image.network(
-          slider.gambar,
+        CachedNetworkImage(
+          imageUrl: slider.gambar,
           fit: BoxFit.cover,
-          cacheWidth: optimizedCacheWidth,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return const Center(child: CircularProgressIndicator());
-          },
-          errorBuilder: (context, error, stackTrace) =>
+          memCacheWidth: optimizedCacheWidth, // Penting untuk cegah OOM
+          placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+          errorWidget: (context, url, error) =>
               const Center(child: Icon(Icons.error, color: Colors.grey)),
         ),
         Container(
@@ -283,7 +285,7 @@ class _SliderItemState extends State<_SliderItem> {
             valueListenable: widget.pageNotifier,
             builder: (context, currentPage, buildAnim) {
               if (currentPage != widget.index) {
-                return const Opacity(opacity: 0.0);
+                return const SizedBox.shrink();
               }
               return Container(
                 width: MediaQuery.of(context).size.width * 0.6,
