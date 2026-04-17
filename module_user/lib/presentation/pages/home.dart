@@ -67,49 +67,49 @@ class _HomeState extends State<Home> {
             backgroundColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
-              background: BlocBuilder<HomeCubit, HomeState>(
-                builder: (context, state) {
-                  if (state is HomeLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is HomeError) {
-                    return Center(child: Text(state.message));
-                  } else if (state is HomeLoaded) {
-                    final sliders = state.sliders;
-                    _sliderCount = sliders.length;
+              // background: BlocBuilder<HomeCubit, HomeState>(
+              //   builder: (context, state) {
+              //     if (state is HomeLoading) {
+              //       return const Center(child: CircularProgressIndicator());
+              //     } else if (state is HomeError) {
+              //       return Center(child: Text(state.message));
+              //     } else if (state is HomeLoaded) {
+              //       final sliders = state.sliders;
+              //       _sliderCount = sliders.length;
 
-                    if (sliders.isEmpty) {
-                      return Center(
-                        child: Text(
-                          context.tr(
-                            'Tidak ada slider terbaru',
-                            'No recent sliders',
-                          ),
-                        ),
-                      );
-                    }
+              //       if (sliders.isEmpty) {
+              //         return Center(
+              //           child: Text(
+              //             context.tr(
+              //               'Tidak ada slider terbaru',
+              //               'No recent sliders',
+              //             ),
+              //           ),
+              //         );
+              //       }
 
-                    // Use pre-instantiated widgets mapped to avoid dispose during swipe
-                    // Or AutomaticKeepAlive if wrapping them
-                    return PageView.builder(
-                      // Gunakan .builder
-                      controller: _pageController,
-                      itemCount: sliders.length, // Tambahkan itemCount
-                      onPageChanged: (index) {
-                        _currentPageNotifier.value = index;
-                      },
-                      itemBuilder: (context, index) {
-                        // Gunakan itemBuilder
-                        return _SliderItem(
-                          slider: sliders[index],
-                          index: index,
-                          pageNotifier: _currentPageNotifier,
-                        );
-                      },
-                    );
-                  }
-                  return const Center(child: CircularProgressIndicator());
-                },
-              ),
+              //       // Use pre-instantiated widgets mapped to avoid dispose during swipe
+              //       // Or AutomaticKeepAlive if wrapping them
+              //       return PageView.builder(
+              //         // Gunakan .builder
+              //         controller: _pageController,
+              //         itemCount: sliders.length, // Tambahkan itemCount
+              //         onPageChanged: (index) {
+              //           _currentPageNotifier.value = index;
+              //         },
+              //         itemBuilder: (context, index) {
+              //           // Gunakan itemBuilder
+              //           return _SliderItem(
+              //             slider: sliders[index],
+              //             index: index,
+              //             pageNotifier: _currentPageNotifier,
+              //           );
+              //         },
+              //       );
+              //     }
+              //     return const Center(child: CircularProgressIndicator());
+              //   },
+              // ),
             ),
           ),
           BlocBuilder<DisplayCubit, DisplayState>(

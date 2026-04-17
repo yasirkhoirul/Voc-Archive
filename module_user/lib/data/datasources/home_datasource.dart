@@ -15,13 +15,13 @@ class HomeDatasourceImpl implements HomeDatasource {
   HomeDatasourceImpl(this._firestore);
 
   @override
-  Future<List<DisplaySection>> getDisplaySections({int limit = 5}) async {
+  Future<List<DisplaySection>> getDisplaySections({int limit = 2}) async {
     return await (() async {
       // 1. Fetch all display items
       final displaySnapshot = await _firestore
         .collection('display_items')
         .orderBy('created_at', descending: true)
-        .limit(limit) // ← maksimal 5 section di homepage
+        .limit(limit) // ← maksimal 2 section di homepage
         .get();
       final displayItems = displaySnapshot.docs
           .map((doc) => DisplayItemModel.fromJson(doc.data()))
@@ -59,7 +59,7 @@ class HomeDatasourceImpl implements HomeDatasource {
       // 4. Build DisplaySections with resolved products
       return displayItems.map((display) {
       final products = display.productIds
-          .take(20) // ← konsisten dengan limit di atas
+          .take(5) // ← konsisten dengan limit di atas
           .where((id) => productMap.containsKey(id))
           .map((id) => productMap[id]!)
           .toList();
