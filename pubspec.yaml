@@ -47,6 +47,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/logo.jpeg
+    - assets/logo.png
     - assets/svg/ig.svg
     - assets/svg/tiktok.svg
