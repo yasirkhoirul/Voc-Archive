@@ -53,9 +53,6 @@ void main() async {
         BlocProvider<CatalogDiscountCubit>(
           create: (_) => getIt<CatalogDiscountCubit>()..fetchDiscountProducts(),
         ),
-        BlocProvider<DetailProductCubit>(
-          create: (_) => getIt<DetailProductCubit>(),
-        ),
         BlocProvider<SettingsBloc>(create: (_) => getIt<SettingsBloc>()),
         BlocProvider<BrandBloc>(create: (_) => getIt<BrandBloc>()),
         BlocProvider<CartBloc>(create: (_) => getIt<CartBloc>()),

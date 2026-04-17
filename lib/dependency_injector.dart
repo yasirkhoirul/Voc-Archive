@@ -165,7 +165,7 @@ Future<void> dependencyInitializer() async {
   getIt.registerFactory<BrandBloc>(() => BrandBloc(getIt(), getIt(), getIt(), getIt()),);
 
   //cubit
-  getIt.registerCachedFactory(() => DetailProductCubit(getIt()),);
+  getIt.registerFactory(() => DetailProductCubit(getIt()),);
   getIt.registerCachedFactory(() => HomeCubit(getIt()));
   getIt.registerCachedFactory(() => DisplayCubit(getIt()));
   getIt.registerCachedFactory(() => CatalogBloc(getIt()));

@@ -11,17 +11,32 @@ import 'package:module_user/presentation/bloc/catalog_bloc.dart';
 import 'package:module_user/presentation/cubit/detail_product_cubit.dart';
 import 'package:module_user/presentation/bloc/cart_bloc.dart';
 import 'package:module_user/domain/entities/cart_item.dart';
+import 'package:get_it/get_it.dart';
 
-class DetailProduct extends StatefulWidget {
+class DetailProduct extends StatelessWidget {
   final String uid;
 
   const DetailProduct({super.key, required this.uid});
 
   @override
-  State<DetailProduct> createState() => _DetailProductState();
+  Widget build(BuildContext context) {
+    return BlocProvider<DetailProductCubit>(
+      create: (context) => GetIt.instance<DetailProductCubit>(),
+      child: DetailProductView(uid: uid),
+    );
+  }
 }
 
-class _DetailProductState extends State<DetailProduct> {
+class DetailProductView extends StatefulWidget {
+  final String uid;
+
+  const DetailProductView({super.key, required this.uid});
+
+  @override
+  State<DetailProductView> createState() => _DetailProductViewState();
+}
+
+class _DetailProductViewState extends State<DetailProductView> {
   String? _selectedSize;
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
