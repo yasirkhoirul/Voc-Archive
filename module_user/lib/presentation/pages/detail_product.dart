@@ -224,6 +224,7 @@ class _DetailProductState extends State<DetailProduct> {
   }
 
   Widget _buildImageSlider(Product product) {
+    final ismobile = MediaQuery.of(context).size.width < 900;
     return AspectRatio(
       aspectRatio: 3 / 4,
       child: ClipRRect(
@@ -243,6 +244,7 @@ class _DetailProductState extends State<DetailProduct> {
             return CachedNetworkImage(
               imageUrl: imageUrl,
               fit: BoxFit.cover,
+              memCacheWidth:  ismobile ? 200 : 632,
               placeholder: (context, url) =>
                   const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => const Icon(Icons.error),
