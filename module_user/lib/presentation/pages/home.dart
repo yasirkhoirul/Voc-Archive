@@ -183,7 +183,7 @@ class _HomeState extends State<Home> {
                               scrollDirection: Axis.horizontal,
                               // Tambahkan itemExtent atau cacheExtent agar browser tidak menghitung ukuran terus menerus (Opsional tapi membantu)
                               itemCount: section.products.length,
-                              cacheExtent: isMobile ? 432.0 : 632.0,
+                              cacheExtent: isMobile ? 200.0 : 632.0,
                               itemBuilder: (context, pIndex) {
                                 final product = section.products[pIndex];
                                 final String discountPercentageStr =
@@ -235,7 +235,7 @@ class _HomeState extends State<Home> {
               return const SliverToBoxAdapter(child: SizedBox.shrink());
             },
           ),
-          const SliverToBoxAdapter(child: CustomFooter()),
+          // const SliverToBoxAdapter(child: CustomFooter()),
         ],
       ),
     );
