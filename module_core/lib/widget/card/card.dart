@@ -82,20 +82,22 @@ class _MyCardState extends State<MyCard> {
                         borderRadius: BorderRadius.circular(15),
                         child: AspectRatio(
                           aspectRatio: 3 / 4,
-                          child: Image.network(
-                            widget.imageUrl,
-                            cacheWidth: 200,
+                          child: CachedNetworkImage(
+                            imageUrl: widget.imageUrl,
+                            memCacheWidth: 200,
                             fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Center(
-                                  child: Icon(Icons.error, color: Colors.grey),
+                            fadeInDuration: const Duration(milliseconds: 200),
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[100],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => const Center(
+                              child: Icon(Icons.error, color: Colors.grey),
+                            ),
                           ),
                         ),
                       ),
@@ -135,16 +137,25 @@ class _MyCardState extends State<MyCard> {
                               ),
                             ),
                             // Render formatted price based on CurrencyCubit
-                            BlocBuilder<CurrencyCubit, CurrencyState>(
-                              builder: (context, currencyState) {
-                                final formattedPrice = context.read<CurrencyCubit>().format(widget.price);
-                                final formattedDiscount = widget.discountPrice != null 
-                                    ? context.read<CurrencyCubit>().format(widget.discountPrice!)
+                            Builder(
+                              builder: (context) {
+                                // context.select memastikan rebuild hanya terjadi jika nilai ini berubah
+                                final _ = context.select<CurrencyCubit, String>(
+                                  (cubit) => cubit.state.toString(),
+                                );
+                                final cubit = context.read<CurrencyCubit>();
+                                final formattedPrice = cubit.format(
+                                  widget.price,
+                                );
+                                final formattedDiscount =
+                                    widget.discountPrice != null
+                                    ? cubit.format(widget.discountPrice!)
                                     : null;
 
                                 if (_hasDiscount) {
                                   return Wrap(
-                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
                                     children: [
                                       Text(
                                         formattedPrice,
@@ -174,16 +185,15 @@ class _MyCardState extends State<MyCard> {
                                       ),
                                     ],
                                   );
-                                } else {
-                                  return Text(
-                                    formattedPrice,
-                                    style: Theme.of(context).textTheme.labelLarge
-                                        ?.copyWith(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  );
                                 }
+                                return Text(
+                                  formattedPrice,
+                                  style: Theme.of(context).textTheme.labelLarge
+                                      ?.copyWith(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                );
                               },
                             ),
                           ],

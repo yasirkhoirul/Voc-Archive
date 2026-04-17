@@ -172,6 +172,7 @@ class _HomeState extends State<Home> {
                               scrollDirection: Axis.horizontal,
                               // Tambahkan itemExtent atau cacheExtent agar browser tidak menghitung ukuran terus menerus (Opsional tapi membantu)
                               itemCount: section.products.length,
+                              cacheExtent: isMobile ? 432.0 : 632.0,
                               itemBuilder: (context, pIndex) {
                                 final product = section.products[pIndex];
                                 final String discountPercentageStr =
@@ -262,7 +263,8 @@ class _SliderItemState extends State<_SliderItem> {
         CachedNetworkImage(
           imageUrl: slider.gambar,
           fit: BoxFit.cover,
-          memCacheWidth: optimizedCacheWidth, // Penting untuk cegah OOM
+          memCacheWidth: optimizedCacheWidth,
+          fadeInDuration: const Duration(milliseconds: 300), // Penting untuk cegah OOM
           placeholder: (context, url) =>
               const Center(child: CircularProgressIndicator()),
           errorWidget: (context, url, error) =>
