@@ -26,6 +26,7 @@ export {
   createDisplay,
   updateDisplay,
   deleteDisplay,
+  getDisplaySections,
 } from "./functions/display.functions";
 
 // Settings Functions

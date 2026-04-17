@@ -89,3 +89,19 @@ export const deleteDisplay = onCall(async (request) => {
     throw new HttpsError("invalid-argument", message);
   }
 });
+
+/**
+ * Callable function: getDisplaySections
+ * Accessible by anyone (public front-end).
+ * Fetches fully populated display sections with product data.
+ */
+export const getDisplaySections = onCall(async (request) => {
+  try {
+    const limit = request.data?.limit ? parseInt(request.data.limit, 10) : 2;
+    const sections = await DisplayService.getDisplaySections(limit);
+    return { success: true, data: sections };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error occurred.";
+    throw new HttpsError("internal", message);
+  }
+});

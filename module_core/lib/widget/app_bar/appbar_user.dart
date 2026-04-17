@@ -34,7 +34,7 @@ class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const VocLogo(),
+            // const VocLogo(),
             const Spacer(),
             AnimatedNavItem(
               title: 'Home',

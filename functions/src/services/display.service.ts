@@ -5,7 +5,7 @@ import {
   UpdateDisplayInput,
 } from "../models/display.model";
 import { validateRequiredString } from "../utils/validators";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, FieldPath } from "firebase-admin/firestore";
 
 const DISPLAY_ITEMS_COLLECTION = "display_items";
 const MAX_PRODUCT_IDS = 5;
@@ -91,5 +91,69 @@ export class DisplayService {
     }
 
     await docRef.delete();
+  }
+
+  /**
+   * Fetches fully populated display sections with product details.
+   */
+  static async getDisplaySections(limit: number = 2): Promise<any[]> {
+    // 1. Fetch display items
+    const displaySnapshot = await db
+      .collection(DISPLAY_ITEMS_COLLECTION)
+      .orderBy("created_at", "desc")
+      .limit(limit)
+      .get();
+
+    const displayItems = displaySnapshot.docs.map(doc => doc.data() as DisplayItem);
+    
+    // 2. Collect unique product IDs
+    const allProductIds = new Set<string>();
+    for (const display of displayItems) {
+      if (Array.isArray(display.product_ids)) {
+        for (const id of display.product_ids) {
+          allProductIds.add(id);
+        }
+      }
+    }
+
+    if (allProductIds.size === 0) {
+      return displayItems.map(d => ({
+        uid: d.uid,
+        judul: d.judul,
+        products: []
+      }));
+    }
+
+    // 3. Fetch products in batches of 10
+    const productMap = new Map<string, any>();
+    const idList = Array.from(allProductIds);
+
+    for (let i = 0; i < idList.length; i += 10) {
+      const batch = idList.slice(i, i + 10);
+      if (batch.length === 0) break;
+      const productSnapshot = await db
+        .collection("products")
+        .where(FieldPath.documentId(), "in", batch)
+        .get();
+
+      productSnapshot.docs.forEach(doc => {
+        productMap.set(doc.id, doc.data());
+      });
+    }
+
+    // 4. Build DisplaySections
+    return displayItems.map(display => {
+      const pIds = Array.isArray(display.product_ids) ? display.product_ids : [];
+      const products = pIds
+        .slice(0, MAX_PRODUCT_IDS)
+        .map(id => productMap.get(id))
+        .filter(p => p !== undefined);
+
+      return {
+        uid: display.uid,
+        judul: display.judul,
+        products: products,
+      };
+    });
   }
 }

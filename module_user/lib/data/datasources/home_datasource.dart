@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:module_core/module_core.dart';
 import '../models/display_item_model.dart';
 import '../models/slider_model.dart';
@@ -11,65 +12,45 @@ abstract class HomeDatasource {
 
 class HomeDatasourceImpl implements HomeDatasource {
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
-  HomeDatasourceImpl(this._firestore);
+  HomeDatasourceImpl(this._firestore) 
+      : _functions = FirebaseFunctions.instanceFor(region: 'us-central1'); // Sesuaikan region jika perlu
 
   @override
   Future<List<DisplaySection>> getDisplaySections({int limit = 2}) async {
     return await (() async {
-      // 1. Fetch all display items
-      final displaySnapshot = await _firestore
-        .collection('display_items')
-        .orderBy('created_at', descending: true)
-        .limit(limit) // ← maksimal 2 section di homepage
-        .get();
-      final displayItems = displaySnapshot.docs
-          .map((doc) => DisplayItemModel.fromJson(doc.data()))
-          .toList();
+      final HttpsCallable callable = _functions.httpsCallable('getDisplaySections');
+      
+      final HttpsCallableResult result = await callable.call(<String, dynamic>{
+        'limit': limit,
+      });
 
-      // 2. Collect all unique product IDs
-      final allProductIds = <String>{};
-      for (final display in displayItems) {
-        allProductIds.addAll(display.productIds);
+      final Map<String, dynamic> data = result.data as Map<String, dynamic>;
+      
+      if (data['success'] != true || data['data'] == null) {
+        throw Exception('Failed to fetch display sections from cloud functions');
       }
 
-      if (allProductIds.isEmpty) {
-        return displayItems
-            .map((d) => DisplaySection(uid: d.uid, judul: d.judul, products: []))
-            .toList();
-      }
+      final List<dynamic> sectionsData = data['data'] as List<dynamic>;
 
-      // 3. Fetch all products in batches of 10 (Firestore whereIn limit)
-      final productMap = <String, ProductModel>{};
-      final idList = allProductIds.toList();
-
-      for (var i = 0; i < idList.length; i += 10) {
-        final batch = idList.sublist(
-            i, i + 10 > idList.length ? idList.length : i + 10);
-        final productSnapshot = await _firestore
-            .collection('products')
-            .where(FieldPath.documentId, whereIn: batch)
-            .get();
-
-        for (final doc in productSnapshot.docs) {
-          productMap[doc.id] = ProductModel.fromJson(doc.data());
-        }
-      }
-
-      // 4. Build DisplaySections with resolved products
-      return displayItems.map((display) {
-      final products = display.productIds
-          .take(5) // ← konsisten dengan limit di atas
-          .where((id) => productMap.containsKey(id))
-          .map((id) => productMap[id]!)
-          .toList();
-
+      return sectionsData.map((dynamic sectionRaw) {
+        final Map<String, dynamic> sectionMap = Map<String, dynamic>.from(sectionRaw as Map);
+        final List<dynamic> productsDataRaw = sectionMap['products'] as List<dynamic>;
+        
+        // Deserialize ke ProductModel
+        final List<ProductModel> products = productsDataRaw.map((dynamic productRaw) {
+           final Map<String, dynamic> productMap = Map<String, dynamic>.from(productRaw as Map);
+           return ProductModel.fromJson(productMap);
+        }).toList();
+        
         return DisplaySection(
-          uid: display.uid,
-          judul: display.judul,
+          uid: sectionMap['uid'] as String? ?? '',
+          judul: sectionMap['judul'] as String? ?? 'Untitled',
           products: products,
         );
       }).toList();
+
     })().guardDatasource();
   }
 

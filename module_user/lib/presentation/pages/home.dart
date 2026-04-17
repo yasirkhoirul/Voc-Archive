@@ -112,6 +112,32 @@ class _HomeState extends State<Home> {
               // ),
             ),
           ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 24.0,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      context.tr('Selamat Datang', 'Welcome'),
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Text(
+                      context.tr('Di Toko Kami', 'To Our Store'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           BlocBuilder<DisplayCubit, DisplayState>(
             builder: (context, state) {
               if (state is DisplayLoading) {
@@ -124,35 +150,20 @@ class _HomeState extends State<Home> {
                 );
               } else if (state is DisplaySuccess) {
                 final sections = state.displaySections;
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    if (index == 0) {
+                return SliverToBoxAdapter(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    itemCount: sections.length,
+                    itemBuilder: (context, index) {
+                      final section = sections[index];
+                      // Use a horizontal ListView for each section's products
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              context.tr('Selamat Datang', 'Welcome'),
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            Text(
-                              context.tr('Di Toko Kami', 'To Our Store'),
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    final section = sections[index - 1];
-                    // Use a horizontal ListView for each section's products
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
@@ -217,7 +228,8 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                     );
-                  }, childCount: sections.length + 1),
+                  },
+                  ),
                 );
               }
               return const SliverToBoxAdapter(child: SizedBox.shrink());
@@ -264,7 +276,9 @@ class _SliderItemState extends State<_SliderItem> {
           imageUrl: slider.gambar,
           fit: BoxFit.cover,
           memCacheWidth: optimizedCacheWidth,
-          fadeInDuration: const Duration(milliseconds: 300), // Penting untuk cegah OOM
+          fadeInDuration: const Duration(
+            milliseconds: 300,
+          ), // Penting untuk cegah OOM
           placeholder: (context, url) =>
               const Center(child: CircularProgressIndicator()),
           errorWidget: (context, url, error) =>
