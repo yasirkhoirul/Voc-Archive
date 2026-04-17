@@ -22,7 +22,7 @@ class MainScaffoldAdmin extends StatelessWidget {
         ),
         title: const Row(
           children: [
-            // VocLogo(title: 'voc.archive', fontWeight: FontWeight.w900),
+            VocLogo(title: 'voc.archive', fontWeight: FontWeight.w900),
           ],
         ),
         actions: [
