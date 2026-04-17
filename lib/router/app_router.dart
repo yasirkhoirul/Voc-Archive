@@ -112,7 +112,10 @@ class AppRouter {
           path: RouteName.signIn.path,
           builder: (context, state) => const AuthLogin(),
         ),
-        StatefulShellRoute.indexedStack(
+        StatefulShellRoute(
+          navigatorContainerBuilder: (context, navigationShell, children) {
+            return children[navigationShell.currentIndex];
+          },
           builder: (context, state, navigationShell) {
             return BlocBuilder<AuthBloc, AuthState>(
               bloc: authBloc,
@@ -184,7 +187,10 @@ class AppRouter {
           ],
         ),
 
-        StatefulShellRoute.indexedStack(
+        StatefulShellRoute(
+          navigatorContainerBuilder: (context, navigationShell, children) {
+            return children[navigationShell.currentIndex];
+          },
           builder: (context, state, navigationShell) =>
               MainScaffoldAdmin(navigationShell: navigationShell),
           branches: [

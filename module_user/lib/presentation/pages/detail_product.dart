@@ -511,44 +511,44 @@ class _DetailProductViewState extends State<DetailProductView> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 32),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: displayCount,
-                    crossAxisSpacing: 16.0,
-                    mainAxisSpacing: 16.0,
-                    childAspectRatio: isMobile ? 0.55 : 0.6,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
+                Row(
+                  children: List.generate(items.length, (index) {
                     final p = items[index];
-                    return GestureDetector(
-                      onTap: () {
-                        context.goNamed(
-                          'productDetail',
-                          pathParameters: {'id': p.uid},
-                        );
-                        // Refresh page for new item
-                        context.read<DetailProductCubit>().fetchProduct(p.uid);
-                      },
-                      child: MyCard(
-                        isMobile: isMobile,
-                        imageUrl: p.gambar.isNotEmpty
-                            ? p.gambar.first
-                            : 'https://picsum.photos/400/600',
-                        brand: p.namaBrand.isNotEmpty
-                            ? p.namaBrand
-                            : 'Unknown Brand',
-                        title: p.deskripsi.isNotEmpty
-                            ? p.deskripsi
-                            : 'No description',
-                        price: p.harga,
-                        discountPrice: p.hargaDiskon,
-                        discountPercentage: p.diskon > 0 ? '${p.diskon}%' : '',
+                    final isLast = index == items.length - 1;
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: isLast ? 0 : 16.0),
+                        child: AspectRatio(
+                          aspectRatio: isMobile ? 0.55 : 0.6,
+                          child: GestureDetector(
+                            onTap: () {
+                              context.goNamed(
+                                'productDetail',
+                                pathParameters: {'id': p.uid},
+                              );
+                              // Refresh page for new item
+                              context.read<DetailProductCubit>().fetchProduct(p.uid);
+                            },
+                            child: MyCard(
+                              isMobile: isMobile,
+                              imageUrl: p.gambar.isNotEmpty
+                                  ? p.gambar.first
+                                  : 'https://picsum.photos/400/600',
+                              brand: p.namaBrand.isNotEmpty
+                                  ? p.namaBrand
+                                  : 'Unknown Brand',
+                              title: p.deskripsi.isNotEmpty
+                                  ? p.deskripsi
+                                  : 'No description',
+                              price: p.harga,
+                              discountPrice: p.hargaDiskon,
+                              discountPercentage: p.diskon > 0 ? '${p.diskon}%' : '',
+                            ),
+                          ),
+                        ),
                       ),
                     );
-                  },
+                  }),
                 ),
               ],
             ),
