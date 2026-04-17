@@ -80,26 +80,26 @@ class _MyCardState extends State<MyCard> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(15),
-                        child: AspectRatio(
-                          aspectRatio: 3 / 4,
-                          child: CachedNetworkImage(
-                            imageUrl: widget.imageUrl,
-                            memCacheWidth: 200,
-                            fit: BoxFit.cover,
-                            fadeInDuration: const Duration(milliseconds: 200),
-                            placeholder: (context, url) => Container(
-                              color: Colors.grey[100],
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => const Center(
-                              child: Icon(Icons.error, color: Colors.grey),
-                            ),
-                          ),
-                        ),
+                        // child: AspectRatio(
+                        //   aspectRatio: 3 / 4,
+                        //   child: CachedNetworkImage(
+                        //     imageUrl: widget.imageUrl,
+                        //     memCacheWidth: 200,
+                        //     fit: BoxFit.cover,
+                        //     fadeInDuration: const Duration(milliseconds: 200),
+                        //     placeholder: (context, url) => Container(
+                        //       color: Colors.grey[100],
+                        //       child: const Center(
+                        //         child: CircularProgressIndicator(
+                        //           strokeWidth: 2,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     errorWidget: (context, url, error) => const Center(
+                        //       child: Icon(Icons.error, color: Colors.grey),
+                        //     ),
+                        //   ),
+                        // ),
                       ),
                       Expanded(
                         child: Column(
