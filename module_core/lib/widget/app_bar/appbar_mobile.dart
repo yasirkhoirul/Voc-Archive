@@ -32,7 +32,7 @@ class CustomDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // const VocLogo(),
+                const VocLogo(),
                 const SizedBox(height: 16),
                 Text(
                     "Voc Archive",

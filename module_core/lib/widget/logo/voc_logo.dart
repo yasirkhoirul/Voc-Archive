@@ -25,12 +25,12 @@ class VocLogo extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
-          // child: Image.asset(
-          //   AppAssets.logo,
-          //   width: imageWidth,
-          //   height: imageHeight,
-          //   fit: BoxFit.cover,
-          // ),
+          child: Image.asset(
+            AppAssets.logo,
+            width: imageWidth,
+            height: imageHeight,
+            fit: BoxFit.cover,
+          ),
         ),
         const SizedBox(width: 8),
         Text(
