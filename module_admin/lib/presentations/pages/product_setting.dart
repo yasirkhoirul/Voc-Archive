@@ -236,7 +236,7 @@ class _ProductSettingState extends State<ProductSetting> {
                   TextFormField(
                     controller: _deskripsiController,
                     decoration: const InputDecoration(
-                      labelText: 'Deskripsi',
+                      labelText: 'Item',
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 3,
@@ -247,7 +247,7 @@ class _ProductSettingState extends State<ProductSetting> {
                   TextFormField(
                     controller: _detailController,
                     decoration: const InputDecoration(
-                      labelText: 'Detail Produk',
+                      labelText: 'Description',
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 3,

@@ -376,7 +376,7 @@ class _DetailProductViewState extends State<DetailProductView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.tr('Deskripsi', 'Description'), style: textTheme.titleLarge),
+        Text(context.tr('Item', 'Item'), style: textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(
           product.deskripsi.isNotEmpty
@@ -385,7 +385,7 @@ class _DetailProductViewState extends State<DetailProductView> {
           style: textTheme.bodySmall,
         ),
         const SizedBox(height: 24),
-        Text(context.tr('Detail', 'Detail'), style: textTheme.titleLarge),
+        Text(context.tr('Description', 'Description'), style: textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(
           product.detail.isNotEmpty
