@@ -38,7 +38,7 @@ class _AdminSoldoutPageState extends State<AdminSoldoutPage> {
                       padding: EdgeInsets.only(top: 48.0, bottom: 24.0),
                       child: Center(
                         child: Text(
-                          'Pengaturan Produk',
+                          'Produk Habis (Sold Out)',
                           style: TextStyle(
                             fontSize: isMobile ? 24 : 32,
                             fontWeight: FontWeight.w300,
@@ -46,27 +46,6 @@ class _AdminSoldoutPageState extends State<AdminSoldoutPage> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            widget.onDetailTap?.call(null);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          child: const Text('Tambah Produk'),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
                     // Search Bar
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
@@ -103,11 +82,11 @@ class _AdminSoldoutPageState extends State<AdminSoldoutPage> {
                 const SliverFillRemaining(
                   child: Center(child: CircularProgressIndicator()),
                 ),
-              if (state is ProductListLoaded && state.products.isEmpty)
+              if (state is ProductListLoaded && state.products.where((p) => p.totalStok == 0).isEmpty)
                 const SliverFillRemaining(
-                  child: Center(child: Text('Tidak ada produk.')),
+                  child: Center(child: Text('Tidak ada produk sold out.')),
                 ),
-              if (state is ProductListLoaded && state.products.isNotEmpty)
+              if (state is ProductListLoaded && state.products.where((p) => p.totalStok == 0).isNotEmpty)
                 SliverPadding(
                   padding: EdgeInsets.symmetric(horizontal: paddingHorizontal, vertical: 24.0),
                   sliver: SliverGrid(
@@ -119,7 +98,8 @@ class _AdminSoldoutPageState extends State<AdminSoldoutPage> {
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        final product = state.products[index];
+                        final soldOutProducts = state.products.where((p) => p.totalStok == 0).toList();
+                        final product = soldOutProducts[index];
                         final imageUrl = (product.gambar.isNotEmpty)
                             ? product.gambar.first
                             : null;
