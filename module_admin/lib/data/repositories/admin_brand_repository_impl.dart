@@ -24,4 +24,3 @@ class AdminBrandRepositoryImpl implements AdminBrandRepository {
     return await _datasource.deleteBrand(uid).guard();
   }
 }
-

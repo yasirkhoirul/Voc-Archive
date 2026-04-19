@@ -12,14 +12,15 @@ import 'package:module_user/presentation/bloc/cart_bloc.dart';
 import '../bloc/catalog_bloc.dart';
 import '../widget/filter.dart';
 
-class Catalog extends StatefulWidget {
-  const Catalog({super.key});
+class SoldOutUser extends StatefulWidget {
+  const SoldOutUser({super.key});
 
   @override
-  State<Catalog> createState() => _CatalogState();
+  State<SoldOutUser> createState() => _SoldOutUserState();
 }
 
-class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
+class _SoldOutUserState extends State<SoldOutUser>
+    with SingleTickerProviderStateMixin {
   bool _isFilterOpen = true; // For desktop
 
   Timer? _debounce;

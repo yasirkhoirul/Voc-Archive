@@ -58,7 +58,9 @@ class ProgressCheckout extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          const SizedBox(height: 11), // To align with the middle of the 24px circle
+          const SizedBox(
+            height: 11,
+          ), // To align with the middle of the 24px circle
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: 2,

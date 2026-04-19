@@ -28,7 +28,10 @@ class TextfieldDropdown<T> extends StatelessWidget {
         hintText: hintText,
         labelStyle: Theme.of(context).textTheme.bodyMedium,
         hintStyle: Theme.of(context).textTheme.bodyMedium,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.grey, width: 1),

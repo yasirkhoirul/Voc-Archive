@@ -44,8 +44,16 @@ class ProcessMidtransPaymentEvent extends CheckoutEvent {
   });
 
   @override
-  List<Object?> get props =>
-      [items, shippingArea, name, email, phone, city, postalCode, address];
+  List<Object?> get props => [
+    items,
+    shippingArea,
+    name,
+    email,
+    phone,
+    city,
+    postalCode,
+    address,
+  ];
 }
 
 class ProcessPaypalPaymentEvent extends CheckoutEvent {
@@ -72,8 +80,17 @@ class ProcessPaypalPaymentEvent extends CheckoutEvent {
   });
 
   @override
-  List<Object?> get props =>
-      [items, shippingArea, name, email, phone, city, postalCode, address, proofImageBytes];
+  List<Object?> get props => [
+    items,
+    shippingArea,
+    name,
+    email,
+    phone,
+    city,
+    postalCode,
+    address,
+    proofImageBytes,
+  ];
 }
 
 class CheckPaymentStatusEvent extends CheckoutEvent {

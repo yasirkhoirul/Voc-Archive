@@ -5,14 +5,14 @@ import 'package:module_core/widget/logo/voc_logo.dart';
 import 'package:module_core/widget/snackbar.dart';
 import '../bloc/auth_bloc.dart';
 
-class AuthLogin extends StatefulWidget {
-  const AuthLogin({super.key});
+class AuthSignup extends StatefulWidget {
+  const AuthSignup({super.key});
 
   @override
-  State<AuthLogin> createState() => _AuthLoginState();
+  State<AuthSignup> createState() => _AuthSignupState();
 }
 
-class _AuthLoginState extends State<AuthLogin> {
+class _AuthSignupState extends State<AuthSignup> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -59,7 +59,7 @@ class _AuthLoginState extends State<AuthLogin> {
           if (state is AuthError) {
             AppSnackbar.onFailure(context, state.message);
           } else if (state is Authenticated) {
-            AppSnackbar.onSuccess(context, 'Login berhasil!');
+            AppSnackbar.onSuccess(context, 'Registrasi berhasil!');
             if (context.canPop()) {
               context.pop();
             } else {
@@ -113,16 +113,16 @@ class _AuthLoginState extends State<AuthLogin> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Please enter your email and password',
+                  'Please enter your email and password to sign up',
                   style: TextStyle(fontSize: 14, color: Colors.black87),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
                 _buildTextFields(isLoading),
                 const SizedBox(height: 32),
-                _buildLoginButton(isLoading),
+                _buildSignupButton(isLoading),
                 const SizedBox(height: 16),
-                _buildSignupText(centered: true),
+                _buildLoginText(centered: true),
               ],
             ),
           ),
@@ -144,9 +144,9 @@ class _AuthLoginState extends State<AuthLogin> {
                   const SizedBox(height: 16),
                   _buildTextFields(isLoading),
                   const SizedBox(height: 12),
-                  _buildSignupText(centered: false),
+                  _buildLoginText(centered: false),
                   const Spacer(),
-                  _buildLoginButton(isLoading),
+                  _buildSignupButton(isLoading),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -212,20 +212,25 @@ class _AuthLoginState extends State<AuthLogin> {
     );
   }
 
-  Widget _buildSignupText({required bool centered}) {
+  Widget _buildLoginText({required bool centered}) {
     return Align(
       alignment: centered ? Alignment.center : Alignment.centerLeft,
       child: InkWell(
         onTap: () {
-          context.push('/signup');
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            // Sesuaikan route jika ada route /login terpisah
+            context.go('/login');
+          }
         },
         child: RichText(
           text: const TextSpan(
-            text: 'Dont have account? ',
+            text: 'Already have an account? ',
             style: TextStyle(color: Colors.black87, fontSize: 14),
             children: [
               TextSpan(
-                text: 'Signup',
+                text: 'Login',
                 style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
               ),
             ],
@@ -235,7 +240,7 @@ class _AuthLoginState extends State<AuthLogin> {
     );
   }
 
-  Widget _buildLoginButton(bool isLoading) {
+  Widget _buildSignupButton(bool isLoading) {
     return SizedBox(
       width: double.infinity,
       height: 54.0,
@@ -263,7 +268,7 @@ class _AuthLoginState extends State<AuthLogin> {
                 }
 
                 context.read<AuthBloc>().add(
-                  AuthLoginEvent(email, password),
+                  AuthRegisterEvent(email, password),
                 );
               },
         child: isLoading
@@ -273,10 +278,11 @@ class _AuthLoginState extends State<AuthLogin> {
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
             : const Text(
-                'Login',
+                'Sign Up',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
       ),
     );
   }
 }
+

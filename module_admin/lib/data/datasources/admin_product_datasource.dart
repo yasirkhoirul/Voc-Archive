@@ -23,9 +23,9 @@ class AdminProductDatasourceImpl implements AdminProductDatasource {
       return response.data;
     })().guardDatasource();
   }
-  
+
   @override
-  Future<void> updateProduct(UpdateProductInputModel input) async{
+  Future<void> updateProduct(UpdateProductInputModel input) async {
     return await (() async {
       final callable = _functions.httpsCallable('updateProduct');
       final response = await callable.call(input.toJson());
@@ -33,9 +33,9 @@ class AdminProductDatasourceImpl implements AdminProductDatasource {
       return response.data;
     })().guardDatasource();
   }
-  
+
   @override
-  Future<void> deleteProduct(String uid) async{
+  Future<void> deleteProduct(String uid) async {
     return await (() async {
       await _functions.httpsCallable('deleteProduct').call({'uid': uid});
     })().guardDatasource();

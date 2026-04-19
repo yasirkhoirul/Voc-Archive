@@ -35,12 +35,12 @@ class CustomDrawer extends StatelessWidget {
                 const VocLogo(),
                 const SizedBox(height: 16),
                 Text(
-                    "Voc Archive",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  "Voc Archive",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
               ],
             ),
           ),
@@ -60,6 +60,15 @@ class CustomDrawer extends StatelessWidget {
             Navigator.pop(context);
             statefulNavigationShell.goBranch(3);
           }),
+          _buildDrawerNavItem(
+            context,
+            'Sold Out',
+            Icons.remove_shopping_cart,
+            () {
+              Navigator.pop(context);
+              statefulNavigationShell.goBranch(4);
+            },
+          ),
           const Divider(),
           if (isAuthenticated)
             _buildDrawerNavItem(
@@ -84,7 +93,7 @@ class CustomDrawer extends StatelessWidget {
     IconData icon,
     VoidCallback onTap,
   ) {
-    return ListTile( title: Text(title), onTap: onTap);
+    return ListTile(title: Text(title), onTap: onTap);
   }
 
   Widget _buildAuthButton(BuildContext context) {

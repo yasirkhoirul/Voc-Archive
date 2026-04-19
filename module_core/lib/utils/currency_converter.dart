@@ -5,10 +5,12 @@ import '../enums/currency_enum.dart';
 import '../shared_domain/shared_usecases/get_exchange_rate_usecase.dart';
 
 extension LocalizationExtension on BuildContext {
-  bool get isIdr => watch<CurrencyCubit>().state.currencyType == CurrencyType.idr;
+  bool get isIdr =>
+      watch<CurrencyCubit>().state.currencyType == CurrencyType.idr;
   String tr(String idr, String eng) => isIdr ? idr : eng;
 
-  bool get isIdrRead => read<CurrencyCubit>().state.currencyType == CurrencyType.idr;
+  bool get isIdrRead =>
+      read<CurrencyCubit>().state.currencyType == CurrencyType.idr;
   String trRead(String idr, String eng) => isIdrRead ? idr : eng;
 }
 
@@ -21,10 +23,7 @@ class CurrencyState {
     this.exchangeRate = 0,
   });
 
-  CurrencyState copyWith({
-    CurrencyType? currencyType,
-    double? exchangeRate,
-  }) {
+  CurrencyState copyWith({CurrencyType? currencyType, double? exchangeRate}) {
     return CurrencyState(
       currencyType: currencyType ?? this.currencyType,
       exchangeRate: exchangeRate ?? this.exchangeRate,
@@ -35,7 +34,8 @@ class CurrencyState {
 class CurrencyCubit extends Cubit<CurrencyState> {
   final GetExchangeRateUsecase getExchangeRateUsecase;
 
-  CurrencyCubit({required this.getExchangeRateUsecase}) : super(const CurrencyState()) {
+  CurrencyCubit({required this.getExchangeRateUsecase})
+    : super(const CurrencyState()) {
     _fetchExchangeRate();
   }
 

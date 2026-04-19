@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 enum SlideDirection { up, down, left, right }
 
@@ -7,7 +7,8 @@ class SliderAnimation extends StatefulWidget {
   final Duration duration;
   final Duration delay;
   final SlideDirection direction;
-  final double offset; // Seberapa jauh widget akan bergeser (dalam fraksi ukurannya)
+  final double
+  offset; // Seberapa jauh widget akan bergeser (dalam fraksi ukurannya)
 
   const SliderAnimation({
     super.key,
@@ -22,7 +23,8 @@ class SliderAnimation extends StatefulWidget {
   State<SliderAnimation> createState() => _SliderAnimationState();
 }
 
-class _SliderAnimationState extends State<SliderAnimation> with SingleTickerProviderStateMixin {
+class _SliderAnimationState extends State<SliderAnimation>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -48,19 +50,19 @@ class _SliderAnimationState extends State<SliderAnimation> with SingleTickerProv
         break;
     }
 
-    _slideAnimation = Tween<Offset>(begin: beginOffset, end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic, // Memberikan efek decelerate yang smooth
-      ),
-    );
+    _slideAnimation = Tween<Offset>(begin: beginOffset, end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve:
+                Curves.easeOutCubic, // Memberikan efek decelerate yang smooth
+          ),
+        );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOut,
-      ),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     if (widget.delay == Duration.zero) {
       _controller.forward();
@@ -83,10 +85,7 @@ class _SliderAnimationState extends State<SliderAnimation> with SingleTickerProv
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: widget.child,
-      ),
+      child: SlideTransition(position: _slideAnimation, child: widget.child),
     );
   }
 }

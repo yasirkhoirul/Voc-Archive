@@ -27,8 +27,13 @@ class TextfieldNormal extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
-        suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: Colors.black) : null,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        suffixIcon: suffixIcon != null
+            ? Icon(suffixIcon, color: Colors.black)
+            : null,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.grey, width: 1),

@@ -12,14 +12,15 @@ import 'package:module_user/presentation/bloc/cart_bloc.dart';
 import '../bloc/catalog_bloc.dart';
 import '../widget/filter.dart';
 
-class Catalog extends StatefulWidget {
-  const Catalog({super.key});
+class CatalogSoldOut extends StatefulWidget {
+  const CatalogSoldOut({super.key});
 
   @override
-  State<Catalog> createState() => _CatalogState();
+  State<CatalogSoldOut> createState() => _CatalogSoldOutState();
 }
 
-class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
+class _CatalogSoldOutState extends State<CatalogSoldOut>
+    with SingleTickerProviderStateMixin {
   bool _isFilterOpen = true; // For desktop
 
   Timer? _debounce;
@@ -150,7 +151,7 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
     } else if (state is CatalogError) {
       return SliverFillRemaining(child: Center(child: Text(state.message)));
     } else if (state is CatalogLoaded) {
-      final products = state.products;
+      final products = state.products.where((p) => p.totalStok == 0).toList();
       if (products.isEmpty) {
         return SliverFillRemaining(
           child: Center(
@@ -218,7 +219,7 @@ class _CatalogState extends State<Catalog> with SingleTickerProviderStateMixin {
     } else if (state is CatalogError) {
       return SliverFillRemaining(child: Center(child: Text(state.message)));
     } else if (state is CatalogLoaded) {
-      final products = state.products;
+      final products = state.products.where((p) => p.totalStok == 0).toList();
       if (products.isEmpty) {
         return SliverFillRemaining(
           child: Center(

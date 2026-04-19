@@ -1,13 +1,6 @@
 part of 'brand_bloc.dart';
 
-enum BrandStatus {
-  initial,
-  loading,
-  loaded,
-  mutating,
-  mutationSuccess,
-  error,
-}
+enum BrandStatus { initial, loading, loaded, mutating, mutationSuccess, error }
 
 class BrandState extends Equatable {
   final BrandStatus status;

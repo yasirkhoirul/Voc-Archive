@@ -20,7 +20,9 @@ class SharedHistoryRepositoryImpl implements SharedHistoryRepository {
   }
 
   @override
-  Future<Either<Failure, List<OrderHistoryEntity>>> getHistoryByUserId(String userId) async {
+  Future<Either<Failure, List<OrderHistoryEntity>>> getHistoryByUserId(
+    String userId,
+  ) async {
     try {
       final result = await remoteDataSource.getHistoryByUserId(userId);
       return Right(result);

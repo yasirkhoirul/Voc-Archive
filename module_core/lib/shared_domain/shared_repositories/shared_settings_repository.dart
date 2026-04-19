@@ -5,4 +5,3 @@ abstract class SharedSettingsRepository {
   Future<Either<Failure, double?>> getExchangeRate();
   Future<Either<Failure, List<Map<String, dynamic>>>> getShippingRates();
 }
-

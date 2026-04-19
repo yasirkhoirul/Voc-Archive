@@ -6,7 +6,8 @@ abstract class SharedHistoryRemoteDataSource {
   Future<List<OrderHistoryModel>> getHistoryByUserId(String userId);
 }
 
-class SharedHistoryRemoteDataSourceImpl implements SharedHistoryRemoteDataSource {
+class SharedHistoryRemoteDataSourceImpl
+    implements SharedHistoryRemoteDataSource {
   final FirebaseFirestore firestore;
 
   SharedHistoryRemoteDataSourceImpl({required this.firestore});

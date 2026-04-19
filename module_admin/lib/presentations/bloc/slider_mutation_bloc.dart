@@ -13,10 +13,8 @@ class SliderMutationBloc
   final CreateSliderUseCase _createSliderUseCase;
   final DeleteSliderUseCase _deleteSliderUseCase;
 
-  SliderMutationBloc(
-    this._createSliderUseCase,
-    this._deleteSliderUseCase,
-  ) : super(SliderMutationInitial()) {
+  SliderMutationBloc(this._createSliderUseCase, this._deleteSliderUseCase)
+    : super(SliderMutationInitial()) {
     on<CreateSliderSubmitted>(_onCreateSlider);
     on<DeleteSliderSubmitted>(_onDeleteSlider);
   }

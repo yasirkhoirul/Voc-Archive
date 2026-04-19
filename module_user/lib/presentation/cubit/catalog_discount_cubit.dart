@@ -6,7 +6,7 @@ class CatalogDiscountCubit extends Cubit<CatalogDiscountState> {
   final GetDiscountProductsUseCase _getDiscountProductsUseCase;
 
   CatalogDiscountCubit(this._getDiscountProductsUseCase)
-      : super(CatalogDiscountInitial());
+    : super(CatalogDiscountInitial());
 
   Future<void> fetchDiscountProducts({String? query}) async {
     emit(CatalogDiscountLoading());

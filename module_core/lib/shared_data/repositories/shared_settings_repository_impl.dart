@@ -19,4 +19,3 @@ class SharedSettingsRepositoryImpl implements SharedSettingsRepository {
     return await _datasource.getShippingRates().guard();
   }
 }
-

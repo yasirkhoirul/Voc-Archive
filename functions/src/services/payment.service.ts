@@ -8,12 +8,14 @@ import {
 import {
   CreateTransactionInput,
   OrderHistoryItem,
+  TransactionItem,
 } from "../models/payment.model";
 import { FieldValue } from "firebase-admin/firestore";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const midtransClient = require("midtrans-client");
 
 const ORDER_HISTORY_COLLECTION = "order_history";
+const PRODUCTS_COLLECTION = "products";
 
 function getSnapClient() {
   return new midtransClient.Snap({
@@ -69,6 +71,115 @@ function resolveStatus(
     return "expire";
   }
   return "pending";
+}
+
+/**
+ * Reduce stock for ordered items using Firestore transaction.
+ * Each item's size stock is decremented by the ordered quantity.
+ * Throws if stock is insufficient.
+ */
+async function reduceStock(items: TransactionItem[]): Promise<void> {
+  await db.runTransaction(async (transaction) => {
+    // Group items by product_id and aggregate quantities per size
+    const productSizeMap: Record<string, Record<string, number>> = {};
+    for (const item of items) {
+      if (!productSizeMap[item.product_id]) {
+        productSizeMap[item.product_id] = {};
+      }
+      const currentQty = productSizeMap[item.product_id][item.size] || 0;
+      productSizeMap[item.product_id][item.size] = currentQty + item.quantity;
+    }
+
+    // Read all product docs inside transaction
+    const productRefs: Record<string, FirebaseFirestore.DocumentReference> = {};
+    const productDocs: Record<string, FirebaseFirestore.DocumentData> = {};
+
+    for (const productId of Object.keys(productSizeMap)) {
+      const ref = db.collection(PRODUCTS_COLLECTION).doc(productId);
+      const doc = await transaction.get(ref);
+      if (!doc.exists) {
+        throw new Error(`Product "${productId}" not found for stock reduction.`);
+      }
+      productRefs[productId] = ref;
+      productDocs[productId] = doc.data()!;
+    }
+
+    // Validate and reduce
+    for (const [productId, sizeChanges] of Object.entries(productSizeMap)) {
+      const product = productDocs[productId];
+      const sizes = { ...product.sizes } as Record<string, number>;
+
+      for (const [size, qty] of Object.entries(sizeChanges)) {
+        const currentStock = sizes[size] ?? 0;
+        if (currentStock < qty) {
+          throw new Error(
+            `Insufficient stock for product "${product.nama_brand || productId}" ` +
+            `size "${size}". Available: ${currentStock}, Requested: ${qty}.`
+          );
+        }
+        sizes[size] = currentStock - qty;
+      }
+
+      const totalStok = Object.values(sizes).reduce((sum, v) => sum + v, 0);
+
+      transaction.update(productRefs[productId], {
+        sizes,
+        total_stok: totalStok,
+        updated_at: FieldValue.serverTimestamp(),
+      });
+    }
+  });
+}
+
+/**
+ * Restore stock for items from a cancelled/expired/denied order.
+ * Uses Firestore transaction for atomicity.
+ */
+async function restoreStock(items: OrderHistoryItem[]): Promise<void> {
+  await db.runTransaction(async (transaction) => {
+    // Group by product_id
+    const productSizeMap: Record<string, Record<string, number>> = {};
+    for (const item of items) {
+      if (!productSizeMap[item.product_id]) {
+        productSizeMap[item.product_id] = {};
+      }
+      const currentQty = productSizeMap[item.product_id][item.size] || 0;
+      productSizeMap[item.product_id][item.size] = currentQty + item.quantity;
+    }
+
+    const productRefs: Record<string, FirebaseFirestore.DocumentReference> = {};
+    const productDocs: Record<string, FirebaseFirestore.DocumentData> = {};
+
+    for (const productId of Object.keys(productSizeMap)) {
+      const ref = db.collection(PRODUCTS_COLLECTION).doc(productId);
+      const doc = await transaction.get(ref);
+      if (!doc.exists) {
+        console.warn(`[RestoreStock] Product "${productId}" not found, skipping.`);
+        continue;
+      }
+      productRefs[productId] = ref;
+      productDocs[productId] = doc.data()!;
+    }
+
+    for (const [productId, sizeChanges] of Object.entries(productSizeMap)) {
+      if (!productDocs[productId]) continue;
+
+      const product = productDocs[productId];
+      const sizes = { ...product.sizes } as Record<string, number>;
+
+      for (const [size, qty] of Object.entries(sizeChanges)) {
+        sizes[size] = (sizes[size] ?? 0) + qty;
+      }
+
+      const totalStok = Object.values(sizes).reduce((sum, v) => sum + v, 0);
+
+      transaction.update(productRefs[productId], {
+        sizes,
+        total_stok: totalStok,
+        updated_at: FieldValue.serverTimestamp(),
+      });
+    }
+  });
 }
 
 export class PaymentService {
@@ -148,12 +259,16 @@ export class PaymentService {
 
     const orderId = `VOC-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
+    // Reduce stock immediately (pending = reserved)
+    await reduceStock(input.items);
+
     // Save order history as pending manual paypal
     await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).set({
       order_id: orderId,
       user_id: userId,
       status: "pending",
       payment_method: "paypal_manual",
+      stock_reserved: true,
       items: orderItems,
       customer: input.customer,
       shipping_area: input.shipping_area,
@@ -340,12 +455,16 @@ export class PaymentService {
     const snapToken = snapResponse.token as string;
     const redirectUrl = snapResponse.redirect_url as string;
 
+    // Reduce stock immediately (pending = reserved)
+    await reduceStock(input.items);
+
     // Save order history
     await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).set({
       order_id: orderId,
       user_id: userId,
       status: "pending",
       payment_method: "midtrans",
+      stock_reserved: true,
       items: orderItems,
       customer: input.customer,
       shipping_area: input.shipping_area,
@@ -446,12 +565,51 @@ export class PaymentService {
       return { status: "ok", message: "Order not found, acknowledged." };
     }
 
-    await orderRef.update({
-      status,
-      payment_method: paymentType || "midtrans",
-      midtrans_response: notificationBody,
-      updated_at: FieldValue.serverTimestamp(),
-    });
+    const orderData = orderDoc.data()!;
+    const previousStatus = orderData.status as string;
+    const stockReserved = orderData.stock_reserved as boolean;
+
+    // Stock restoration logic:
+    // If payment failed/expired/cancelled AND stock was previously reserved → restore
+    const failedStatuses = ["cancel", "expire", "deny"];
+    const isNowFailed = failedStatuses.includes(status);
+    const wasPreviouslyActive = !failedStatuses.includes(previousStatus);
+
+    if (isNowFailed && wasPreviouslyActive && stockReserved) {
+      try {
+        const items = orderData.items as OrderHistoryItem[];
+        await restoreStock(items);
+        console.log(`[Webhook] Stock restored for order ${orderId}`);
+
+        await orderRef.update({
+          status,
+          stock_reserved: false,
+          payment_method: paymentType || "midtrans",
+          midtrans_response: notificationBody,
+          updated_at: FieldValue.serverTimestamp(),
+        });
+      } catch (restoreError) {
+        console.error(
+          `[Webhook] Failed to restore stock for order ${orderId}:`,
+          restoreError
+        );
+        // Still update the status even if restore fails
+        await orderRef.update({
+          status,
+          stock_restore_failed: true,
+          payment_method: paymentType || "midtrans",
+          midtrans_response: notificationBody,
+          updated_at: FieldValue.serverTimestamp(),
+        });
+      }
+    } else {
+      await orderRef.update({
+        status,
+        payment_method: paymentType || "midtrans",
+        midtrans_response: notificationBody,
+        updated_at: FieldValue.serverTimestamp(),
+      });
+    }
 
     console.log(
       `[Webhook] Updated order ${orderId}: status=${status}, payment=${paymentType}`

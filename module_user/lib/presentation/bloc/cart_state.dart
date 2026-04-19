@@ -15,15 +15,10 @@ class CartState extends Equatable {
 
   bool get isEmpty => items.isEmpty;
 
-  CartState copyWith({
-    List<CartItem>? items,
-  }) {
-    return CartState(
-      items: items ?? this.items,
-    );
+  CartState copyWith({List<CartItem>? items}) {
+    return CartState(items: items ?? this.items);
   }
 
   @override
   List<Object> get props => [items];
 }
-

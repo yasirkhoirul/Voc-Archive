@@ -47,7 +47,9 @@ class _ProductAdminState extends State<ProductAdmin> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontal,
+                      ),
                       child: SizedBox(
                         width: double.infinity,
                         height: 48,
@@ -69,7 +71,9 @@ class _ProductAdminState extends State<ProductAdmin> {
                     const SizedBox(height: 24),
                     // Search Bar
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: paddingHorizontal),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontal,
+                      ),
                       child: Center(
                         child: SizedBox(
                           width: isMobile ? double.infinity : 500,
@@ -84,11 +88,15 @@ class _ProductAdminState extends State<ProductAdmin> {
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(color: Colors.grey.shade400)
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade400,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
-                                borderSide: const BorderSide(color: Colors.black)
+                                borderSide: const BorderSide(
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
@@ -109,7 +117,10 @@ class _ProductAdminState extends State<ProductAdmin> {
                 ),
               if (state is ProductListLoaded && state.products.isNotEmpty)
                 SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: paddingHorizontal, vertical: 24.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: paddingHorizontal,
+                    vertical: 24.0,
+                  ),
                   sliver: SliverGrid(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: isMobile ? 2 : 4,
@@ -117,155 +128,169 @@ class _ProductAdminState extends State<ProductAdmin> {
                       mainAxisSpacing: isMobile ? 16 : 32,
                       childAspectRatio: isMobile ? 0.55 : 0.65,
                     ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = state.products[index];
-                        final imageUrl = (product.gambar.isNotEmpty)
-                            ? product.gambar.first
-                            : null;
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final product = state.products[index];
+                      final imageUrl = (product.gambar.isNotEmpty)
+                          ? product.gambar.first
+                          : null;
 
-                        return InkWell(
-                          onTap: () {
-                            widget.onDetailTap?.call(product.uid);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.grey.shade200),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                )
-                              ],
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: imageUrl != null
-                                      ? CachedNetworkImage(
-                                          imageUrl: imageUrl,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorWidget: (_, __, ___) =>
-                                              const Icon(Icons.broken_image, size: 50),
-                                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                        )
-                                      : Container(
-                                          width: double.infinity,
-                                          color: Colors.grey,
-                                          child: const Icon(Icons.image, size: 50),
+                      return InkWell(
+                        onTap: () {
+                          widget.onDetailTap?.call(product.uid);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.shade200),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: imageUrl != null
+                                    ? CachedNetworkImage(
+                                        imageUrl: imageUrl,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorWidget: (_, __, ___) => const Icon(
+                                          Icons.broken_image,
+                                          size: 50,
                                         ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        product.namaBrand.isNotEmpty ? product.namaBrand : 'Brand Dummy',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                        placeholder: (context, url) =>
+                                            const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                      )
+                                    : Container(
+                                        width: double.infinity,
+                                        color: Colors.grey,
+                                        child: const Icon(
+                                          Icons.image,
+                                          size: 50,
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        product.deskripsi.isNotEmpty ? product.deskripsi : 'No description',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade700,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      product.namaBrand.isNotEmpty
+                                          ? product.namaBrand
+                                          : 'Brand Dummy',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
-                                      const SizedBox(height: 12),
-                                      const Divider(),
-                                      const SizedBox(height: 8),
-                                      BlocBuilder<
-                                        module_core.CurrencyCubit,
-                                        module_core.CurrencyState
-                                      >(
-                                        builder: (context, currencyState) {
-                                          final formattedPrice = context
-                                              .read<module_core.CurrencyCubit>()
-                                              .format(product.harga);
-                                          
-                                          Widget priceWidget;
-                                          if (product.hargaDiskon > 0) {
-                                            final formattedDiscountPrice = context
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      product.deskripsi.isNotEmpty
+                                          ? product.deskripsi
+                                          : 'No description',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Divider(),
+                                    const SizedBox(height: 8),
+                                    BlocBuilder<
+                                      module_core.CurrencyCubit,
+                                      module_core.CurrencyState
+                                    >(
+                                      builder: (context, currencyState) {
+                                        final formattedPrice = context
+                                            .read<module_core.CurrencyCubit>()
+                                            .format(product.harga);
+
+                                        Widget priceWidget;
+                                        if (product.hargaDiskon > 0) {
+                                          final formattedDiscountPrice = context
                                               .read<module_core.CurrencyCubit>()
                                               .format(product.hargaDiskon);
-                                              
-                                            priceWidget = Wrap(
-                                              alignment: WrapAlignment.center,
-                                              crossAxisAlignment: WrapCrossAlignment.center,
-                                              children: [
-                                                Text(
-                                                  formattedPrice,
-                                                  style: const TextStyle(
-                                                    color: Colors.black54,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    decoration: TextDecoration.lineThrough,
-                                                  ),
+
+                                          priceWidget = Wrap(
+                                            alignment: WrapAlignment.center,
+                                            crossAxisAlignment:
+                                                WrapCrossAlignment.center,
+                                            children: [
+                                              Text(
+                                                formattedPrice,
+                                                style: const TextStyle(
+                                                  color: Colors.black54,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  decoration: TextDecoration
+                                                      .lineThrough,
                                                 ),
-                                                const SizedBox(width: 4),
-                                                const Icon(Icons.arrow_forward, size: 14),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  formattedDiscountPrice,
-                                                  style: const TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              const Icon(
+                                                Icons.arrow_forward,
+                                                size: 14,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                formattedDiscountPrice,
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                              ],
-                                            );
-                                          } else {
-                                            priceWidget = Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  formattedPrice,
-                                                  style: const TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          priceWidget = Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                formattedPrice,
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                              ],
-                                            );
-                                          }
-                                          
-                                          return priceWidget;
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                                              ),
+                                            ],
+                                          );
+                                        }
+
+                                        return priceWidget;
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      childCount: state.products.length,
-                    ),
+                        ),
+                      );
+                    }, childCount: state.products.length),
                   ),
                 ),
               if (state is ProductListError)
-                SliverFillRemaining(
-                  child: Center(child: Text(state.message)),
-                ),
+                SliverFillRemaining(child: Center(child: Text(state.message))),
             ],
           );
         },

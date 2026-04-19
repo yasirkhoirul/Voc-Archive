@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class RouterListener extends ChangeNotifier {
   final BlocBase authBloc;
   late final StreamSubscription authSubscription;
-  RouterListener(this.authBloc){
+  RouterListener(this.authBloc) {
     authSubscription = authBloc.stream.listen((state) {
       notifyListeners();
     });

@@ -12,15 +12,14 @@ class DisplayCubit extends Cubit<DisplayState> {
   Future<void> fetchDisplaySection() async {
     emit(DisplayLoading());
     final result = await _getDisplaySectionsUsecase();
-    result.fold(
-      (failure) => emit(DisplayError(failure.message)),
-      (displaySections) {
-        if (displaySections.isNotEmpty) {
-          emit(DisplaySuccess(displaySections));
-        } else {
-          emit(const DisplayError('No display sections found'));
-        }
-      },
-    );
+    result.fold((failure) => emit(DisplayError(failure.message)), (
+      displaySections,
+    ) {
+      if (displaySections.isNotEmpty) {
+        emit(DisplaySuccess(displaySections));
+      } else {
+        emit(const DisplayError('No display sections found'));
+      }
+    });
   }
 }

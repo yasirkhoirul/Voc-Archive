@@ -26,21 +26,18 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
     on<DeleteBrandSubmitted>(_onDeleteBrand);
   }
 
-  Future<void> _onLoadBrands(
-    LoadBrands event,
-    Emitter<BrandState> emit,
-  ) async {
+  Future<void> _onLoadBrands(LoadBrands event, Emitter<BrandState> emit) async {
     emit(state.copyWith(status: BrandStatus.loading));
     final result = await _getBrands();
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: BrandStatus.error,
-        errorMessage: failure.message,
-      )),
-      (brands) => emit(state.copyWith(
-        status: BrandStatus.loaded,
-        brands: brands,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: BrandStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (brands) =>
+          emit(state.copyWith(status: BrandStatus.loaded, brands: brands)),
     );
   }
 
@@ -51,14 +48,18 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
     emit(state.copyWith(status: BrandStatus.mutating));
     final result = await _createBrand(event.nama);
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: BrandStatus.error,
-        errorMessage: failure.message,
-      )),
-      (_) => emit(state.copyWith(
-        status: BrandStatus.mutationSuccess,
-        successMessage: 'Brand "${event.nama}" berhasil ditambah',
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: BrandStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          status: BrandStatus.mutationSuccess,
+          successMessage: 'Brand "${event.nama}" berhasil ditambah',
+        ),
+      ),
     );
     add(LoadBrands());
   }
@@ -70,14 +71,18 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
     emit(state.copyWith(status: BrandStatus.mutating));
     final result = await _updateBrand(event.uid, event.nama);
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: BrandStatus.error,
-        errorMessage: failure.message,
-      )),
-      (_) => emit(state.copyWith(
-        status: BrandStatus.mutationSuccess,
-        successMessage: 'Brand berhasil diupdate',
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: BrandStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          status: BrandStatus.mutationSuccess,
+          successMessage: 'Brand berhasil diupdate',
+        ),
+      ),
     );
     add(LoadBrands());
   }
@@ -89,14 +94,18 @@ class BrandBloc extends Bloc<BrandEvent, BrandState> {
     emit(state.copyWith(status: BrandStatus.mutating));
     final result = await _deleteBrand(event.uid);
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: BrandStatus.error,
-        errorMessage: failure.message,
-      )),
-      (_) => emit(state.copyWith(
-        status: BrandStatus.mutationSuccess,
-        successMessage: 'Brand berhasil dihapus',
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: BrandStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          status: BrandStatus.mutationSuccess,
+          successMessage: 'Brand berhasil dihapus',
+        ),
+      ),
     );
     add(LoadBrands());
   }

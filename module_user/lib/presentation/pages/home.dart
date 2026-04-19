@@ -164,71 +164,78 @@ class _HomeState extends State<Home> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: Text(
+                                section.judul,
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
                             ),
-                            child: Text(
-                              section.judul,
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            height: isMobile
-                                ? 380
-                                : 540, // Memberikan tinggi pasti agar performa tetap ringan (lazy-loading)
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              // Tambahkan itemExtent atau cacheExtent agar browser tidak menghitung ukuran terus menerus (Opsional tapi membantu)
-                              itemCount: section.products.length,
-                              cacheExtent: isMobile ? 200.0 : 632.0,
-                              itemBuilder: (context, pIndex) {
-                                final product = section.products[pIndex];
-                                final String discountPercentageStr =
-                                    product.diskon > 0
-                                    ? '${product.diskon}%'
-                                    : '';
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    left: pIndex == 0 ? 16.0 : 8.0,
-                                    right: pIndex == section.products.length - 1
-                                        ? 16.0
-                                        : 0.0,
-                                  ),
-                                  // Menghapus SliderAnimation di sini karena membebani performa memori saat dirender berulang di dalam ListView
-                                  child: InkWell(
-                                    onTap: () {
-                                      context.goNamed(
-                                        'productDetail',
-                                        pathParameters: {'id': product.uid},
-                                      );
-                                    },
-                                    child: MyCard(
-                                      isMobile: isMobile,
-                                      imageUrl: product.gambar.isNotEmpty
-                                          ? product.gambar.first
-                                          : 'https://picsum.photos/400/600',
-                                      brand: product.namaBrand.isNotEmpty
-                                          ? product.namaBrand
-                                          : 'Brand Dummy',
-                                      title: product.deskripsi.isNotEmpty
-                                          ? product.deskripsi
-                                          : 'No description',
-                                      price: product.harga,
-                                      discountPrice: product.hargaDiskon,
-                                      discountPercentage: discountPercentageStr,
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              height: isMobile
+                                  ? 380
+                                  : 540, // Memberikan tinggi pasti agar performa tetap ringan (lazy-loading)
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                // Tambahkan itemExtent atau cacheExtent agar browser tidak menghitung ukuran terus menerus (Opsional tapi membantu)
+                                itemCount: section.products.length,
+                                cacheExtent: isMobile ? 200.0 : 632.0,
+                                itemBuilder: (context, pIndex) {
+                                  final product = section.products[pIndex];
+                                  final String discountPercentageStr =
+                                      product.diskon > 0
+                                      ? '${product.diskon}%'
+                                      : '';
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      left: pIndex == 0 ? 16.0 : 8.0,
+                                      right:
+                                          pIndex == section.products.length - 1
+                                          ? 16.0
+                                          : 0.0,
                                     ),
-                                  ),
-                                );
-                              },
+                                    // Menghapus SliderAnimation di sini karena membebani performa memori saat dirender berulang di dalam ListView
+                                    child: InkWell(
+                                      onTap: product.totalStok == 0
+                                          ? null
+                                          : () {
+                                              context.goNamed(
+                                                'productDetail',
+                                                pathParameters: {
+                                                  'id': product.uid,
+                                                },
+                                              );
+                                            },
+                                      child: MyCard(
+                                        isSoldOut: product.totalStok == 0,
+                                        isMobile: isMobile,
+                                        imageUrl: product.gambar.isNotEmpty
+                                            ? product.gambar.first
+                                            : 'https://picsum.photos/400/600',
+                                        brand: product.namaBrand.isNotEmpty
+                                            ? product.namaBrand
+                                            : 'Brand Dummy',
+                                        title: product.deskripsi.isNotEmpty
+                                            ? product.deskripsi
+                                            : 'No description',
+                                        price: product.harga,
+                                        discountPrice: product.hargaDiskon,
+                                        discountPercentage:
+                                            discountPercentageStr,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 );
               }

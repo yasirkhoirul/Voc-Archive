@@ -12,7 +12,7 @@ class MainScaffold extends StatelessWidget {
   final VoidCallback onLogout;
 
   const MainScaffold({
-    super.key, 
+    super.key,
     required this.navigationShell,
     required this.isAuthenticated,
     this.isAuthLoading = false,
@@ -20,7 +20,7 @@ class MainScaffold extends StatelessWidget {
     required this.onLogin,
     required this.onLogout,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

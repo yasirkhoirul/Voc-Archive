@@ -28,14 +28,16 @@ class SharedProductRepositoryImpl implements SharedProductRepository {
   }
 
   @override
-  Future<Either<Failure, List<Product>>> getDiscountProducts({String? query}) async {
+  Future<Either<Failure, List<Product>>> getDiscountProducts({
+    String? query,
+  }) async {
     return await (() async {
       return await _datasource.getDiscountProducts(query: query);
     })().guard();
   }
-  
+
   @override
-  Future<Either<Failure, Product>> getProductById(String uid) async{
+  Future<Either<Failure, Product>> getProductById(String uid) async {
     return await (() async {
       return await _datasource.getProductById(uid);
     })().guard();

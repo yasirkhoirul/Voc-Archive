@@ -23,10 +23,17 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateProduct(UpdateProductInput input) async{  
+  Future<Either<Failure, void>> updateProduct(UpdateProductInput input) async {
     return await (() async {
       final inputModel = UpdateProductInputModel.fromEntity(input);
       await _datasource.updateProduct(inputModel);
+    })().guard();
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteProduct(String uid) async {
+    return await (() async {
+      await _datasource.deleteProduct(uid);
     })().guard();
   }
 }

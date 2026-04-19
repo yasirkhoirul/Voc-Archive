@@ -18,7 +18,10 @@ class CartPage extends StatelessWidget {
           ? AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
-              title: Text(context.tr('Keranjang Belanja', 'Shopping Cart'), style: TextStyle(color: Colors.black)),
+              title: Text(
+                context.tr('Keranjang Belanja', 'Shopping Cart'),
+                style: TextStyle(color: Colors.black),
+              ),
               iconTheme: const IconThemeData(color: Colors.black),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -39,9 +42,16 @@ class CartPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+                  const Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 16),
-                  Text(context.tr('Keranjang Anda kosong', 'Your cart is empty'), style: TextStyle(fontSize: 18)),
+                  Text(
+                    context.tr('Keranjang Anda kosong', 'Your cart is empty'),
+                    style: TextStyle(fontSize: 18),
+                  ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.goNamed('catalog'),
@@ -151,12 +161,18 @@ class CartPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('Subtotal', 'Subtotal'), style: TextStyle(fontSize: 14)),
+              Text(
+                context.tr('Subtotal', 'Subtotal'),
+                style: TextStyle(fontSize: 14),
+              ),
               BlocBuilder<CurrencyCubit, CurrencyState>(
                 builder: (context, currencyState) {
                   return Text(
                     context.read<CurrencyCubit>().format(state.totalPrice),
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   );
                 },
               ),
@@ -166,7 +182,10 @@ class CartPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('Estimasi Pengiriman', 'Estimated Shipping'), style: const TextStyle(fontSize: 14)),
+              Text(
+                context.tr('Estimasi Pengiriman', 'Estimated Shipping'),
+                style: const TextStyle(fontSize: 14),
+              ),
               const Text(
                 'Gratis',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -179,12 +198,18 @@ class CartPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.tr('Total', 'Total'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              Text(
+                context.tr('Total', 'Total'),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
               BlocBuilder<CurrencyCubit, CurrencyState>(
                 builder: (context, currencyState) {
                   return Text(
                     context.read<CurrencyCubit>().format(state.totalPrice),
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   );
                 },
               ),
@@ -239,13 +264,13 @@ class CartPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Total Quantity:',
-                  style: TextStyle(fontSize: 14),
-                ),
+                const Text('Total Quantity:', style: TextStyle(fontSize: 14)),
                 Text(
                   '${state.totalQuantity} items',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -292,7 +317,3 @@ class CartPage extends StatelessWidget {
     );
   }
 }
-
-
-
-

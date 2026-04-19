@@ -42,10 +42,10 @@ class SettingsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        exchangeRate,
-        shippingRates,
-        errorMessage,
-        successMessage,
-      ];
+    status,
+    exchangeRate,
+    shippingRates,
+    errorMessage,
+    successMessage,
+  ];
 }

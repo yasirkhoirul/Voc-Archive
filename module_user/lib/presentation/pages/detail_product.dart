@@ -54,7 +54,8 @@ class _DetailProductViewState extends State<DetailProductView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.tr('Detail Produk', 'Detail Product'),
+        title: Text(
+          context.tr('Detail Produk', 'Detail Product'),
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         centerTitle: true,
@@ -62,6 +63,47 @@ class _DetailProductViewState extends State<DetailProductView> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          BlocBuilder<CartBloc, CartState>(
+            builder: (context, state) {
+              if (state.isEmpty) {
+                return IconButton(
+                  icon: const Icon(Icons.shopping_bag_outlined),
+                  onPressed: () => context.pushNamed('cart'),
+                );
+              }
+              return IconButton(
+                icon: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Icon(Icons.shopping_bag_outlined),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () => context.pushNamed('cart'),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: BlocBuilder<DetailProductCubit, DetailProductState>(
         builder: (context, state) {
@@ -185,49 +227,103 @@ class _DetailProductViewState extends State<DetailProductView> {
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () {
-                      if (_selectedSize == null) {
-                        AppSnackbar.onInfo(
-                          context,
-                          'Silakan pilih ukuran terlebih dahulu!',
-                        );
-                      } else {
-                        context.read<CartBloc>().add(
-                          AddToCart(
-                            CartItem(
-                              id: '${product.uid}-$_selectedSize',
-                              productId: product.uid,
-                              productName: product.deskripsi,
-                              brandName: product.namaBrand,
-                              imageUrls: product.gambar,
-                              selectedSize: _selectedSize!,
-                              price: product.hargaDiskon > 0
-                                  ? product.hargaDiskon
-                                  : product.harga,
+                  child: Row(
+                    children: [
+                      // Tombol Keranjang
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            side: const BorderSide(color: Colors.black, width: 1.5),
+                          ),
+                          onPressed: () {
+                            if (_selectedSize == null) {
+                              AppSnackbar.onInfo(
+                                context,
+                                'Silakan pilih ukuran terlebih dahulu!',
+                              );
+                            } else {
+                              context.read<CartBloc>().add(
+                                AddToCart(
+                                  CartItem(
+                                    id: '-',
+                                    productId: product.uid,
+                                    productName: product.deskripsi,
+                                    brandName: product.namaBrand,
+                                    imageUrls: product.gambar,
+                                    selectedSize: _selectedSize!,
+                                    price: product.hargaDiskon > 0
+                                        ? product.hargaDiskon
+                                        : product.harga,
+                                  ),
+                                ),
+                              );
+                              AppSnackbar.onSuccess(
+                                context,
+                                'Berhasil ditambahkan ke keranjang',
+                              );
+                            }
+                          },
+                          child: Text(
+                            context.tr('+ Keranjang', '+ Keranjang'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
-                        );
-                        AppSnackbar.onSuccess(
-                          context,
-                          'Berhasil ditambahkan ke keranjang',
-                        );
-                      }
-                    },
-                    child: Text(context.tr('Tambah ke Keranjang', 'Add Cart'),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 16),
+                      // Tombol Beli Sekarang
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (_selectedSize == null) {
+                              AppSnackbar.onInfo(
+                                context,
+                                'Silakan pilih ukuran terlebih dahulu!',
+                              );
+                            } else {
+                              context.read<CartBloc>().add(
+                                AddToCart(
+                                  CartItem(
+                                    id: '-',
+                                    productId: product.uid,
+                                    productName: product.deskripsi,
+                                    brandName: product.namaBrand,
+                                    imageUrls: product.gambar,
+                                    selectedSize: _selectedSize!,
+                                    price: product.hargaDiskon > 0
+                                        ? product.hargaDiskon
+                                        : product.harga,
+                                  ),
+                                ),
+                              );
+                              context.pushNamed('checkout');
+                            }
+                          },
+                          child: Text(
+                            context.tr('Beli Sekarang', 'Buy Now'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -259,7 +355,7 @@ class _DetailProductViewState extends State<DetailProductView> {
             return CachedNetworkImage(
               imageUrl: imageUrl,
               fit: BoxFit.cover,
-              memCacheWidth:  ismobile ? 200 : 632,
+              memCacheWidth: ismobile ? 200 : 632,
               placeholder: (context, url) =>
                   const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -310,63 +406,110 @@ class _DetailProductViewState extends State<DetailProductView> {
     TextTheme textTheme,
     BuildContext context,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: BlocBuilder<CurrencyCubit, CurrencyState>(
-            builder: (context, currencyState) {
-              return Text(
-                context.read<CurrencyCubit>().format(product.harga),
-                style: textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              );
-            },
-          ),
+        BlocBuilder<CurrencyCubit, CurrencyState>(
+          builder: (context, currencyState) {
+            return Text(
+              context.read<CurrencyCubit>().format(product.harga),
+              style: textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            );
+          },
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  side: const BorderSide(color: Colors.black),
+                ),
+                onPressed: () {
+                  if (_selectedSize == null) {
+                    AppSnackbar.onInfo(
+                      context,
+                      'Silakan pilih ukuran terlebih dahulu!',
+                    );
+                  } else {
+                    context.read<CartBloc>().add(
+                      AddToCart(
+                        CartItem(
+                          id: '-',
+                          productId: product.uid,
+                          productName: product.deskripsi,
+                          brandName: product.namaBrand,
+                          imageUrls: product.gambar,
+                          selectedSize: _selectedSize!,
+                          price: product.hargaDiskon > 0
+                              ? product.hargaDiskon
+                              : product.harga,
+                        ),
+                      ),
+                    );
+                    AppSnackbar.onSuccess(
+                      context,
+                      'Berhasil ditambahkan ke keranjang',
+                    );
+                  }
+                },
+                child: Text(
+                  context.tr('+ Keranjang', '+ Keranjang'),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
-          ),
-          onPressed: () {
-            if (_selectedSize == null) {
-              AppSnackbar.onInfo(
-                context,
-                'Silakan pilih ukuran terlebih dahulu!',
-              );
-            } else {
-              context.read<CartBloc>().add(
-                AddToCart(
-                  CartItem(
-                    id: '${product.uid}-$_selectedSize',
-                    productId: product.uid,
-                    productName: product.deskripsi,
-                    brandName: product.namaBrand,
-                    imageUrls: product.gambar,
-                    selectedSize: _selectedSize!,
-                    price: product.hargaDiskon > 0
-                        ? product.hargaDiskon
-                        : product.harga,
+            const SizedBox(width: 8),
+            Expanded(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              );
-              AppSnackbar.onSuccess(
-                context,
-                'Berhasil ditambahkan ke keranjang',
-              );
-            }
-          },
-          child: Text(context.tr('Tambah ke Keranjang', 'Add Cart'),
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+                onPressed: () {
+                  if (_selectedSize == null) {
+                    AppSnackbar.onInfo(
+                      context,
+                      'Silakan pilih ukuran terlebih dahulu!',
+                    );
+                  } else {
+                    context.read<CartBloc>().add(
+                      AddToCart(
+                        CartItem(
+                          id: '-',
+                          productId: product.uid,
+                          productName: product.deskripsi,
+                          brandName: product.namaBrand,
+                          imageUrls: product.gambar,
+                          selectedSize: _selectedSize!,
+                          price: product.hargaDiskon > 0
+                              ? product.hargaDiskon
+                              : product.harga,
+                        ),
+                      ),
+                    );
+                    context.pushNamed('checkout');
+                  }
+                },
+                child: Text(
+                  context.tr('Beli Sekarang', 'Buy Now'),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -385,7 +528,10 @@ class _DetailProductViewState extends State<DetailProductView> {
           style: textTheme.bodySmall,
         ),
         const SizedBox(height: 24),
-        Text(context.tr('Description', 'Description'), style: textTheme.titleLarge),
+        Text(
+          context.tr('Description', 'Description'),
+          style: textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
         Text(
           product.detail.isNotEmpty
@@ -405,7 +551,10 @@ class _DetailProductViewState extends State<DetailProductView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.tr('Pilihan Ukuran', 'Size Options'), style: textTheme.titleLarge),
+        Text(
+          context.tr('Pilihan Ukuran', 'Size Options'),
+          style: textTheme.titleLarge,
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 12,
@@ -465,16 +614,20 @@ class _DetailProductViewState extends State<DetailProductView> {
         ),
         const SizedBox(height: 16),
         if (_selectedSize != null)
-            Text(
-              context.tr('Stok tersedia: ${product.sizes[_selectedSize]}', 'Stock available: ${product.sizes[_selectedSize]}'),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black54,
-              ),
+          Text(
+            context.tr(
+              'Stok tersedia: ${product.sizes[_selectedSize]}',
+              'Stock available: ${product.sizes[_selectedSize]}',
             ),
-        ],
-      );
-    }
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildRecommendedProducts(
     BuildContext context,
     bool isMobile,
@@ -507,7 +660,8 @@ class _DetailProductViewState extends State<DetailProductView> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 48),
-                Text(context.tr('Barang yang serupa', 'Similar Items'),
+                Text(
+                  context.tr('Barang yang serupa', 'Similar Items'),
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 32),
@@ -521,15 +675,20 @@ class _DetailProductViewState extends State<DetailProductView> {
                         child: AspectRatio(
                           aspectRatio: isMobile ? 0.55 : 0.6,
                           child: GestureDetector(
-                            onTap: () {
-                              context.goNamed(
-                                'productDetail',
-                                pathParameters: {'id': p.uid},
-                              );
-                              // Refresh page for new item
-                              context.read<DetailProductCubit>().fetchProduct(p.uid);
-                            },
+                            onTap: p.totalStok == 0
+                                ? null
+                                : () {
+                                    context.goNamed(
+                                      'productDetail',
+                                      pathParameters: {'id': p.uid},
+                                    );
+                                    // Refresh page for new item
+                                    context
+                                        .read<DetailProductCubit>()
+                                        .fetchProduct(p.uid);
+                                  },
                             child: MyCard(
+                              isSoldOut: p.totalStok == 0,
                               isMobile: isMobile,
                               imageUrl: p.gambar.isNotEmpty
                                   ? p.gambar.first
@@ -542,7 +701,9 @@ class _DetailProductViewState extends State<DetailProductView> {
                                   : 'No description',
                               price: p.harga,
                               discountPrice: p.hargaDiskon,
-                              discountPercentage: p.diskon > 0 ? '${p.diskon}%' : '',
+                              discountPercentage: p.diskon > 0
+                                  ? '${p.diskon}%'
+                                  : '',
                             ),
                           ),
                         ),
@@ -559,6 +720,3 @@ class _DetailProductViewState extends State<DetailProductView> {
     );
   }
 }
-
-
-

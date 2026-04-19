@@ -35,7 +35,9 @@ class _HistoryAdminPageState extends State<HistoryAdminPage> {
       body: BlocBuilder<HistoryCubit, HistoryState>(
         builder: (context, state) {
           if (state is HistoryLoading) {
-            return const Center(child: CircularProgressIndicator(color: Colors.black));
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.black),
+            );
           } else if (state is HistoryError) {
             return Center(
               child: Column(
@@ -43,32 +45,38 @@ class _HistoryAdminPageState extends State<HistoryAdminPage> {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),
-                  Text(state.message, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    state.message,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                   ElevatedButton(
-                    onPressed: () => context.read<HistoryCubit>().fetchAllHistory(),
+                    onPressed: () =>
+                        context.read<HistoryCubit>().fetchAllHistory(),
                     child: const Text('Coba Ulang'),
-                  )
+                  ),
                 ],
               ),
             );
           } else if (state is HistoryLoaded) {
             final allOrders = state.historyList;
             final orders = allOrders.where((element) {
-              final val = element.orderId.toLowerCase() + element.customer.name.toLowerCase();
+              final val =
+                  element.orderId.toLowerCase() +
+                  element.customer.name.toLowerCase();
               return val.contains(_searchQuery.toLowerCase());
             }).toList();
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 48.0,
+                vertical: 32.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
                     'Riwayat Transaksi',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w300),
                   ),
                   const SizedBox(height: 24),
                   Center(
@@ -84,7 +92,10 @@ class _HistoryAdminPageState extends State<HistoryAdminPage> {
                         decoration: InputDecoration(
                           hintText: 'Cari Transaksi',
                           suffixIcon: const Icon(Icons.search),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(color: Colors.grey.shade400),
@@ -132,9 +143,11 @@ class _OrderHistoryCardState extends State<_OrderHistoryCard> {
   bool _isExpanded = false;
 
   Color _getStatusColor(String status) {
-    if (status.toLowerCase().contains('success') || status.toLowerCase().contains('settlement')) {
+    if (status.toLowerCase().contains('success') ||
+        status.toLowerCase().contains('settlement')) {
       return Colors.green;
-    } else if (status.toLowerCase().contains('failed') || status.toLowerCase().contains('expire')) {
+    } else if (status.toLowerCase().contains('failed') ||
+        status.toLowerCase().contains('expire')) {
       return Colors.red.shade400;
     }
     return Colors.amber.shade400; // Pending
@@ -162,9 +175,15 @@ class _OrderHistoryCardState extends State<_OrderHistoryCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Id Transaksi  : ${order.orderId}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Id Transaksi  : ${order.orderId}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(order.status),
                         borderRadius: BorderRadius.circular(16),
@@ -180,11 +199,20 @@ class _OrderHistoryCardState extends State<_OrderHistoryCard> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text('Nama Pembeli  : ${order.customer.name}', style: const TextStyle(fontSize: 16)),
+                Text(
+                  'Nama Pembeli  : ${order.customer.name}',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 const SizedBox(height: 16),
-                Text('Tanggal Transaksi : ${DateFormat('dd/MM/yyyy').format(createdAt)}', style: const TextStyle(fontSize: 16)),
+                Text(
+                  'Tanggal Transaksi : ${DateFormat('dd/MM/yyyy').format(createdAt)}',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 const SizedBox(height: 16),
-                Text('Waktu Transaksi : ${DateFormat('HH.mm').format(createdAt)}', style: const TextStyle(fontSize: 16)),
+                Text(
+                  'Waktu Transaksi : ${DateFormat('HH.mm').format(createdAt)}',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 const SizedBox(height: 16),
                 InkWell(
                   onTap: () {
@@ -212,11 +240,20 @@ class _OrderHistoryCardState extends State<_OrderHistoryCard> {
                 children: [
                   const Divider(),
                   const SizedBox(height: 16),
-                  Text('Email Pembeli  : ${order.customer.email}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    'Email Pembeli  : ${order.customer.email}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 16),
-                  Text('No Hp : ${order.customer.phone}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    'No Hp : ${order.customer.phone}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 16),
-                  Text('Metode Pembayaran : ${order.paymentMethod}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    'Metode Pembayaran : ${order.paymentMethod}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 24),
                   const Text('List Item :', style: TextStyle(fontSize: 16)),
                   const SizedBox(height: 12),
@@ -225,42 +262,75 @@ class _OrderHistoryCardState extends State<_OrderHistoryCard> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300, width: 2),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 2,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Nama : ${item.productName}', style: const TextStyle(fontSize: 16)),
+                          Text(
+                            'Nama : ${item.productName}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
                           const SizedBox(height: 8),
                           BlocBuilder<CurrencyCubit, CurrencyState>(
                             builder: (context, currencyState) {
-                              return Text('Harga : ${context.read<CurrencyCubit>().format(item.finalPriceUsd)}', style: const TextStyle(fontSize: 16));
+                              return Text(
+                                'Harga : ${context.read<CurrencyCubit>().format(item.finalPriceUsd)}',
+                                style: const TextStyle(fontSize: 16),
+                              );
                             },
                           ),
                           const SizedBox(height: 8),
-                          Text('Brand : ${item.brandName}', style: const TextStyle(fontSize: 16)),
+                          Text(
+                            'Brand : ${item.brandName}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
                           const SizedBox(height: 8),
-                          Text('Ukuran : ${item.size}', style: const TextStyle(fontSize: 16)),
+                          Text(
+                            'Ukuran : ${item.size}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
                           const SizedBox(height: 8),
-                          Text('Qty : ${item.quantity}', style: const TextStyle(fontSize: 16)),
+                          Text(
+                            'Qty : ${item.quantity}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
                         ],
                       ),
                     );
                   }),
                   const SizedBox(height: 16),
-                  Text('Shipping : ${order.shippingArea}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    'Shipping : ${order.shippingArea}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 16),
-                  Text('Kota : ${order.customer.city}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    'Kota : ${order.customer.city}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 16),
-                  Text('Kode Pos : ${order.customer.postalCode}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    'Kode Pos : ${order.customer.postalCode}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 16),
-                  Text('Alamat : ${order.customer.address}', style: const TextStyle(fontSize: 16)),
+                  Text(
+                    'Alamat : ${order.customer.address}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   const SizedBox(height: 24),
                   BlocBuilder<CurrencyCubit, CurrencyState>(
                     builder: (context, currencyState) {
                       return Text(
                         'Total Harga : ${context.read<CurrencyCubit>().format(order.totalUsd)}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       );
                     },
                   ),

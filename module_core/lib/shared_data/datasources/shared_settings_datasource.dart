@@ -37,4 +37,3 @@ class SharedSettingsDatasourceImpl implements SharedSettingsDatasource {
     })().guardDatasource();
   }
 }
-

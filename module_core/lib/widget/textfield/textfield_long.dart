@@ -23,7 +23,10 @@ class TextfieldLong extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.grey, width: 1),

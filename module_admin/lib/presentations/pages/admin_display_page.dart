@@ -23,7 +23,7 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
     super.initState();
     context.read<ProductListBloc>().add(FetchAllProducts());
   }
-  
+
   @override
   void dispose() {
     _judulController.dispose();
@@ -35,7 +35,9 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Hapus Display'),
-        content: const Text('Apakah Anda yakin ingin menghapus display section ini?'),
+        content: const Text(
+          'Apakah Anda yakin ingin menghapus display section ini?',
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
@@ -46,11 +48,15 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () {
               Navigator.pop(context);
-              context.read<DisplayMutationBloc>().add(DeleteDisplaySubmitted(uid));
+              context.read<DisplayMutationBloc>().add(
+                DeleteDisplaySubmitted(uid),
+              );
             },
             child: const Text('Hapus'),
           ),
@@ -76,10 +82,7 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
           });
         } else if (state is DisplayMutationError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
@@ -91,7 +94,10 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
             Container(
               color: Colors.white,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 48.0,
+                  vertical: 32.0,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -135,19 +141,25 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                             TextFormField(
                               controller: _judulController,
                               decoration: InputDecoration(
-                                labelText: 'Judul Display (Contoh: Weekly Offers)',
+                                labelText:
+                                    'Judul Display (Contoh: Weekly Offers)',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(color: Colors.black),
+                                  borderSide: const BorderSide(
+                                    color: Colors.black,
+                                  ),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey.shade50,
                               ),
-                              validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                              validator: (value) =>
+                                  value!.isEmpty ? 'Wajib diisi' : null,
                             ),
                             const SizedBox(height: 24),
                             const Text(
@@ -164,47 +176,79 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                               child: BlocBuilder<ProductListBloc, ProductListState>(
                                 builder: (context, productState) {
                                   if (productState is ProductListLoading) {
-                                    return const Center(child: CircularProgressIndicator(color: Colors.black));
-                                  } else if (productState is ProductListLoaded) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.black,
+                                      ),
+                                    );
+                                  } else if (productState
+                                      is ProductListLoaded) {
                                     if (productState.products.isEmpty) {
-                                      return const Center(child: Text('Tidak ada produk tersedia. Tambah produk dulu.'));
+                                      return const Center(
+                                        child: Text(
+                                          'Tidak ada produk tersedia. Tambah produk dulu.',
+                                        ),
+                                      );
                                     }
                                     return ListView.separated(
                                       itemCount: productState.products.length,
-                                      separatorBuilder: (context, index) => const Divider(height: 1),
+                                      separatorBuilder: (context, index) =>
+                                          const Divider(height: 1),
                                       itemBuilder: (context, index) {
-                                        final product = productState.products[index];
-                                        final isSelected = _selectedProductIds.contains(product.uid);
-                                        final imageUrl = product.gambar.isNotEmpty ? product.gambar.first : null;
-                                        
+                                        final product =
+                                            productState.products[index];
+                                        final isSelected = _selectedProductIds
+                                            .contains(product.uid);
+                                        final imageUrl =
+                                            product.gambar.isNotEmpty
+                                            ? product.gambar.first
+                                            : null;
+
                                         return CheckboxListTile(
-                                          title: Text(product.namaBrand, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                          title: Text(
+                                            product.namaBrand,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                           subtitle: Text(product.type),
                                           value: isSelected,
                                           activeColor: Colors.black,
                                           secondary: ClipRRect(
-                                            borderRadius: BorderRadius.circular(4.0),
+                                            borderRadius: BorderRadius.circular(
+                                              4.0,
+                                            ),
                                             child: imageUrl != null
-                                              ? CachedNetworkImage(
-                                                  imageUrl: imageUrl,
-                                                  width: 50,
-                                                  height: 50,
-                                                  fit: BoxFit.cover,
-                                                  errorWidget: (_, __, ___) => const Icon(Icons.broken_image),
-                                                )
-                                              : Container(
-                                                  width: 50,
-                                                  height: 50,
-                                                  color: Colors.grey.shade200,
-                                                  child: const Icon(Icons.image, color: Colors.grey),
-                                                ),
+                                                ? CachedNetworkImage(
+                                                    imageUrl: imageUrl,
+                                                    width: 50,
+                                                    height: 50,
+                                                    fit: BoxFit.cover,
+                                                    errorWidget: (_, __, ___) =>
+                                                        const Icon(
+                                                          Icons.broken_image,
+                                                        ),
+                                                  )
+                                                : Container(
+                                                    width: 50,
+                                                    height: 50,
+                                                    color: Colors.grey.shade200,
+                                                    child: const Icon(
+                                                      Icons.image,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
                                           ),
                                           onChanged: (bool? checked) {
                                             setState(() {
                                               if (checked == true) {
-                                                _selectedProductIds.add(product.uid);
+                                                _selectedProductIds.add(
+                                                  product.uid,
+                                                );
                                               } else {
-                                                _selectedProductIds.remove(product.uid);
+                                                _selectedProductIds.remove(
+                                                  product.uid,
+                                                );
                                               }
                                             });
                                           },
@@ -212,7 +256,9 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                                       },
                                     );
                                   } else if (productState is ProductListError) {
-                                    return Center(child: Text(productState.message));
+                                    return Center(
+                                      child: Text(productState.message),
+                                    );
                                   }
                                   return const SizedBox.shrink();
                                 },
@@ -225,22 +271,27 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
                                     if (_selectedProductIds.isEmpty) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         const SnackBar(
-                                          content: Text('Pilih setidaknya 1 produk!'),
+                                          content: Text(
+                                            'Pilih setidaknya 1 produk!',
+                                          ),
                                           backgroundColor: Colors.red,
                                         ),
                                       );
                                       return;
                                     }
                                     context.read<DisplayMutationBloc>().add(
-                                          CreateDisplaySubmitted(
-                                            CreateDisplayInput(
-                                              judul: _judulController.text,
-                                              productId: _selectedProductIds.toList(),
-                                            ),
-                                          ),
-                                        );
+                                      CreateDisplaySubmitted(
+                                        CreateDisplayInput(
+                                          judul: _judulController.text,
+                                          productId: _selectedProductIds
+                                              .toList(),
+                                        ),
+                                      ),
+                                    );
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -249,9 +300,14 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0,
+                                  ),
                                 ),
-                                child: const Text('Simpan Display', style: TextStyle(fontWeight: FontWeight.bold)),
+                                child: const Text(
+                                  'Simpan Display',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
                           ],
@@ -267,10 +323,17 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                       ),
                       const SizedBox(height: 16),
                       StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance.collection('display_items').snapshots(),
+                        stream: FirebaseFirestore.instance
+                            .collection('display_items')
+                            .snapshots(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator(color: Colors.black));
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.black,
+                              ),
+                            );
                           }
                           if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
@@ -283,15 +346,25 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade50,
                                 borderRadius: BorderRadius.circular(16.0),
-                                border: Border.all(color: Colors.grey.shade200, style: BorderStyle.solid),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                  style: BorderStyle.solid,
+                                ),
                               ),
                               child: const Column(
                                 children: [
-                                  Icon(Icons.view_carousel_outlined, size: 48, color: Colors.grey),
+                                  Icon(
+                                    Icons.view_carousel_outlined,
+                                    size: 48,
+                                    color: Colors.grey,
+                                  ),
                                   SizedBox(height: 16),
                                   Text(
                                     'Belum ada display yang ditambahkan.',
-                                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -301,16 +374,22 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: docs.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 16),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 16),
                             itemBuilder: (context, index) {
-                              final data = docs[index].data() as Map<String, dynamic>;
+                              final data =
+                                  docs[index].data() as Map<String, dynamic>;
                               final uid = data['uid'] ?? docs[index].id;
-                              final productIds = List<String>.from(data['product_ids'] ?? []);
-                              
+                              final productIds = List<String>.from(
+                                data['product_ids'] ?? [],
+                              );
+
                               return Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  border: Border.all(color: Colors.grey.shade200),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -326,22 +405,33 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                                     backgroundColor: Colors.black,
                                     child: Text(
                                       '${productIds.length}',
-                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   title: Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Text(
                                       data['judul'] ?? 'Tanpa Judul',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ),
                                   subtitle: Text(
                                     'Menampilkan ${productIds.length} Produk',
-                                    style: TextStyle(color: Colors.grey.shade700),
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                    ),
                                   ),
                                   trailing: IconButton(
-                                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
                                     tooltip: 'Hapus Display Section',
                                     onPressed: () => _confirmDelete(uid),
                                   ),
@@ -369,7 +459,10 @@ class _AdminDisplayPageState extends State<AdminDisplayPage> {
                         children: [
                           CircularProgressIndicator(color: Colors.black),
                           SizedBox(height: 16),
-                          Text('Memproses...', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(
+                            'Memproses...',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     ),

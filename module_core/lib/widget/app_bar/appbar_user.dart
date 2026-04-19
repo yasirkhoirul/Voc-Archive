@@ -12,7 +12,7 @@ class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onLogout;
 
   const AppbarUser({
-    super.key, 
+    super.key,
     required this.statefulNavigationShell,
     required this.isAuthenticated,
     this.isAuthLoading = false,
@@ -68,7 +68,17 @@ class AppbarUser extends StatelessWidget implements PreferredSizeWidget {
               },
             ),
             const SizedBox(width: 24),
-            if (statefulNavigationShell.currentIndex == 1 || statefulNavigationShell.currentIndex == 2)
+            AnimatedNavItem(
+              title: 'Sold Out',
+              isActive: statefulNavigationShell.currentIndex == 4,
+              onTap: () {
+                statefulNavigationShell.goBranch(4);
+              },
+            ),
+            const SizedBox(width: 24),
+            if (statefulNavigationShell.currentIndex == 1 ||
+                statefulNavigationShell.currentIndex == 2 ||
+                statefulNavigationShell.currentIndex == 4)
               SizedBox(
                 width: 250,
                 height: 36,
@@ -224,9 +234,9 @@ class _AnimatedNavItemState extends State<AnimatedNavItem> {
               padding: const EdgeInsets.only(bottom: 6.0), // Jarak untuk garis
               child: Text(
                 widget.title,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             Positioned(
@@ -236,10 +246,7 @@ class _AnimatedNavItemState extends State<AnimatedNavItem> {
               child: TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutQuad,
-                tween: Tween<double>(
-                  begin: 0.0,
-                  end: showLine ? 1.0 : 0.0,
-                ),
+                tween: Tween<double>(begin: 0.0, end: showLine ? 1.0 : 0.0),
                 builder: (context, value, child) {
                   return FractionallySizedBox(
                     widthFactor: value,

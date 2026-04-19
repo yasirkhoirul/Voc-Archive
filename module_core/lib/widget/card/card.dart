@@ -11,6 +11,7 @@ class MyCard extends StatefulWidget {
   final num price;
   final num? discountPrice;
   final String? discountPercentage;
+  final bool isSoldOut;
   const MyCard({
     super.key,
     required this.imageUrl,
@@ -20,6 +21,7 @@ class MyCard extends StatefulWidget {
     required this.isMobile,
     this.discountPrice,
     this.discountPercentage,
+    this.isSoldOut = false,
   });
 
   @override
@@ -56,179 +58,216 @@ class _MyCardState extends State<MyCard> {
           _isHovering ? -8.0 : 0.0,
           0.0,
         ),
-        child: SizedBox(
-          width: widget.isMobile ? 200 : 300,
-          height: widget.isMobile ? 400 : 540,
-          child: Stack(
-            children: [
-              Card(
-                elevation: _isHovering ? 8 : 2,
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14.0,
-                    vertical: 8.0,
+        child: Opacity(
+          opacity: widget.isSoldOut ? 0.6 : 1.0,
+          child: SizedBox(
+            width: widget.isMobile ? 200 : 300,
+            height: widget.isMobile ? 400 : 540,
+            child: Stack(
+              children: [
+                Card(
+                  elevation: _isHovering ? 8 : 2,
+                  color: widget.isSoldOut ? Colors.grey[300] : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.max,
-                    spacing: 14,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: AspectRatio(
-                          aspectRatio: 3 / 4,
-                          child: CachedNetworkImage(
-                            imageUrl: widget.imageUrl,
-                            memCacheWidth: 200,
-                            fit: BoxFit.cover,
-                            fadeInDuration: const Duration(milliseconds: 200),
-                            placeholder: (context, url) => Container(
-                              color: Colors.grey[100],
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14.0,
+                      vertical: 8.0,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.max,
+                      spacing: 14,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: AspectRatio(
+                            aspectRatio: 3 / 4,
+                            child: CachedNetworkImage(
+                              imageUrl: widget.imageUrl,
+                              memCacheWidth: 200,
+                              fit: BoxFit.cover,
+                              fadeInDuration: const Duration(milliseconds: 200),
+                              placeholder: (context, url) => Container(
+                                color: Colors.grey[100],
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               ),
-                            ),
-                            errorWidget: (context, url, error) => const Center(
-                              child: Icon(Icons.error, color: Colors.grey),
+                              errorWidget: (context, url, error) =>
+                                  const Center(
+                                    child: Icon(
+                                      Icons.error,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
                             ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          spacing: widget.isMobile ? 0 : 14,
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.brand,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(color: Colors.black),
-                                    ),
-                                    Text(
-                                      widget.title,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w100,
-                                          ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 3,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            // Render formatted price based on CurrencyCubit
-                            Builder(
-                              builder: (context) {
-                                // context.select memastikan rebuild hanya terjadi jika nilai ini berubah
-                                final _ = context.select<CurrencyCubit, String>(
-                                  (cubit) => cubit.state.toString(),
-                                );
-                                final cubit = context.read<CurrencyCubit>();
-                                final formattedPrice = cubit.format(
-                                  widget.price,
-                                );
-                                final formattedDiscount =
-                                    widget.discountPrice != null
-                                    ? cubit.format(widget.discountPrice!)
-                                    : null;
-
-                                if (_hasDiscount) {
-                                  return Wrap(
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            spacing: widget.isMobile ? 0 : 14,
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
-                                        WrapCrossAlignment.center,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        formattedPrice,
+                                        widget.brand,
                                         style: Theme.of(context)
                                             .textTheme
                                             .labelLarge
-                                            ?.copyWith(
-                                              color: Colors.grey,
-                                              decoration:
-                                                  TextDecoration.lineThrough,
-                                            ),
-                                      ),
-                                      const Icon(
-                                        Icons.arrow_right_alt,
-                                        color: Colors.grey,
-                                        size: 18,
+                                            ?.copyWith(color: Colors.black),
                                       ),
                                       Text(
-                                        formattedDiscount!,
+                                        widget.title,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .labelLarge
+                                            .bodyMedium
                                             ?.copyWith(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w100,
                                             ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 3,
                                       ),
                                     ],
+                                  ),
+                                ),
+                              ),
+                              // Render formatted price based on CurrencyCubit
+                              Builder(
+                                builder: (context) {
+                                  // context.select memastikan rebuild hanya terjadi jika nilai ini berubah
+                                  final _ = context
+                                      .select<CurrencyCubit, String>(
+                                        (cubit) => cubit.state.toString(),
+                                      );
+                                  final cubit = context.read<CurrencyCubit>();
+                                  final formattedPrice = cubit.format(
+                                    widget.price,
                                   );
-                                }
-                                return Text(
-                                  formattedPrice,
-                                  style: Theme.of(context).textTheme.labelLarge
-                                      ?.copyWith(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                );
-                              },
-                            ),
-                          ],
+                                  final formattedDiscount =
+                                      widget.discountPrice != null
+                                      ? cubit.format(widget.discountPrice!)
+                                      : null;
+
+                                  if (_hasDiscount) {
+                                    return Wrap(
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        Text(
+                                          formattedPrice,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge
+                                              ?.copyWith(
+                                                color: Colors.grey,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
+                                              ),
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_right_alt,
+                                          color: Colors.grey,
+                                          size: 18,
+                                        ),
+                                        Text(
+                                          formattedDiscount!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge
+                                              ?.copyWith(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  return Text(
+                                    formattedPrice,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (_hasDiscount && !widget.isSoldOut)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(15),
+                          bottomLeft: Radius.circular(15),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              if (_hasDiscount)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        bottomLeft: Radius.circular(15),
-                      ),
-                    ),
-                    child: Text(
-                      widget.discountPercentage!,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      child: Text(
+                        widget.discountPercentage!,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: widget.isSoldOut
+                              ? Colors.grey[300]
+                              : Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+                if (widget.isSoldOut)
+                  Positioned.fill(
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black87,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'SOLD OUT',
+                          maxLines: 1,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

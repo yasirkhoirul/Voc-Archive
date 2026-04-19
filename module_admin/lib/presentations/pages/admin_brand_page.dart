@@ -28,10 +28,7 @@ class _AdminBrandPageState extends State<AdminBrandPage> {
       body: BlocConsumer<BrandBloc, BrandState>(
         listener: (context, state) {
           if (state.status == BrandStatus.mutationSuccess) {
-            AppSnackbar.onSuccess(
-              context,
-              state.successMessage ?? 'Berhasil',
-            );
+            AppSnackbar.onSuccess(context, state.successMessage ?? 'Berhasil');
           }
           if (state.status == BrandStatus.error) {
             AppSnackbar.onFailure(
@@ -61,8 +58,8 @@ class _AdminBrandPageState extends State<AdminBrandPage> {
                 Text(
                   'Daftar Brand (${brands.length})',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Card(
@@ -81,8 +78,7 @@ class _AdminBrandPageState extends State<AdminBrandPage> {
                     children: [
                       // Header
                       TableRow(
-                        decoration:
-                            BoxDecoration(color: Colors.grey.shade100),
+                        decoration: BoxDecoration(color: Colors.grey.shade100),
                         children: const [
                           Padding(
                             padding: EdgeInsets.all(16),
@@ -118,8 +114,7 @@ class _AdminBrandPageState extends State<AdminBrandPage> {
                         return TableRow(
                           decoration: BoxDecoration(
                             border: Border(
-                              bottom:
-                                  BorderSide(color: Colors.grey.shade200),
+                              bottom: BorderSide(color: Colors.grey.shade200),
                             ),
                           ),
                           children: [
@@ -137,22 +132,21 @@ class _AdminBrandPageState extends State<AdminBrandPage> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   TextButton(
-                                    onPressed: state.status ==
-                                            BrandStatus.mutating
+                                    onPressed:
+                                        state.status == BrandStatus.mutating
                                         ? null
-                                        : () =>
-                                            _confirmDeleteBrand(uid, nama),
+                                        : () => _confirmDeleteBrand(uid, nama),
                                     child: const Text(
                                       'Delete',
                                       style: TextStyle(color: Colors.red),
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: state.status ==
-                                            BrandStatus.mutating
+                                    onPressed:
+                                        state.status == BrandStatus.mutating
                                         ? null
-                                        : () => _showUpdateBrandDialog(
-                                            uid, nama),
+                                        : () =>
+                                              _showUpdateBrandDialog(uid, nama),
                                     child: const Text('Update'),
                                   ),
                                 ],
@@ -240,9 +234,7 @@ class _AdminBrandPageState extends State<AdminBrandPage> {
             onPressed: () {
               final nama = controller.text.trim();
               if (nama.isNotEmpty) {
-                context
-                    .read<BrandBloc>()
-                    .add(UpdateBrandSubmitted(uid, nama));
+                context.read<BrandBloc>().add(UpdateBrandSubmitted(uid, nama));
                 Navigator.pop(ctx);
               }
             },

@@ -1,7 +1,4 @@
-enum CurrencyType {
-  idr,
-  usd
-}
+enum CurrencyType { idr, usd }
 
 extension CurrencyTypeExt on CurrencyType {
   String get name {

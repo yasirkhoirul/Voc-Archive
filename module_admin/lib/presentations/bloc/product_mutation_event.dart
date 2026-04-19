@@ -34,6 +34,14 @@ class CreateProductSubmitted extends ProductMutationEvent {
   List<Object> get props => [input];
 }
 
+class DeleteProductSubmitted extends ProductMutationEvent {
+  final String productId;
+  const DeleteProductSubmitted(this.productId);
+
+  @override
+  List<Object> get props => [productId];
+}
+
 class LoadProductFormEvent extends ProductMutationEvent {
   final String? productId;
 

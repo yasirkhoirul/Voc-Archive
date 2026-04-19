@@ -15,12 +15,18 @@ class AdminSettingsRepositoryImpl implements AdminSettingsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> addShippingRate(String namaArea, double harga) async {
+  Future<Either<Failure, void>> addShippingRate(
+    String namaArea,
+    double harga,
+  ) async {
     return await _datasource.addShippingRate(namaArea, harga).guard();
   }
 
   @override
-  Future<Either<Failure, void>> updateShippingRate(String namaArea, double harga) async {
+  Future<Either<Failure, void>> updateShippingRate(
+    String namaArea,
+    double harga,
+  ) async {
     return await _datasource.updateShippingRate(namaArea, harga).guard();
   }
 
@@ -29,4 +35,3 @@ class AdminSettingsRepositoryImpl implements AdminSettingsRepository {
     return await _datasource.deleteShippingRate(namaArea).guard();
   }
 }
-

@@ -14,4 +14,3 @@ class SharedBrandRepositoryImpl implements SharedBrandRepository {
     return await _datasource.getBrands().guard();
   }
 }
-

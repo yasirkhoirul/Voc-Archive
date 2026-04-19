@@ -18,7 +18,11 @@ class PaymentResultPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: const Text(
           'Payment Status',
-          style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: BlocBuilder<CheckoutBloc, CheckoutState>(
@@ -82,7 +86,8 @@ class PaymentResultPage extends StatelessWidget {
                                 const Divider(),
                                 _infoRow(
                                   'Status',
-                                  (state.paymentStatus ?? 'pending').toUpperCase(),
+                                  (state.paymentStatus ?? 'pending')
+                                      .toUpperCase(),
                                 ),
                               ],
                             ),
@@ -96,14 +101,16 @@ class PaymentResultPage extends StatelessWidget {
                               onPressed: () {
                                 if (state.orderId != null) {
                                   context.read<CheckoutBloc>().add(
-                                        CheckPaymentStatusEvent(state.orderId!),
-                                      );
+                                    CheckPaymentStatusEvent(state.orderId!),
+                                  );
                                 }
                               },
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.black,
                                 side: const BorderSide(color: Colors.black),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -118,7 +125,9 @@ class PaymentResultPage extends StatelessWidget {
                             onPressed: () {
                               // Clear cart and reset checkout
                               context.read<CartBloc>().add(ClearCart());
-                              context.read<CheckoutBloc>().add(ResetCheckoutEvent());
+                              context.read<CheckoutBloc>().add(
+                                ResetCheckoutEvent(),
+                              );
                               context.goNamed('home');
                             },
                             style: ElevatedButton.styleFrom(

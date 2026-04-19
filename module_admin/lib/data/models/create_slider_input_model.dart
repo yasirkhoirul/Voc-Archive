@@ -5,7 +5,7 @@ part 'create_slider_input_model.g.dart';
 
 @JsonSerializable()
 class CreateSliderInputModel extends CreateSliderInput {
-   const CreateSliderInputModel({
+  const CreateSliderInputModel({
     required super.judul,
     required super.deskripsi,
     @JsonKey(name: 'gambar_base64') required super.gambarBase64,

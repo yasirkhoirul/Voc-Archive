@@ -5,7 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:module_core/enums/currency_enum.dart';
 import 'package:module_core/utils/currency_converter.dart';
 
-typedef FilterCallback = void Function(List<String> types, double? minPrice, double? maxPrice);
+typedef FilterCallback =
+    void Function(List<String> types, double? minPrice, double? maxPrice);
 typedef BrandSelectionCallback = void Function(String brand, bool isSelected);
 
 class MobileFilterContent extends StatefulWidget {
@@ -65,7 +66,10 @@ class _MobileFilterContentState extends State<MobileFilterContent> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.tr('Tipe', 'Type'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(
+              context.tr('Tipe', 'Type'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 12),
             FutureBuilder(
               future: _brandsFuture,
@@ -74,7 +78,11 @@ class _MobileFilterContentState extends State<MobileFilterContent> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasData && snapshot.data!.isRight()) {
-                  final brands = (snapshot.data!.getOrElse(() => <Map<String, dynamic>>[]) as List?)?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
+                  final brands =
+                      (snapshot.data!.getOrElse(() => <Map<String, dynamic>>[])
+                              as List?)
+                          ?.cast<Map<String, dynamic>>() ??
+                      <Map<String, dynamic>>[];
                   return Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -95,7 +103,9 @@ class _MobileFilterContentState extends State<MobileFilterContent> {
                     ],
                   );
                 }
-                return Text(context.tr('Gagal memuat tipe', 'Failed to load types'));
+                return Text(
+                  context.tr('Gagal memuat tipe', 'Failed to load types'),
+                );
               },
             ),
           ],
@@ -106,7 +116,10 @@ class _MobileFilterContentState extends State<MobileFilterContent> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(
+              context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             BlocBuilder<CurrencyCubit, CurrencyState>(
               builder: (context, state) {
                 return Switch(
@@ -172,32 +185,32 @@ class _DesktopFilterState extends State<DesktopFilter> {
   Widget _buildAnimatedItem(Widget child, int index, int total) {
     final start = 0.4 + (index / total) * 0.4;
     final end = start + 0.2;
-    final slideAnimation = Tween<Offset>(
-      begin: const Offset(-0.2, 0.0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: widget.animation,
-        curve: Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0), curve: Curves.easeOutCubic),
-      ),
-    );
+    final slideAnimation =
+        Tween<Offset>(begin: const Offset(-0.2, 0.0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: widget.animation,
+            curve: Interval(
+              start.clamp(0.0, 1.0),
+              end.clamp(0.0, 1.0),
+              curve: Curves.easeOutCubic,
+            ),
+          ),
+        );
 
-    final fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
+    final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: widget.animation,
-        curve: Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0), curve: Curves.easeIn),
+        curve: Interval(
+          start.clamp(0.0, 1.0),
+          end.clamp(0.0, 1.0),
+          curve: Curves.easeIn,
+        ),
       ),
     );
 
     return SlideTransition(
       position: slideAnimation,
-      child: FadeTransition(
-        opacity: fadeAnimation,
-        child: child,
-      ),
+      child: FadeTransition(opacity: fadeAnimation, child: child),
     );
   }
 
@@ -206,10 +219,16 @@ class _DesktopFilterState extends State<DesktopFilter> {
     return FutureBuilder(
       future: _brandsFuture,
       builder: (context, snapshot) {
-        List<Widget> brandWidgets = [Text(context.tr('Memuat tipe...', 'Loading types...'))];
+        List<Widget> brandWidgets = [
+          Text(context.tr('Memuat tipe...', 'Loading types...')),
+        ];
         if (snapshot.hasData && snapshot.data!.isRight()) {
-          final brandsData = snapshot.data!.getOrElse(() => <Map<String, dynamic>>[]);
-          final brands = (brandsData as List?)?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[];
+          final brandsData = snapshot.data!.getOrElse(
+            () => <Map<String, dynamic>>[],
+          );
+          final brands =
+              (brandsData as List?)?.cast<Map<String, dynamic>>() ??
+              <Map<String, dynamic>>[];
           brandWidgets = [
             _BrandFilterButton(
               label: context.tr('Tampilkan Semua', 'Show All'),
@@ -234,7 +253,10 @@ class _DesktopFilterState extends State<DesktopFilter> {
         }
 
         final filterItems = [
-          Text(context.tr('Tipe', 'Type'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(
+            context.tr('Tipe', 'Type'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           const SizedBox(height: 12),
           ...brandWidgets,
         ];
@@ -258,7 +280,13 @@ class _DesktopFilterState extends State<DesktopFilter> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(context.tr('Saring', 'Filter'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text(
+                          context.tr('Saring', 'Filter'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
                         IconButton(
                           icon: const Icon(Icons.arrow_back_ios, size: 16),
                           onPressed: widget.onToggle,
@@ -269,19 +297,32 @@ class _DesktopFilterState extends State<DesktopFilter> {
                     ),
                     const SizedBox(height: 16),
                     ...List.generate(filterItems.length, (index) {
-                      return _buildAnimatedItem(filterItems[index], index, filterItems.length);
+                      return _buildAnimatedItem(
+                        filterItems[index],
+                        index,
+                        filterItems.length,
+                      );
                     }),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 16.0,
+                ),
                 color: Colors.grey[200],
                 width: double.infinity,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(
+                      context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     BlocBuilder<CurrencyCubit, CurrencyState>(
                       builder: (context, state) {
                         return Switch(

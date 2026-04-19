@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import '../../utils/app_assets.dart';
 
 class VocLogo extends StatefulWidget {
   final double imageWidth;
@@ -34,12 +33,12 @@ class _VocLogoState extends State<VocLogo> {
   Future<String> getLogoUrl() async {
     // Referensi ke file di root storage
     Reference ref = FirebaseStorage.instance.ref().child('logovoc.png');
-    
+
     // Dapatkan link URL-nya
     String url = await ref.getDownloadURL();
     return url;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -62,12 +61,9 @@ class _VocLogoState extends State<VocLogo> {
               }
               if (snapshot.hasError || !snapshot.hasData) {
                 // Fallback jika gagal load
-                return Icon(
-                  Icons.home_filled,
-                  size: widget.imageWidth,
-                );
+                return Icon(Icons.home_filled, size: widget.imageWidth);
               }
-              
+
               return Image.network(
                 snapshot.data!,
                 width: widget.imageWidth,
@@ -82,9 +78,9 @@ class _VocLogoState extends State<VocLogo> {
           widget.title,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: widget.fontWeight,
-                fontSize: widget.fontSize,
-              ),
+            fontWeight: widget.fontWeight,
+            fontSize: widget.fontSize,
+          ),
         ),
       ],
     );

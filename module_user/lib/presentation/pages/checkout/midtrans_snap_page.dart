@@ -77,9 +77,7 @@ class _MidtransSnapPageState extends State<MidtransSnapPage> {
 
   void _onPaymentFinished(String status) {
     // Check actual status from server
-    context.read<CheckoutBloc>().add(
-          CheckPaymentStatusEvent(widget.orderId),
-        );
+    context.read<CheckoutBloc>().add(CheckPaymentStatusEvent(widget.orderId));
     Navigator.of(context).pop(status);
   }
 
@@ -99,8 +97,8 @@ class _MidtransSnapPageState extends State<MidtransSnapPage> {
           onPressed: () {
             // User cancelled — check status anyway
             context.read<CheckoutBloc>().add(
-                  CheckPaymentStatusEvent(widget.orderId),
-                );
+              CheckPaymentStatusEvent(widget.orderId),
+            );
             Navigator.of(context).pop('pending');
           },
         ),
@@ -120,7 +118,10 @@ class _MidtransSnapPageState extends State<MidtransSnapPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                     child: const Text('Open Payment Page'),
                   ),

@@ -5,14 +5,17 @@ import 'package:module_admin/presentations/pages/admin_settings_page.dart';
 import 'package:module_admin/presentations/pages/admin_brand_page.dart';
 import 'package:module_admin/presentations/pages/product_admin.dart';
 import 'package:module_admin/presentations/pages/product_setting.dart';
+import 'package:module_admin/presentations/pages/admin_soldout_page.dart';
 import 'package:module_admin/presentations/pages/admin_slider_page.dart';
 import 'package:module_admin/presentations/pages/admin_display_page.dart';
 import 'package:module_admin/presentations/pages/history_admin_page.dart';
 import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:module_auth/presentation/pages/auth_login.dart';
+import 'package:module_auth/presentation/pages/auth_signup.dart';
 import 'package:module_core/module_core.dart';
 import 'package:module_user/module_user.dart';
 import 'package:module_user/presentation/pages/about_us.dart';
+import 'package:module_user/presentation/pages/catalog_sold_out.dart';
 import 'package:module_user/presentation/pages/catalog.dart';
 import 'package:module_user/presentation/pages/catalog_discount.dart';
 import 'package:module_user/presentation/pages/cart.dart';
@@ -30,15 +33,16 @@ class AppRouter {
       refreshListenable: RouterListener(authBloc),
       redirect: (context, state) {
         final authState = authBloc.state;
-        
+
         final generalPath = [
           RouteName.home.path,
           RouteName.discount.path,
           RouteName.about.path,
+          RouteName.soldout.path,
           RouteName.product.path,
           RouteName.productDetail.path,
         ];
-        
+
         final authPath = [
           RouteName.signIn.path,
           RouteName.signUp.path,
@@ -50,10 +54,11 @@ class AppRouter {
           RouteName.checkout.path,
           RouteName.history.path,
         ];
-        
+
         final adminPath = [
           RouteName.adminproducts.path,
           RouteName.adminproductssetting.path,
+          RouteName.adminsoldout.path,
           RouteName.adminsliders.path,
           RouteName.admindisplays.path,
           RouteName.settings.path,
@@ -61,27 +66,30 @@ class AppRouter {
           RouteName.adminhistory.path,
         ];
         // Cek jika butuh login
-        final isGoingToSecurePath = userPath.contains(state.fullPath) || adminPath.contains(state.fullPath);
-        
+        final isGoingToSecurePath =
+            userPath.contains(state.fullPath) ||
+            adminPath.contains(state.fullPath);
+
         if (authState is! Authenticated) {
           if (isGoingToSecurePath) {
             return RouteName.signIn.path;
           }
           return null; // Boleh ke general path
         }
-        
+
         // Handle User vs Admin
         final role = authState.user.role;
         Logger().i("role: $role, trying to access: ${state.fullPath}");
-        
+
         if (role == 'admin') {
           // Admin tidak usah lihat auth page maupun general page / user cart,
           // lempar ke admin area
-          if (authPath.contains(state.fullPath) || generalPath.contains(state.fullPath) || userPath.contains(state.fullPath)) {
-             return RouteName.adminproducts.path;
+          if (authPath.contains(state.fullPath) ||
+              generalPath.contains(state.fullPath) ||
+              userPath.contains(state.fullPath)) {
+            return RouteName.adminproducts.path;
           }
           return null; // Bebas akses adminPath
-          
         } else {
           // User Role
           if (adminPath.contains(state.fullPath)) {
@@ -111,6 +119,10 @@ class AppRouter {
         GoRoute(
           path: RouteName.signIn.path,
           builder: (context, state) => const AuthLogin(),
+        ),
+        GoRoute(
+          path: RouteName.signUp.path,
+          builder: (context, state) => const AuthSignup(),
         ),
         StatefulShellRoute(
           navigatorContainerBuilder: (context, navigationShell, children) {
@@ -184,6 +196,14 @@ class AppRouter {
                 ),
               ],
             ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.soldout.path,
+                  builder: (context, state) => const CatalogSoldOut(),
+                ),
+              ],
+            ),
           ],
         ),
 
@@ -224,6 +244,28 @@ class AppRouter {
                       },
                     ),
                   ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.adminsoldout.path,
+                  builder: (context, state) => AdminSoldoutPage(
+                    onDetailTap: (uidProduct) {
+                      if (uidProduct != null) {
+                        context.goNamed(
+                          RouteName.adminproductssetting.name,
+                          pathParameters: {'id': uidProduct},
+                        );
+                      } else {
+                        context.goNamed(
+                          RouteName.adminproductssetting.name,
+                          pathParameters: {'id': 'new'},
+                        );
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

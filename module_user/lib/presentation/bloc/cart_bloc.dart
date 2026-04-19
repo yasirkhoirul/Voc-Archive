@@ -11,7 +11,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       final currentItems = List<CartItem>.from(state.items);
       // Check if item exists (same productId and same selectedSize)
       final existingIndex = currentItems.indexWhere(
-        (i) => i.productId == event.item.productId && i.selectedSize == event.item.selectedSize,
+        (i) =>
+            i.productId == event.item.productId &&
+            i.selectedSize == event.item.selectedSize,
       );
 
       if (existingIndex >= 0) {
@@ -38,7 +40,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       final index = currentItems.indexWhere((i) => i.id == event.cartItemId);
       if (index >= 0) {
         if (event.quantity > 0) {
-          currentItems[index] = currentItems[index].copyWith(quantity: event.quantity);
+          currentItems[index] = currentItems[index].copyWith(
+            quantity: event.quantity,
+          );
         } else {
           currentItems.removeAt(index);
         }
@@ -51,4 +55,3 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     });
   }
 }
-

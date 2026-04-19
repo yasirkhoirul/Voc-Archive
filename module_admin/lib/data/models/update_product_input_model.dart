@@ -17,13 +17,15 @@ class UpdateProductInputModel extends UpdateProductInput {
     super.diskon,
   });
 
-  factory UpdateProductInputModel.fromJson(Map<String, dynamic> json) => _$UpdateProductInputModelFromJson(json);
-  
+  factory UpdateProductInputModel.fromJson(Map<String, dynamic> json) =>
+      _$UpdateProductInputModelFromJson(json);
+
   Map<String, dynamic> toJson() {
     final map = _$UpdateProductInputModelToJson(this);
     map.removeWhere((key, value) => value == null);
     // remove empty array to pass validation if there are no new images
-    if (map['gambar_base64'] != null && (map['gambar_base64'] as List).isEmpty) {
+    if (map['gambar_base64'] != null &&
+        (map['gambar_base64'] as List).isEmpty) {
       map.remove('gambar_base64');
     }
     return map;

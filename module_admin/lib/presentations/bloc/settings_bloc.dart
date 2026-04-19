@@ -55,12 +55,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (rates) => shippingRates = rates,
     );
 
-    emit(state.copyWith(
-      status: error != null ? SettingsStatus.error : SettingsStatus.loaded,
-      exchangeRate: exchangeRate,
-      shippingRates: shippingRates,
-      errorMessage: error,
-    ));
+    emit(
+      state.copyWith(
+        status: error != null ? SettingsStatus.error : SettingsStatus.loaded,
+        exchangeRate: exchangeRate,
+        shippingRates: shippingRates,
+        errorMessage: error,
+      ),
+    );
   }
 
   Future<void> _onSetExchangeRate(
@@ -70,16 +72,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(status: SettingsStatus.mutating));
     final result = await _setExchangeRate(event.usdToIdr);
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: SettingsStatus.error,
-        errorMessage: failure.message,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: SettingsStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
       (_) {
-        emit(state.copyWith(
-          status: SettingsStatus.mutationSuccess,
-          exchangeRate: event.usdToIdr,
-          successMessage: 'Exchange rate berhasil diupdate',
-        ));
+        emit(
+          state.copyWith(
+            status: SettingsStatus.mutationSuccess,
+            exchangeRate: event.usdToIdr,
+            successMessage: 'Exchange rate berhasil diupdate',
+          ),
+        );
       },
     );
   }
@@ -91,14 +97,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(status: SettingsStatus.mutating));
     final result = await _addShippingRate(event.namaArea, event.harga);
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: SettingsStatus.error,
-        errorMessage: failure.message,
-      )),
-      (_) => emit(state.copyWith(
-        status: SettingsStatus.mutationSuccess,
-        successMessage: 'Shipping rate "${event.namaArea}" berhasil ditambah',
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: SettingsStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          status: SettingsStatus.mutationSuccess,
+          successMessage: 'Shipping rate "${event.namaArea}" berhasil ditambah',
+        ),
+      ),
     );
     // Reload data
     add(LoadSettings());
@@ -111,14 +121,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(status: SettingsStatus.mutating));
     final result = await _updateShippingRate(event.namaArea, event.harga);
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: SettingsStatus.error,
-        errorMessage: failure.message,
-      )),
-      (_) => emit(state.copyWith(
-        status: SettingsStatus.mutationSuccess,
-        successMessage: 'Shipping rate "${event.namaArea}" berhasil diupdate',
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: SettingsStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          status: SettingsStatus.mutationSuccess,
+          successMessage: 'Shipping rate "${event.namaArea}" berhasil diupdate',
+        ),
+      ),
     );
     add(LoadSettings());
   }
@@ -130,14 +144,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(status: SettingsStatus.mutating));
     final result = await _deleteShippingRate(event.namaArea);
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: SettingsStatus.error,
-        errorMessage: failure.message,
-      )),
-      (_) => emit(state.copyWith(
-        status: SettingsStatus.mutationSuccess,
-        successMessage: 'Shipping rate "${event.namaArea}" berhasil dihapus',
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: SettingsStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(
+        state.copyWith(
+          status: SettingsStatus.mutationSuccess,
+          successMessage: 'Shipping rate "${event.namaArea}" berhasil dihapus',
+        ),
+      ),
     );
     add(LoadSettings());
   }

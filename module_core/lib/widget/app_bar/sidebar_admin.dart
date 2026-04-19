@@ -27,12 +27,13 @@ class SidebarAdmin extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _buildMenuItem(1, 'Setting Dashboard'),
-          _buildMenuItem(2, 'Setting Display'), // Sesuaikan index branch jika beda
-          _buildMenuItem(3, 'Setting Harga'),
           _buildMenuItem(0, 'Setting Produk'),
-          _buildMenuItem(4, 'Brands produk'),
-          _buildMenuItem(5, 'History Transaksi'),
+          _buildMenuItem(1, 'Sold Out Produk'),
+          _buildMenuItem(2, 'Setting Dashboard'),
+          _buildMenuItem(3, 'Setting Display'),
+          _buildMenuItem(4, 'Setting Harga'),
+          _buildMenuItem(5, 'Brands produk'),
+          _buildMenuItem(6, 'History Transaksi'),
           // _buildMenuItem(6, 'User'), // Optional
           const Spacer(),
           const Divider(height: 1),
@@ -44,7 +45,10 @@ class SidebarAdmin extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Currency (IDR/USD)', style: TextStyle(fontSize: 12)),
+                const Text(
+                  'Currency (IDR/USD)',
+                  style: TextStyle(fontSize: 12),
+                ),
                 BlocBuilder<CurrencyCubit, CurrencyState>(
                   builder: (context, state) {
                     return Switch(

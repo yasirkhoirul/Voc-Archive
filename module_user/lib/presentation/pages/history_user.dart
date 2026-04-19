@@ -40,7 +40,9 @@ class _HistoryUserPageState extends State<HistoryUserPage> {
       body: BlocBuilder<HistoryUserCubit, HistoryUserState>(
         builder: (context, state) {
           if (state is HistoryUserLoading) {
-            return const Center(child: CircularProgressIndicator(color: Colors.black));
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.black),
+            );
           } else if (state is HistoryUserError) {
             return Center(
               child: Text(
@@ -65,7 +67,9 @@ class _HistoryUserPageState extends State<HistoryUserPage> {
               itemBuilder: (context, index) {
                 final history = histories[index];
                 final dateStr = history.createdAt != null
-                    ? DateFormat('dd MMM yyyy, HH:mm').format(history.createdAt!)
+                    ? DateFormat(
+                        'dd MMM yyyy, HH:mm',
+                      ).format(history.createdAt!)
                     : '-';
                 return Card(
                   elevation: 2,
@@ -84,13 +88,18 @@ class _HistoryUserPageState extends State<HistoryUserPage> {
                             Text(
                               history.orderId,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 14),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: history.status.toLowerCase() == 'settlement'
+                                color:
+                                    history.status.toLowerCase() == 'settlement'
                                     ? Colors.green.shade100
                                     : Colors.orange.shade100,
                                 borderRadius: BorderRadius.circular(8),
@@ -100,7 +109,9 @@ class _HistoryUserPageState extends State<HistoryUserPage> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: history.status.toLowerCase() == 'settlement'
+                                  color:
+                                      history.status.toLowerCase() ==
+                                          'settlement'
                                       ? Colors.green.shade700
                                       : Colors.orange.shade700,
                                 ),
@@ -111,7 +122,10 @@ class _HistoryUserPageState extends State<HistoryUserPage> {
                         const SizedBox(height: 8),
                         Text(
                           'Date: $dateStr',
-                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         const Divider(),
@@ -130,7 +144,9 @@ class _HistoryUserPageState extends State<HistoryUserPage> {
                                 ),
                                 Text(
                                   '\$${item.finalPriceUsd}',
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ],
                             ),

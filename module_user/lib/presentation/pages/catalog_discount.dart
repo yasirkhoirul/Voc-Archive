@@ -27,7 +27,9 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
 
   void _onSearchChanged() {
     if (mounted) {
-      context.read<CatalogDiscountCubit>().fetchDiscountProducts(query: searchNotifier.value);
+      context.read<CatalogDiscountCubit>().fetchDiscountProducts(
+        query: searchNotifier.value,
+      );
     }
   }
 
@@ -41,15 +43,21 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
     final bool isTablet =
         MediaQuery.of(context).size.width >= 901 &&
         MediaQuery.of(context).size.width < 1600;
-    
+
     if (state is CatalogDiscountLoading) {
-      return const Center(child: CircularProgressIndicator(color: Colors.black));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
     } else if (state is CatalogDiscountError) {
       return Center(child: Text(state.message));
     } else if (state is CatalogDiscountLoaded) {
       final products = state.products;
       if (products.isEmpty) {
-        return Center(child: Text(context.tr("Tidak ada produk diskon", "No discount products found")));
+        return Center(
+          child: Text(
+            context.tr("Tidak ada produk diskon", "No discount products found"),
+          ),
+        );
       }
       return GridView.builder(
         shrinkWrap: true,
@@ -67,13 +75,16 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
             direction: SlideDirection.up,
             delay: Duration(milliseconds: 100 * (index % (isTablet ? 4 : 6))),
             child: InkWell(
-              onTap: () {
-                context.goNamed(
-                  'productDetail',
-                  pathParameters: {'id': product.uid},
-                );
-              },
+              onTap: product.totalStok == 0
+                  ? null
+                  : () {
+                      context.goNamed(
+                        'productDetail',
+                        pathParameters: {'id': product.uid},
+                      );
+                    },
               child: MyCard(
+                isSoldOut: product.totalStok == 0,
                 isMobile: false,
                 imageUrl: product.gambar.isNotEmpty
                     ? product.gambar.first
@@ -109,7 +120,14 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
       final products = state.products;
       if (products.isEmpty) {
         return SliverFillRemaining(
-          child: Center(child: Text(context.tr("Tidak ada produk diskon", "No discount products found"))),
+          child: Center(
+            child: Text(
+              context.tr(
+                "Tidak ada produk diskon",
+                "No discount products found",
+              ),
+            ),
+          ),
         );
       }
       return SliverPadding(
@@ -127,13 +145,16 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
               direction: SlideDirection.up,
               delay: Duration(milliseconds: 100 * (index % 2)),
               child: InkWell(
-                onTap: () {
-                  context.goNamed(
-                    'productDetail',
-                    pathParameters: {'id': product.uid},
-                  );
-                },
+                onTap: product.totalStok == 0
+                    ? null
+                    : () {
+                        context.goNamed(
+                          'productDetail',
+                          pathParameters: {'id': product.uid},
+                        );
+                      },
                 child: MyCard(
+                  isSoldOut: product.totalStok == 0,
                   isMobile: true,
                   imageUrl: product.gambar.isNotEmpty
                       ? product.gambar.first
@@ -208,11 +229,12 @@ class _CatalogDiscountState extends State<CatalogDiscount> {
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   sliver: SliverToBoxAdapter(
-                    child: BlocBuilder<CatalogDiscountCubit, CatalogDiscountState>(
-                      builder: (context, state) {
-                        return _buildDesktopGrid(state);
-                      },
-                    ),
+                    child:
+                        BlocBuilder<CatalogDiscountCubit, CatalogDiscountState>(
+                          builder: (context, state) {
+                            return _buildDesktopGrid(state);
+                          },
+                        ),
                   ),
                 )
               else

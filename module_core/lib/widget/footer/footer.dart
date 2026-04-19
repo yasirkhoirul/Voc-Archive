@@ -31,21 +31,17 @@ class CustomFooter extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          icon: SvgPicture.asset(
-            AppAssets.ig,
-            width: 36.0,
-            height: 36.0,
+          icon: SvgPicture.asset(AppAssets.ig, width: 36.0, height: 36.0),
+          onPressed: () => _launchUrl(
+            'https://www.instagram.com/voc.archive?igsh=MWVyZGJzdWQwOHA2Nw%3D%3D&utm_source=qr',
           ),
-          onPressed: () => _launchUrl('https://www.instagram.com/voc.archive?igsh=MWVyZGJzdWQwOHA2Nw%3D%3D&utm_source=qr'),
         ),
         const SizedBox(width: 16),
         IconButton(
-          icon: SvgPicture.asset(
-            AppAssets.tiktok,
-            width: 36.0,
-            height: 36.0,
+          icon: SvgPicture.asset(AppAssets.tiktok, width: 36.0, height: 36.0),
+          onPressed: () => _launchUrl(
+            'https://www.tiktok.com/@voc.archive_?_r=1&_t=ZS-94MHph06kyb',
           ),
-          onPressed: () => _launchUrl('https://www.tiktok.com/@voc.archive_?_r=1&_t=ZS-94MHph06kyb'),
         ),
       ],
     );
@@ -55,27 +51,19 @@ class CustomFooter extends StatelessWidget {
       child: Column(
         children: [
           // Garis pemisah atas
-          const Divider(
-            color: Colors.black12,
-            thickness: 1.0,
-            height: 1.0,
-          ),
+          const Divider(color: Colors.black12, thickness: 1.0, height: 1.0),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 32.0,
+            ),
             child: isMobile
                 ? Column(
-                    children: [
-                      socialIcons,
-                      const SizedBox(height: 24.0),
-                      logo,
-                    ],
+                    children: [socialIcons, const SizedBox(height: 24.0), logo],
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      logo,
-                      socialIcons,
-                    ],
+                    children: [logo, socialIcons],
                   ),
           ),
         ],

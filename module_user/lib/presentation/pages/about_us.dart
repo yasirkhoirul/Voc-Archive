@@ -174,103 +174,112 @@ class AboutUs extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
                       // 2 gambar kecil di kiri bawah teks
-                        SizedBox(
-                          height: 200, // Beri ukuran tetap untuk memastikan sama tinggi dengan Row gambar di kanannya
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: SliderAnimation(
-                                  direction: SlideDirection.up,
-                                  delay: const Duration(milliseconds: 800),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: CachedNetworkImage(
-                                      imageUrl: 'https://picsum.photos/400/300?1', // Placeholder
-                                      fit: BoxFit.cover,
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    ),
+                      SizedBox(
+                        height:
+                            200, // Beri ukuran tetap untuk memastikan sama tinggi dengan Row gambar di kanannya
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: SliderAnimation(
+                                direction: SlideDirection.up,
+                                delay: const Duration(milliseconds: 800),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        'https://picsum.photos/400/300?1', // Placeholder
+                                    fit: BoxFit.cover,
+                                    height: double.infinity,
+                                    width: double.infinity,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: SliderAnimation(
-                                  direction: SlideDirection.up,
-                                  delay: const Duration(milliseconds: 1000),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: CachedNetworkImage(
-                                      imageUrl: 'https://picsum.photos/400/300?2', // Placeholder
-                                      fit: BoxFit.cover,
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                    ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: SliderAnimation(
+                                direction: SlideDirection.up,
+                                delay: const Duration(milliseconds: 1000),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        'https://picsum.photos/400/300?2', // Placeholder
+                                    fit: BoxFit.cover,
+                                    height: double.infinity,
+                                    width: double.infinity,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                    ],
+                  );
+
+                  Widget buildImage(String url, int delayMs) {
+                    return SliderAnimation(
+                      direction: SlideDirection.up,
+                      delay: Duration(milliseconds: delayMs),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16.0),
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          height: double.infinity,
+                          width: double.infinity,
+                        ),
+                      ),
                     );
+                  }
 
-                    Widget buildImage(String url, int delayMs) {
-                      return SliderAnimation(
-                        direction: SlideDirection.up,
-                        delay: Duration(milliseconds: delayMs),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16.0),
-                          child: CachedNetworkImage(
-                            imageUrl: url,
-                            fit: BoxFit.cover,
-                            height: double.infinity,
-                            width: double.infinity,
-                          ),
-                        ),
-                      );
-                    }
-
-                    Widget buildRightRow(String url1, String url2, int baseDelay) {
-                      return Row(
-                        children: [
-                          Expanded(child: buildImage(url1, baseDelay)),
-                          const SizedBox(width: 16),
-                          Expanded(child: buildImage(url2, baseDelay + 200)),
-                        ],
-                      );
-                    }
-
-                    final Widget rightContent = Column(
+                  Widget buildRightRow(
+                    String url1,
+                    String url2,
+                    int baseDelay,
+                  ) {
+                    return Row(
                       children: [
-                        if (isMobile)
-                          AspectRatio(
-                            aspectRatio: 1.5, // Menentukan tinggi secara proporsional untuk mobile
-                            child: buildRightRow(
-                              'https://picsum.photos/400/600?3',
-                              'https://picsum.photos/400/600?4',
-                              200
-                            ),
-                          )
-                        else
-                          Expanded(
-                            child: buildRightRow(
-                              'https://picsum.photos/400/600?3',
-                              'https://picsum.photos/400/600?4',
-                              200
-                            ),
-                          ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 200, // Tinggi dipastikan sama persis dengan yang di kiri bawah
-                          child: buildRightRow(
-                            'https://picsum.photos/400/300?5',
-                            'https://picsum.photos/400/300?6',
-                            600
-                          ),
-                        ),
+                        Expanded(child: buildImage(url1, baseDelay)),
+                        const SizedBox(width: 16),
+                        Expanded(child: buildImage(url2, baseDelay + 200)),
                       ],
                     );
+                  }
+
+                  final Widget rightContent = Column(
+                    children: [
+                      if (isMobile)
+                        AspectRatio(
+                          aspectRatio:
+                              1.5, // Menentukan tinggi secara proporsional untuk mobile
+                          child: buildRightRow(
+                            'https://picsum.photos/400/600?3',
+                            'https://picsum.photos/400/600?4',
+                            200,
+                          ),
+                        )
+                      else
+                        Expanded(
+                          child: buildRightRow(
+                            'https://picsum.photos/400/600?3',
+                            'https://picsum.photos/400/600?4',
+                            200,
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height:
+                            200, // Tinggi dipastikan sama persis dengan yang di kiri bawah
+                        child: buildRightRow(
+                          'https://picsum.photos/400/300?5',
+                          'https://picsum.photos/400/300?6',
+                          600,
+                        ),
+                      ),
+                    ],
+                  );
                   if (isMobile) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +299,9 @@ class AboutUs extends StatelessWidget {
                           children: [
                             SizedBox(width: columnWidth, child: leftContent),
                             const SizedBox(width: 48),
-                            SizedBox(width: columnWidth), // empty space for layout logic
+                            SizedBox(
+                              width: columnWidth,
+                            ), // empty space for layout logic
                           ],
                         ),
                         // Right content forcibly stretching/squeezing completely to match left height

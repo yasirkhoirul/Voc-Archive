@@ -12,10 +12,12 @@ class CreateProductInputModel extends CreateProductInput {
     required super.deskripsi,
     required super.detail,
     required super.sizes,
-    super.diskon, required super.type,
+    super.diskon,
+    required super.type,
   });
 
-  factory CreateProductInputModel.fromJson(Map<String, dynamic> json) => _$CreateProductInputModelFromJson(json);
+  factory CreateProductInputModel.fromJson(Map<String, dynamic> json) =>
+      _$CreateProductInputModelFromJson(json);
   Map<String, dynamic> toJson() => _$CreateProductInputModelToJson(this);
 
   factory CreateProductInputModel.fromEntity(CreateProductInput entity) {
@@ -26,7 +28,8 @@ class CreateProductInputModel extends CreateProductInput {
       deskripsi: entity.deskripsi,
       detail: entity.detail,
       sizes: entity.sizes,
-      diskon: entity.diskon, type: entity.type,
+      diskon: entity.diskon,
+      type: entity.type,
     );
   }
 }

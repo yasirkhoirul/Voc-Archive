@@ -14,43 +14,55 @@ class HomeDatasourceImpl implements HomeDatasource {
   final FirebaseFirestore _firestore;
   final FirebaseFunctions _functions;
 
-  HomeDatasourceImpl(this._firestore) 
-      : _functions = FirebaseFunctions.instanceFor(region: 'us-central1'); // Sesuaikan region jika perlu
+  HomeDatasourceImpl(this._firestore)
+    : _functions = FirebaseFunctions.instanceFor(
+        region: 'us-central1',
+      ); // Sesuaikan region jika perlu
 
   @override
   Future<List<DisplaySection>> getDisplaySections({int limit = 2}) async {
     return await (() async {
-      final HttpsCallable callable = _functions.httpsCallable('getDisplaySections');
-      
+      final HttpsCallable callable = _functions.httpsCallable(
+        'getDisplaySections',
+      );
+
       final HttpsCallableResult result = await callable.call(<String, dynamic>{
         'limit': limit,
       });
 
       final Map<String, dynamic> data = result.data as Map<String, dynamic>;
-      
+
       if (data['success'] != true || data['data'] == null) {
-        throw Exception('Failed to fetch display sections from cloud functions');
+        throw Exception(
+          'Failed to fetch display sections from cloud functions',
+        );
       }
 
       final List<dynamic> sectionsData = data['data'] as List<dynamic>;
 
       return sectionsData.map((dynamic sectionRaw) {
-        final Map<String, dynamic> sectionMap = Map<String, dynamic>.from(sectionRaw as Map);
-        final List<dynamic> productsDataRaw = sectionMap['products'] as List<dynamic>;
-        
+        final Map<String, dynamic> sectionMap = Map<String, dynamic>.from(
+          sectionRaw as Map,
+        );
+        final List<dynamic> productsDataRaw =
+            sectionMap['products'] as List<dynamic>;
+
         // Deserialize ke ProductModel
-        final List<ProductModel> products = productsDataRaw.map((dynamic productRaw) {
-           final Map<String, dynamic> productMap = Map<String, dynamic>.from(productRaw as Map);
-           return ProductModel.fromJson(productMap);
+        final List<ProductModel> products = productsDataRaw.map((
+          dynamic productRaw,
+        ) {
+          final Map<String, dynamic> productMap = Map<String, dynamic>.from(
+            productRaw as Map,
+          );
+          return ProductModel.fromJson(productMap);
         }).toList();
-        
+
         return DisplaySection(
           uid: sectionMap['uid'] as String? ?? '',
           judul: sectionMap['judul'] as String? ?? 'Untitled',
           products: products,
         );
       }).toList();
-
     })().guardDatasource();
   }
 

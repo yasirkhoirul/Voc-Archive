@@ -53,8 +53,8 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
               Text(
                 'Exchange Rate (USD → IDR)',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               _buildExchangeRateCard(state),
@@ -66,8 +66,8 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
               Text(
                 'Pengaturan Harga Per Area',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               _buildShippingRatesTable(state),
@@ -114,10 +114,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                 children: [
                   Text(
                     '1 USD =',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -219,9 +216,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
             final harga = (rate['harga'] as num?)?.toDouble() ?? 0;
             return TableRow(
               decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey.shade200),
-                ),
+                border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
               ),
               children: [
                 Padding(
@@ -297,8 +292,8 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
               final value = double.tryParse(controller.text);
               if (value != null && value > 0) {
                 context.read<SettingsBloc>().add(
-                      SetExchangeRateSubmitted(value),
-                    );
+                  SetExchangeRateSubmitted(value),
+                );
                 Navigator.pop(ctx);
               }
             },
@@ -357,8 +352,8 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
               final harga = double.tryParse(hargaController.text);
               if (area.isNotEmpty && harga != null && harga >= 0) {
                 context.read<SettingsBloc>().add(
-                      AddShippingRateSubmitted(area, harga),
-                    );
+                  AddShippingRateSubmitted(area, harga),
+                );
                 Navigator.pop(ctx);
               }
             },
@@ -402,8 +397,8 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
               final harga = double.tryParse(controller.text);
               if (harga != null && harga >= 0) {
                 context.read<SettingsBloc>().add(
-                      UpdateShippingRateSubmitted(namaArea, harga),
-                    );
+                  UpdateShippingRateSubmitted(namaArea, harga),
+                );
                 Navigator.pop(ctx);
               }
             },
@@ -432,8 +427,8 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
           ElevatedButton(
             onPressed: () {
               context.read<SettingsBloc>().add(
-                    DeleteShippingRateSubmitted(namaArea),
-                  );
+                DeleteShippingRateSubmitted(namaArea),
+              );
               Navigator.pop(ctx);
             },
             style: ElevatedButton.styleFrom(

@@ -1,4 +1,4 @@
-﻿import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import '../../shared_domain/shared_entities/order_history.dart';
 import 'timestamp_converter.dart';
 
@@ -8,7 +8,8 @@ part 'order_history_model.g.dart';
 class OrderItemModel extends OrderItemEntity {
   const OrderItemModel({
     @JsonKey(name: 'brand_name') required super.brandName,
-    @JsonKey(name: 'discount_percent', defaultValue: 0) required super.discountPercent,
+    @JsonKey(name: 'discount_percent', defaultValue: 0)
+    required super.discountPercent,
     @JsonKey(name: 'final_price_idr') required super.finalPriceIdr,
     @JsonKey(name: 'final_price_usd') required super.finalPriceUsd,
     @JsonKey(name: 'price_usd') required super.priceUsd,
@@ -47,11 +48,15 @@ class OrderHistoryModel extends OrderHistoryEntity {
   const OrderHistoryModel({
     @JsonKey(name: 'order_id') required super.orderId,
     @JsonKey(name: 'user_id') required super.userId,
-    @JsonKey(name: 'payment_method', defaultValue: '') required super.paymentMethod,
+    @JsonKey(name: 'payment_method', defaultValue: '')
+    required super.paymentMethod,
     @JsonKey(name: 'redirect_url', defaultValue: '') required super.redirectUrl,
-    @JsonKey(name: 'shipping_area', defaultValue: '') required super.shippingArea,
-    @JsonKey(name: 'shipping_cost_idr', defaultValue: 0) required super.shippingCostIdr,
-    @JsonKey(name: 'shipping_cost_usd', defaultValue: 0) required super.shippingCostUsd,
+    @JsonKey(name: 'shipping_area', defaultValue: '')
+    required super.shippingArea,
+    @JsonKey(name: 'shipping_cost_idr', defaultValue: 0)
+    required super.shippingCostIdr,
+    @JsonKey(name: 'shipping_cost_usd', defaultValue: 0)
+    required super.shippingCostUsd,
     @JsonKey(name: 'snap_token', defaultValue: '') required super.snapToken,
     @JsonKey(defaultValue: 'pending') required super.status,
     @JsonKey(name: 'subtotal_idr', defaultValue: 0) required super.subtotalIdr,
@@ -62,10 +67,7 @@ class OrderHistoryModel extends OrderHistoryEntity {
     @NullableTimestampConverter() @JsonKey(name: 'updated_at') super.updatedAt,
     required CustomerInfoModel customerInfo,
     required List<OrderItemModel> orderItems,
-  }) : super(
-          customer: customerInfo,
-          items: orderItems,
-        );
+  }) : super(customer: customerInfo, items: orderItems);
 
   factory OrderHistoryModel.fromJson(Map<String, dynamic> json) =>
       _$OrderHistoryModelFromJson(json);
@@ -77,6 +79,5 @@ class OrderHistoryModel extends OrderHistoryEntity {
   CustomerInfoModel get customerInfo => customer as CustomerInfoModel;
 
   @JsonKey(name: 'items')
-  List<OrderItemModel> get orderItems =>
-      items.cast<OrderItemModel>().toList();
+  List<OrderItemModel> get orderItems => items.cast<OrderItemModel>().toList();
 }

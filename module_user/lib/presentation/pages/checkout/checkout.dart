@@ -79,6 +79,16 @@ class _CheckoutViewState extends State<CheckoutView> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -202,19 +212,27 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(context.tr('Kembali', 'Back'), style: TextStyle(fontSize: 16)),
+                child: Text(
+                  context.tr('Kembali', 'Back'),
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  if (_emailCtrl.text.trim().isEmpty || 
-                      _nameCtrl.text.trim().isEmpty || 
+                  if (_emailCtrl.text.trim().isEmpty ||
+                      _nameCtrl.text.trim().isEmpty ||
                       _phoneCtrl.text.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(
-                        content: Text(context.trRead('Harap lengkapi semua Personal Data.', 'Please complete all Personal Data.')),
+                      SnackBar(
+                        content: Text(
+                          context.trRead(
+                            'Harap lengkapi semua Personal Data.',
+                            'Please complete all Personal Data.',
+                          ),
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -230,7 +248,10 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(context.tr('Selanjutnya', 'Next'), style: const TextStyle(fontSize: 16)),
+                child: Text(
+                  context.tr('Selanjutnya', 'Next'),
+                  style: const TextStyle(fontSize: 16),
+                ),
               ),
             ),
           ],
@@ -308,7 +329,10 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(context.tr('Kembali', 'Back'), style: TextStyle(fontSize: 16)),
+                child: Text(
+                  context.tr('Kembali', 'Back'),
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -318,10 +342,16 @@ class _CheckoutViewState extends State<CheckoutView> {
                   if (_cityCtrl.text.trim().isEmpty ||
                       _postalCtrl.text.trim().isEmpty ||
                       _addressCtrl.text.trim().isEmpty ||
-                      context.read<CheckoutBloc>().state.selectedShippingRate == null) {
+                      context.read<CheckoutBloc>().state.selectedShippingRate ==
+                          null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(context.trRead('Silakan pilih pengiriman dan isi semua data.', 'Please select shipping and fill in all data.')),
+                        content: Text(
+                          context.trRead(
+                            'Silakan pilih pengiriman dan isi semua data.',
+                            'Please select shipping and fill in all data.',
+                          ),
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -337,7 +367,10 @@ class _CheckoutViewState extends State<CheckoutView> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(context.tr('Selanjutnya', 'Next'), style: TextStyle(fontSize: 16)),
+                child: Text(
+                  context.tr('Selanjutnya', 'Next'),
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ),
           ],
@@ -355,7 +388,10 @@ class _CheckoutViewState extends State<CheckoutView> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 24),
-        Text(context.tr('Detail Item', 'Detail Item'), style: TextStyle(fontSize: 14)),
+        Text(
+          context.tr('Detail Item', 'Detail Item'),
+          style: TextStyle(fontSize: 14),
+        ),
         const SizedBox(height: 8),
         BlocBuilder<CartBloc, CartState>(
           builder: (context, cartState) {
@@ -376,7 +412,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                           ),
                         ),
                         Text(
-                            context.read<CurrencyCubit>().format(item.price * item.quantity),
+                          context.read<CurrencyCubit>().format(
+                            item.price * item.quantity,
+                          ),
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -389,7 +427,10 @@ class _CheckoutViewState extends State<CheckoutView> {
         ),
         const Divider(color: Colors.black),
         const SizedBox(height: 16),
-        Text(context.tr('Pengiriman', 'Shipping'), style: TextStyle(fontSize: 14)),
+        Text(
+          context.tr('Pengiriman', 'Shipping'),
+          style: TextStyle(fontSize: 14),
+        ),
         const SizedBox(height: 8),
         BlocBuilder<CheckoutBloc, CheckoutState>(
           builder: (context, state) {
@@ -442,7 +483,7 @@ class _CheckoutViewState extends State<CheckoutView> {
             final shippingCost = (rate != null ? rate['harga'] ?? 0 : 0) as num;
             final cartTotal = context.read<CartBloc>().state.totalPrice;
             final total = cartTotal + shippingCost;
-            
+
             final exchangeRate = context.read<CurrencyCubit>().exchangeRate;
             final totalIdr = total * exchangeRate;
 
@@ -451,7 +492,10 @@ class _CheckoutViewState extends State<CheckoutView> {
                 Center(
                   child: Text(
                     '\$ ${total.toStringAsFixed(2)} USD / Rp ${totalIdr.toStringAsFixed(0)}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -521,7 +565,12 @@ class _CheckoutViewState extends State<CheckoutView> {
                 state.paymentStatus == 'pending') {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(context.trRead('Bukti pembayaran diunggah! Menunggu verifikasi.', 'Payment proof uploaded! Waiting for verification.')),
+                  content: Text(
+                    context.trRead(
+                      'Bukti pembayaran diunggah! Menunggu verifikasi.',
+                      'Payment proof uploaded! Waiting for verification.',
+                    ),
+                  ),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -538,7 +587,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                     onPressed: isProcessing
                         ? null
                         : () {
-                            context.read<CheckoutBloc>().add(PreviousStepEvent());
+                            context.read<CheckoutBloc>().add(
+                              PreviousStepEvent(),
+                            );
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -548,15 +599,16 @@ class _CheckoutViewState extends State<CheckoutView> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(context.tr('Kembali', 'Back'), style: TextStyle(fontSize: 16)),
+                    child: Text(
+                      context.tr('Kembali', 'Back'),
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: isProcessing
-                        ? null
-                        : () => _handlePay(context),
+                    onPressed: isProcessing ? null : () => _handlePay(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -574,7 +626,10 @@ class _CheckoutViewState extends State<CheckoutView> {
                               color: Colors.white,
                             ),
                           )
-                        : Text(context.tr('Bayar', 'Pay'), style: TextStyle(fontSize: 16)),
+                        : Text(
+                            context.tr('Bayar', 'Pay'),
+                            style: TextStyle(fontSize: 16),
+                          ),
                   ),
                 ),
               ],
@@ -606,7 +661,14 @@ class _CheckoutViewState extends State<CheckoutView> {
       // Midtrans payment
       if (checkoutState.selectedShippingRate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.trRead('Pilih shipping area terlebih dahulu', 'Please select shipping area first'))),
+          SnackBar(
+            content: Text(
+              context.trRead(
+                'Pilih shipping area terlebih dahulu',
+                'Please select shipping area first',
+              ),
+            ),
+          ),
         );
         return;
       }
@@ -614,7 +676,9 @@ class _CheckoutViewState extends State<CheckoutView> {
       final cartItems = context.read<CartBloc>().state.items;
       if (cartItems.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.trRead('Cart kosong', 'Cart is empty'))),
+          SnackBar(
+            content: Text(context.trRead('Cart kosong', 'Cart is empty')),
+          ),
         );
         return;
       }
@@ -623,29 +687,38 @@ class _CheckoutViewState extends State<CheckoutView> {
           checkoutState.selectedShippingRate!['nama_area'] as String? ?? '';
 
       final items = cartItems
-          .map((item) => {
-                'product_id': item.productId,
-                'quantity': item.quantity,
-                'size': item.selectedSize,
-              })
+          .map(
+            (item) => {
+              'product_id': item.productId,
+              'quantity': item.quantity,
+              'size': item.selectedSize,
+            },
+          )
           .toList();
 
       context.read<CheckoutBloc>().add(
-            ProcessMidtransPaymentEvent(
-              items: items,
-              shippingArea: shippingArea,
-              name: _nameCtrl.text.trim(),
-              email: _emailCtrl.text.trim(),
-              phone: _phoneCtrl.text.trim(),
-              city: _cityCtrl.text.trim(),
-              postalCode: _postalCtrl.text.trim(),
-              address: _addressCtrl.text.trim(),
-            ),
-          );
+        ProcessMidtransPaymentEvent(
+          items: items,
+          shippingArea: shippingArea,
+          name: _nameCtrl.text.trim(),
+          email: _emailCtrl.text.trim(),
+          phone: _phoneCtrl.text.trim(),
+          city: _cityCtrl.text.trim(),
+          postalCode: _postalCtrl.text.trim(),
+          address: _addressCtrl.text.trim(),
+        ),
+      );
     } else {
       if (checkoutState.selectedShippingRate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.trRead('Pilih shipping area terlebih dahulu', 'Please select shipping area first'))),
+          SnackBar(
+            content: Text(
+              context.trRead(
+                'Pilih shipping area terlebih dahulu',
+                'Please select shipping area first',
+              ),
+            ),
+          ),
         );
         return;
       }
@@ -655,7 +728,11 @@ class _CheckoutViewState extends State<CheckoutView> {
     }
   }
 
-  void _showPaypalDialog(BuildContext context, CheckoutState checkoutState, List cartItems) {
+  void _showPaypalDialog(
+    BuildContext context,
+    CheckoutState checkoutState,
+    List cartItems,
+  ) {
     Uint8List? selectedImageBytes;
     showDialog(
       context: context,
@@ -665,7 +742,10 @@ class _CheckoutViewState extends State<CheckoutView> {
           builder: (context, setState) {
             return AlertDialog(
               backgroundColor: Colors.black,
-              title: Text(context.tr('Pembayaran PayPal', 'PayPal Payment'), style: TextStyle(color: Colors.white)),
+              title: Text(
+                context.tr('Pembayaran PayPal', 'PayPal Payment'),
+                style: TextStyle(color: Colors.white),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -673,26 +753,47 @@ class _CheckoutViewState extends State<CheckoutView> {
                     const Text(
                       'Pay pal email:\nfootballfans1976@gmail.com\n\n*note family&friend method only*',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     if (selectedImageBytes != null)
-                      Image.memory(selectedImageBytes!, height: 150, fit: BoxFit.cover)
+                      Image.memory(
+                        selectedImageBytes!,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      )
                     else
                       Container(
                         height: 150,
                         width: double.infinity,
                         color: Colors.grey[800],
-                        child: const Icon(Icons.image, color: Colors.white54, size: 50),
+                        child: const Icon(
+                          Icons.image,
+                          color: Colors.white54,
+                          size: 50,
+                        ),
                       ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.upload_file),
-                      label: Text(context.tr('Unggah Bukti Bayar', 'Upload Payment Proof')),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[200], foregroundColor: Colors.black),
+                      label: Text(
+                        context.tr(
+                          'Unggah Bukti Bayar',
+                          'Upload Payment Proof',
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: Colors.black,
+                      ),
                       onPressed: () async {
                         final picker = ImagePicker();
-                        final picked = await picker.pickImage(source: ImageSource.gallery);
+                        final picked = await picker.pickImage(
+                          source: ImageSource.gallery,
+                        );
                         if (picked != null) {
                           final bytes = await picked.readAsBytes();
                           setState(() {
@@ -707,23 +808,45 @@ class _CheckoutViewState extends State<CheckoutView> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(context.tr('Batal', 'Cancel'), style: TextStyle(color: Colors.white70)),
+                  child: Text(
+                    context.tr('Batal', 'Cancel'),
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                  ),
                   onPressed: () {
                     if (selectedImageBytes == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.trRead('Harap unggah gambar bukti pembayaran.', 'Please upload the payment proof image.'))));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            context.trRead(
+                              'Harap unggah gambar bukti pembayaran.',
+                              'Please upload the payment proof image.',
+                            ),
+                          ),
+                        ),
+                      );
                       return;
                     }
                     Navigator.pop(dialogContext); // close dialog
-                    final shippingArea = checkoutState.selectedShippingRate!['nama_area'] as String? ?? '';
-                    final items = cartItems.map((item) => {
-                      'product_id': item.productId,
-                      'quantity': item.quantity,
-                      'size': item.selectedSize,
-                    }).toList();
-                    
+                    final shippingArea =
+                        checkoutState.selectedShippingRate!['nama_area']
+                            as String? ??
+                        '';
+                    final items = cartItems
+                        .map(
+                          (item) => {
+                            'product_id': item.productId,
+                            'quantity': item.quantity,
+                            'size': item.selectedSize,
+                          },
+                        )
+                        .toList();
+
                     context.read<CheckoutBloc>().add(
                       ProcessPaypalPaymentEvent(
                         items: items,
@@ -738,7 +861,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                       ),
                     );
                   },
-                  child: Text(context.tr('Konfirmasi Pembayaran', 'Confirm Payment')),
+                  child: Text(
+                    context.tr('Konfirmasi Pembayaran', 'Confirm Payment'),
+                  ),
                 ),
               ],
             );
@@ -748,9 +873,3 @@ class _CheckoutViewState extends State<CheckoutView> {
     );
   }
 }
-
-
-
-
-
-

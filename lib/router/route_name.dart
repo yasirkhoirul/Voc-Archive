@@ -1,12 +1,13 @@
 enum RouteName {
   //general
   signIn("/sign-in"),
-  signUp("/sign-up"),
+  signUp("/signup"),
   splash("/splash"),
   //user
   home("/"),
   discount("/discount"),
   about("/about"),
+  soldout("/soldout"),
   contact("/contact"),
   profile("/profile"),
   cart("/cart"),
@@ -18,6 +19,7 @@ enum RouteName {
   //admin
   adminproducts("/adminproducts"),
   adminproductssetting("/adminproducts/:id"),
+  adminsoldout("/adminsoldout"),
   adminsliders("/adminsliders"),
   admindisplays("/admindisplays"),
   adminhistory("/adminhistory"),

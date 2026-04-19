@@ -43,7 +43,6 @@ class CardCart extends StatelessWidget {
   }
 
   Widget _buildLeftImage() {
-    
     final images = cartItem.imageUrls;
     final url = images.isNotEmpty ? images.first : '';
 
@@ -51,10 +50,7 @@ class CardCart extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: SizedBox(
         width: 120,
-        child: AspectRatio(
-          aspectRatio: 3 / 4,
-          child: _imageWidget(url),
-        ),
+        child: AspectRatio(aspectRatio: 3 / 4, child: _imageWidget(url)),
       ),
     );
   }
@@ -100,7 +96,9 @@ class CardCart extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          cartItem.brandName.isNotEmpty ? cartItem.brandName : cartItem.productName,
+          cartItem.brandName.isNotEmpty
+              ? cartItem.brandName
+              : cartItem.productName,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -154,15 +152,18 @@ class CardCart extends StatelessWidget {
             onTap: () {
               if (cartItem.quantity > 1) {
                 context.read<CartBloc>().add(
-                      UpdateCartQuantity(cartItem.id, cartItem.quantity - 1),
-                    );
+                  UpdateCartQuantity(cartItem.id, cartItem.quantity - 1),
+                );
               } else {
                 context.read<CartBloc>().add(RemoveFromCart(cartItem.id));
               }
             },
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Text('-', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              child: Text(
+                '-',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           SizedBox(
@@ -176,12 +177,15 @@ class CardCart extends StatelessWidget {
           InkWell(
             onTap: () {
               context.read<CartBloc>().add(
-                    UpdateCartQuantity(cartItem.id, cartItem.quantity + 1),
-                  );
+                UpdateCartQuantity(cartItem.id, cartItem.quantity + 1),
+              );
             },
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Text('+', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              child: Text(
+                '+',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],

@@ -8,11 +8,14 @@ sealed class DisplayState extends Equatable {
 }
 
 final class DisplayInitial extends DisplayState {}
+
 final class DisplayLoading extends DisplayState {}
+
 final class DisplaySuccess extends DisplayState {
   final List<DisplaySection> displaySections;
   const DisplaySuccess(this.displaySections);
 }
+
 final class DisplayError extends DisplayState {
   final String message;
   const DisplayError(this.message);

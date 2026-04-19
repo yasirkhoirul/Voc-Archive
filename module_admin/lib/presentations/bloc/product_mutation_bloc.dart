@@ -7,6 +7,7 @@ import 'package:module_core/shared_domain/shared_usecases/get_product_by_id.dart
 import 'package:module_core/shared_domain/shared_usecases/get_brands_usecase.dart';
 import '../../domain/entities/create_product_input.dart';
 import '../../domain/usecases/create_product_usecase.dart';
+import '../../domain/usecases/delete_product_usecse.dart';
 
 part 'product_mutation_event.dart';
 part 'product_mutation_state.dart';
@@ -17,17 +18,33 @@ class ProductMutationBloc
   final UpdateProductUsecase _updateProductSubmitted;
   final GetProductById _getProductById;
   final GetBrandsUsecase _getBrandsUsecase;
+  final DeleteProductUseCase _deleteProductUseCase;
 
   ProductMutationBloc(
     this._createProductUseCase,
     this._updateProductSubmitted,
     this._getProductById,
     this._getBrandsUsecase,
+    this._deleteProductUseCase,
   ) : super(ProductMutationInitial()) {
     on<CreateProductSubmitted>(_onCreateProduct);
     on<GetProductByIdEvent>(_onGetProductById);
     on<UpdateProductSubmitted>(_onUpdateProduct);
     on<LoadProductFormEvent>(_onLoadProductForm);
+    on<DeleteProductSubmitted>(_onDeleteProduct);
+  }
+
+  Future<void> _onDeleteProduct(
+    DeleteProductSubmitted event,
+    Emitter<ProductMutationState> emit,
+  ) async {
+    emit(ProductMutationLoading());
+    final result = await _deleteProductUseCase(event.productId);
+    result.fold(
+      (failure) => emit(ProductMutationError(failure.message)),
+      (_) =>
+          emit(ProductMutationSuccess()), // Or a new state telling it's deleted
+    );
   }
 
   Future<void> _onLoadProductForm(
@@ -37,8 +54,9 @@ class ProductMutationBloc
     emit(ProductMutationLoading());
 
     final brandsFuture = _getBrandsUsecase();
-    final productFuture =
-        event.productId != null ? _getProductById(event.productId!) : null;
+    final productFuture = event.productId != null
+        ? _getProductById(event.productId!)
+        : null;
 
     final brandsResult = await brandsFuture;
 
