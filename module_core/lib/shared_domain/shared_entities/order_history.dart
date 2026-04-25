@@ -54,6 +54,8 @@ class OrderHistoryEntity {
   final num subtotalUsd;
   final num totalIdr;
   final num totalUsd;
+  final num exchangeRate;
+  final String proofUrl;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final CustomerInfoEntity customer;
@@ -73,6 +75,8 @@ class OrderHistoryEntity {
     required this.subtotalUsd,
     required this.totalIdr,
     required this.totalUsd,
+    this.exchangeRate = 0,
+    this.proofUrl = '',
     this.createdAt,
     this.updatedAt,
     required this.customer,

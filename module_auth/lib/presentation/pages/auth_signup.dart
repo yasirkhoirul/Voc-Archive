@@ -15,6 +15,7 @@ class AuthSignup extends StatefulWidget {
 class _AuthSignupState extends State<AuthSignup> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isPasswordHidden = true;
 
   @override
   void initState() {
@@ -187,11 +188,22 @@ class _AuthSignupState extends State<AuthSignup> {
         const SizedBox(height: 16.0),
         TextField(
           controller: _passwordController,
-          obscureText: true,
+          obscureText: _isPasswordHidden,
           decoration: InputDecoration(
             hintText: 'Password',
             hintStyle: const TextStyle(color: Colors.black54),
-            suffixIcon: const Icon(Icons.remove_red_eye, color: Colors.black87, size: 22),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPasswordHidden ? Icons.remove_red_eye : Icons.visibility_off,
+                color: Colors.black87,
+                size: 22,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordHidden = !_isPasswordHidden;
+                });
+              },
+            ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

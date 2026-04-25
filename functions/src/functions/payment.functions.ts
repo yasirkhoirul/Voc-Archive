@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { onRequest } from "firebase-functions/v2/https";
 import { PaymentService } from "../services/payment.service";
+import { UserService } from "../services/user.service";
 import { CreateTransactionInput } from "../models/payment.model";
 
 /**
@@ -110,3 +111,120 @@ export const midtransWebhook = onRequest(
     }
   }
 );
+
+/**
+ * Callable: syncPendingMidtransOrders
+ * Admin only. Checks all pending Midtrans orders against Midtrans API
+ * and updates their status. PayPal orders are skipped.
+ * Also restores stock for expired/cancelled/denied orders.
+ *
+ * Use case: User creates order but never picks payment method,
+ * so Midtrans never sends a webhook. This function catches those.
+ */
+export const syncPendingMidtransOrders = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+
+  const isAdmin = await UserService.isAdmin(request.auth.uid);
+  if (!isAdmin) {
+    throw new HttpsError(
+      "permission-denied",
+      "Only admin users can sync pending orders."
+    );
+  }
+
+  try {
+    const result = await PaymentService.syncPendingMidtransOrders();
+    return { success: true, data: result };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error.";
+    console.error("syncPendingMidtransOrders error:", message);
+    throw new HttpsError("internal", message);
+  }
+});
+
+/**
+ * Callable: syncUserPendingMidtransOrders
+ * Authenticated users. Checks their own pending Midtrans orders
+ * against Midtrans API and updates status.
+ * PayPal orders are skipped.
+ *
+ * Called when user opens their order history page.
+ */
+export const syncUserPendingMidtransOrders = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+
+  try {
+    const result = await PaymentService.syncUserPendingMidtransOrders(
+      request.auth.uid
+    );
+    return { success: true, data: result };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error.";
+    console.error("syncUserPendingMidtransOrders error:", message);
+    throw new HttpsError("internal", message);
+  }
+});
+
+/**
+ * Callable: confirmPaypalOrder
+ * Admin only. Confirms a PayPal manual order (sets status to settlement).
+ */
+export const confirmPaypalOrder = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+
+  const isAdmin = await UserService.isAdmin(request.auth.uid);
+  if (!isAdmin) {
+    throw new HttpsError(
+      "permission-denied",
+      "Only admin users can confirm orders."
+    );
+  }
+
+  try {
+    const orderId = request.data?.order_id as string;
+    if (!orderId) throw new Error("order_id is required.");
+
+    const result = await PaymentService.confirmPaypalOrder(orderId);
+    return { success: true, data: result };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error.";
+    console.error("confirmPaypalOrder error:", message);
+    throw new HttpsError("invalid-argument", message);
+  }
+});
+
+/**
+ * Callable: rejectPaypalOrder
+ * Admin only. Rejects a PayPal manual order (sets status to cancel, restores stock).
+ */
+export const rejectPaypalOrder = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+
+  const isAdmin = await UserService.isAdmin(request.auth.uid);
+  if (!isAdmin) {
+    throw new HttpsError(
+      "permission-denied",
+      "Only admin users can reject orders."
+    );
+  }
+
+  try {
+    const orderId = request.data?.order_id as string;
+    if (!orderId) throw new Error("order_id is required.");
+
+    const result = await PaymentService.rejectPaypalOrder(orderId);
+    return { success: true, data: result };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error.";
+    console.error("rejectPaypalOrder error:", message);
+    throw new HttpsError("invalid-argument", message);
+  }
+});

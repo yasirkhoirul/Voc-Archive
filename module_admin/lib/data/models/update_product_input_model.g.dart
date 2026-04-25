@@ -24,6 +24,7 @@ UpdateProductInputModel _$UpdateProductInputModelFromJson(
     (k, e) => MapEntry(k, (e as num).toInt()),
   ),
   diskon: (json['diskon'] as num?)?.toDouble(),
+  type: json['type'] as String?,
 );
 
 Map<String, dynamic> _$UpdateProductInputModelToJson(
@@ -38,4 +39,5 @@ Map<String, dynamic> _$UpdateProductInputModelToJson(
   'detail': instance.detail,
   'sizes': instance.sizes,
   'diskon': instance.diskon,
+  'type': instance.type,
 };

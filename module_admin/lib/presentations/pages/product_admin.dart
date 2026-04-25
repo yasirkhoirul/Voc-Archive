@@ -13,10 +13,19 @@ class ProductAdmin extends StatefulWidget {
 }
 
 class _ProductAdminState extends State<ProductAdmin> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
     context.read<ProductListBloc>().add(FetchAllProducts());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,6 +88,12 @@ class _ProductAdminState extends State<ProductAdmin> {
                           width: isMobile ? double.infinity : 500,
                           height: 40,
                           child: TextField(
+                            controller: _searchController,
+                            onChanged: (val) {
+                              setState(() {
+                                _searchQuery = val;
+                              });
+                            },
                             decoration: InputDecoration(
                               hintText: 'Cari Produk',
                               suffixIcon: const Icon(Icons.search, size: 20),
@@ -116,7 +131,22 @@ class _ProductAdminState extends State<ProductAdmin> {
                   child: Center(child: Text('Tidak ada produk.')),
                 ),
               if (state is ProductListLoaded && state.products.isNotEmpty)
-                SliverPadding(
+                Builder(
+                  builder: (context) {
+                    final filtered = state.products.where((p) {
+                      if (_searchQuery.isEmpty) return true;
+                      final q = _searchQuery.toLowerCase();
+                      return p.namaBrand.toLowerCase().contains(q) ||
+                          p.deskripsi.toLowerCase().contains(q);
+                    }).toList();
+
+                    if (filtered.isEmpty) {
+                      return const SliverFillRemaining(
+                        child: Center(child: Text('Tidak ada produk ditemukan.')),
+                      );
+                    }
+
+                    return SliverPadding(
                   padding: EdgeInsets.symmetric(
                     horizontal: paddingHorizontal,
                     vertical: 24.0,
@@ -129,7 +159,7 @@ class _ProductAdminState extends State<ProductAdmin> {
                       childAspectRatio: isMobile ? 0.55 : 0.65,
                     ),
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      final product = state.products[index];
+                      final product = filtered[index];
                       final imageUrl = (product.gambar.isNotEmpty)
                           ? product.gambar.first
                           : null;
@@ -286,8 +316,10 @@ class _ProductAdminState extends State<ProductAdmin> {
                           ),
                         ),
                       );
-                    }, childCount: state.products.length),
+                    }, childCount: filtered.length),
                   ),
+                );
+                  },
                 ),
               if (state is ProductListError)
                 SliverFillRemaining(child: Center(child: Text(state.message))),

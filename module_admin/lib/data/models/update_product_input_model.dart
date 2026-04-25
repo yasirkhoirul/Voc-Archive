@@ -15,6 +15,7 @@ class UpdateProductInputModel extends UpdateProductInput {
     super.detail,
     super.sizes,
     super.diskon,
+    super.type,
   });
 
   factory UpdateProductInputModel.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +43,7 @@ class UpdateProductInputModel extends UpdateProductInput {
       detail: entity.detail,
       sizes: entity.sizes,
       diskon: entity.diskon,
+      type: entity.type,
     );
   }
 }

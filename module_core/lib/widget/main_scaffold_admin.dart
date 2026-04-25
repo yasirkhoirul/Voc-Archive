@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:module_core/widget/app_bar/sidebar_admin.dart';
 import 'package:module_core/widget/logo/voc_logo.dart';
-import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 
 class MainScaffoldAdmin extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
-  const MainScaffoldAdmin({super.key, required this.navigationShell});
+  final VoidCallback? onLogout;
+
+  const MainScaffoldAdmin({
+    super.key,
+    required this.navigationShell,
+    this.onLogout,
+  });
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -54,7 +59,7 @@ class MainScaffoldAdmin extends StatelessWidget {
             ],
             onSelected: (value) {
               if (value == 'logout') {
-                context.read<AuthBloc>().add(AuthLogoutEvent());
+                onLogout?.call();
               }
             },
           ),

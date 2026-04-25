@@ -212,7 +212,12 @@ class AppRouter {
             return children[navigationShell.currentIndex];
           },
           builder: (context, state, navigationShell) =>
-              MainScaffoldAdmin(navigationShell: navigationShell),
+              MainScaffoldAdmin(
+                navigationShell: navigationShell,
+                onLogout: () {
+                  context.read<AuthBloc>().add(AuthLogoutEvent());
+                },
+              ),
           branches: [
             StatefulShellBranch(
               routes: [

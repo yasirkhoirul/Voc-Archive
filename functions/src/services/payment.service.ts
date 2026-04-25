@@ -492,6 +492,7 @@ export class PaymentService {
 
   /**
    * Checks transaction status from Midtrans and updates Firestore.
+   * Also handles stock restore for failed/expired/cancelled orders.
    */
   static async checkTransactionStatus(orderId: string) {
     const coreApi = getCoreApiClient();
@@ -502,12 +503,54 @@ export class PaymentService {
     const paymentType = statusResponse.payment_type as string;
     const status = resolveStatus(transactionStatus, fraudStatus);
 
-    await db.collection(ORDER_HISTORY_COLLECTION).doc(orderId).update({
-      status,
-      payment_method: paymentType || "midtrans",
-      midtrans_response: statusResponse,
-      updated_at: FieldValue.serverTimestamp(),
-    });
+    // Check if we need to restore stock
+    const orderRef = db.collection(ORDER_HISTORY_COLLECTION).doc(orderId);
+    const orderDoc = await orderRef.get();
+
+    if (orderDoc.exists) {
+      const orderData = orderDoc.data()!;
+      const previousStatus = orderData.status as string;
+      const stockReserved = orderData.stock_reserved as boolean;
+
+      const failedStatuses = ["cancel", "expire", "deny"];
+      const isNowFailed = failedStatuses.includes(status);
+      const wasPreviouslyActive = !failedStatuses.includes(previousStatus);
+
+      if (isNowFailed && wasPreviouslyActive && stockReserved) {
+        try {
+          const items = orderData.items as OrderHistoryItem[];
+          await restoreStock(items);
+          console.log(`[CheckStatus] Stock restored for order ${orderId}`);
+
+          await orderRef.update({
+            status,
+            stock_reserved: false,
+            payment_method: paymentType || "midtrans",
+            midtrans_response: statusResponse,
+            updated_at: FieldValue.serverTimestamp(),
+          });
+        } catch (restoreError) {
+          console.error(
+            `[CheckStatus] Failed to restore stock for ${orderId}:`,
+            restoreError
+          );
+          await orderRef.update({
+            status,
+            stock_restore_failed: true,
+            payment_method: paymentType || "midtrans",
+            midtrans_response: statusResponse,
+            updated_at: FieldValue.serverTimestamp(),
+          });
+        }
+      } else {
+        await orderRef.update({
+          status,
+          payment_method: paymentType || "midtrans",
+          midtrans_response: statusResponse,
+          updated_at: FieldValue.serverTimestamp(),
+        });
+      }
+    }
 
     return {
       order_id: orderId,
@@ -616,5 +659,310 @@ export class PaymentService {
     );
 
     return { status: "ok", order_id: orderId, transaction_status: status };
+  }
+
+  /**
+   * Syncs all pending Midtrans orders by checking their status via Midtrans API.
+   * PayPal orders are skipped (they require manual admin verification).
+   * Called by admin when opening order history.
+   *
+   * Returns a summary of what was synced.
+   */
+  static async syncPendingMidtransOrders() {
+    // Query all pending orders with midtrans payment method
+    const snapshot = await db
+      .collection(ORDER_HISTORY_COLLECTION)
+      .where("status", "==", "pending")
+      .where("payment_method", "==", "midtrans")
+      .get();
+
+    if (snapshot.empty) {
+      console.log("[SyncPending] No pending Midtrans orders found.");
+      return { synced: 0, results: [] };
+    }
+
+    console.log(
+      `[SyncPending] Found ${snapshot.size} pending Midtrans orders to check.`
+    );
+
+    const results: Array<{
+      order_id: string;
+      previous_status: string;
+      new_status: string;
+      stock_restored: boolean;
+      error?: string;
+    }> = [];
+
+    for (const doc of snapshot.docs) {
+      const orderData = doc.data();
+      const orderId = orderData.order_id as string;
+
+      try {
+        const coreApi = getCoreApiClient();
+        const statusResponse = await coreApi.transaction.status(orderId);
+
+        const transactionStatus =
+          statusResponse.transaction_status as string;
+        const fraudStatus = statusResponse.fraud_status as string;
+        const paymentType = statusResponse.payment_type as string;
+        const newStatus = resolveStatus(transactionStatus, fraudStatus);
+
+        const stockReserved = orderData.stock_reserved as boolean;
+        const failedStatuses = ["cancel", "expire", "deny"];
+        const isNowFailed = failedStatuses.includes(newStatus);
+        let stockRestored = false;
+
+        if (isNowFailed && stockReserved) {
+          // Restore stock
+          try {
+            const items = orderData.items as OrderHistoryItem[];
+            await restoreStock(items);
+            stockRestored = true;
+            console.log(`[SyncPending] Stock restored for order ${orderId}`);
+
+            await doc.ref.update({
+              status: newStatus,
+              stock_reserved: false,
+              payment_method: paymentType || "midtrans",
+              midtrans_response: statusResponse,
+              updated_at: FieldValue.serverTimestamp(),
+            });
+          } catch (restoreError) {
+            console.error(
+              `[SyncPending] Failed to restore stock for ${orderId}:`,
+              restoreError
+            );
+            await doc.ref.update({
+              status: newStatus,
+              stock_restore_failed: true,
+              payment_method: paymentType || "midtrans",
+              midtrans_response: statusResponse,
+              updated_at: FieldValue.serverTimestamp(),
+            });
+          }
+        } else if (newStatus !== "pending") {
+          // Status changed but not failed (e.g., settlement)
+          await doc.ref.update({
+            status: newStatus,
+            payment_method: paymentType || "midtrans",
+            midtrans_response: statusResponse,
+            updated_at: FieldValue.serverTimestamp(),
+          });
+        }
+        // If still pending, do nothing
+
+        results.push({
+          order_id: orderId,
+          previous_status: "pending",
+          new_status: newStatus,
+          stock_restored: stockRestored,
+        });
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+        console.error(
+          `[SyncPending] Failed to check order ${orderId}:`,
+          message
+        );
+        results.push({
+          order_id: orderId,
+          previous_status: "pending",
+          new_status: "error",
+          stock_restored: false,
+          error: message,
+        });
+      }
+    }
+
+    const synced = results.filter((r) => r.new_status !== "pending" && r.new_status !== "error").length;
+    console.log(
+      `[SyncPending] Done. Checked: ${results.length}, Status changed: ${synced}`
+    );
+
+    return { synced, total_checked: results.length, results };
+  }
+
+  /**
+   * Syncs pending Midtrans orders for a specific user.
+   * Called when user opens their own order history.
+   * Only checks orders belonging to the given userId.
+   * PayPal orders are skipped.
+   */
+  static async syncUserPendingMidtransOrders(userId: string) {
+    const snapshot = await db
+      .collection(ORDER_HISTORY_COLLECTION)
+      .where("user_id", "==", userId)
+      .where("status", "==", "pending")
+      .where("payment_method", "==", "midtrans")
+      .get();
+
+    if (snapshot.empty) {
+      return { synced: 0, results: [] };
+    }
+
+    console.log(
+      `[SyncUserPending] Found ${snapshot.size} pending Midtrans orders for user ${userId}.`
+    );
+
+    const results: Array<{
+      order_id: string;
+      new_status: string;
+      stock_restored: boolean;
+      error?: string;
+    }> = [];
+
+    for (const doc of snapshot.docs) {
+      const orderData = doc.data();
+      const orderId = orderData.order_id as string;
+
+      try {
+        const coreApi = getCoreApiClient();
+        const statusResponse = await coreApi.transaction.status(orderId);
+
+        const transactionStatus =
+          statusResponse.transaction_status as string;
+        const fraudStatus = statusResponse.fraud_status as string;
+        const paymentType = statusResponse.payment_type as string;
+        const newStatus = resolveStatus(transactionStatus, fraudStatus);
+
+        const stockReserved = orderData.stock_reserved as boolean;
+        const failedStatuses = ["cancel", "expire", "deny"];
+        const isNowFailed = failedStatuses.includes(newStatus);
+        let stockRestored = false;
+
+        if (isNowFailed && stockReserved) {
+          try {
+            const items = orderData.items as OrderHistoryItem[];
+            await restoreStock(items);
+            stockRestored = true;
+            console.log(`[SyncUserPending] Stock restored for order ${orderId}`);
+
+            await doc.ref.update({
+              status: newStatus,
+              stock_reserved: false,
+              payment_method: paymentType || "midtrans",
+              midtrans_response: statusResponse,
+              updated_at: FieldValue.serverTimestamp(),
+            });
+          } catch (restoreError) {
+            console.error(
+              `[SyncUserPending] Failed to restore stock for ${orderId}:`,
+              restoreError
+            );
+            await doc.ref.update({
+              status: newStatus,
+              stock_restore_failed: true,
+              payment_method: paymentType || "midtrans",
+              midtrans_response: statusResponse,
+              updated_at: FieldValue.serverTimestamp(),
+            });
+          }
+        } else if (newStatus !== "pending") {
+          await doc.ref.update({
+            status: newStatus,
+            payment_method: paymentType || "midtrans",
+            midtrans_response: statusResponse,
+            updated_at: FieldValue.serverTimestamp(),
+          });
+        }
+
+        results.push({
+          order_id: orderId,
+          new_status: newStatus,
+          stock_restored: stockRestored,
+        });
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+        console.error(
+          `[SyncUserPending] Failed to check order ${orderId}:`,
+          message
+        );
+        results.push({
+          order_id: orderId,
+          new_status: "error",
+          stock_restored: false,
+          error: message,
+        });
+      }
+    }
+
+    const synced = results.filter(
+      (r) => r.new_status !== "pending" && r.new_status !== "error"
+    ).length;
+
+    return { synced, total_checked: results.length, results };
+  }
+
+  /**
+   * Admin confirms a PayPal manual order.
+   * Sets status to "settlement". Stock remains reserved (already deducted).
+   */
+  static async confirmPaypalOrder(orderId: string) {
+    const orderRef = db.collection(ORDER_HISTORY_COLLECTION).doc(orderId);
+    const orderDoc = await orderRef.get();
+
+    if (!orderDoc.exists) {
+      throw new Error(`Order "${orderId}" not found.`);
+    }
+
+    const orderData = orderDoc.data()!;
+    if (orderData.payment_method !== "paypal_manual") {
+      throw new Error("This order is not a PayPal manual order.");
+    }
+    if (orderData.status === "settlement") {
+      throw new Error("This order has already been confirmed.");
+    }
+
+    await orderRef.update({
+      status: "settlement",
+      updated_at: FieldValue.serverTimestamp(),
+    });
+
+    return { order_id: orderId, status: "settlement" };
+  }
+
+  /**
+   * Admin rejects a PayPal manual order.
+   * Sets status to "cancel" and restores stock if it was reserved.
+   */
+  static async rejectPaypalOrder(orderId: string) {
+    const orderRef = db.collection(ORDER_HISTORY_COLLECTION).doc(orderId);
+    const orderDoc = await orderRef.get();
+
+    if (!orderDoc.exists) {
+      throw new Error(`Order "${orderId}" not found.`);
+    }
+
+    const orderData = orderDoc.data()!;
+    if (orderData.payment_method !== "paypal_manual") {
+      throw new Error("This order is not a PayPal manual order.");
+    }
+    if (orderData.status === "cancel") {
+      throw new Error("This order has already been rejected.");
+    }
+
+    const stockReserved = orderData.stock_reserved as boolean;
+
+    if (stockReserved) {
+      try {
+        const items = orderData.items as OrderHistoryItem[];
+        await restoreStock(items);
+        console.log(`[RejectPaypal] Stock restored for order ${orderId}`);
+      } catch (restoreError) {
+        console.error(
+          `[RejectPaypal] Failed to restore stock for ${orderId}:`,
+          restoreError
+        );
+      }
+    }
+
+    await orderRef.update({
+      status: "cancel",
+      stock_reserved: false,
+      updated_at: FieldValue.serverTimestamp(),
+    });
+
+    return { order_id: orderId, status: "cancel" };
   }
 }

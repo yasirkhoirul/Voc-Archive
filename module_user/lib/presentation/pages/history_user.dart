@@ -39,7 +39,21 @@ class _HistoryUserPageState extends State<HistoryUserPage> {
       ),
       body: BlocBuilder<HistoryUserCubit, HistoryUserState>(
         builder: (context, state) {
-          if (state is HistoryUserLoading) {
+          if (state is HistoryUserSyncing) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: Colors.black),
+                  SizedBox(height: 16),
+                  Text(
+                    'Syncing payments...',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          } else if (state is HistoryUserLoading) {
             return const Center(
               child: CircularProgressIndicator(color: Colors.black),
             );

@@ -68,6 +68,8 @@ OrderHistoryModel _$OrderHistoryModelFromJson(
   subtotalUsd: json['subtotal_usd'] as num? ?? 0,
   totalIdr: json['total_idr'] as num? ?? 0,
   totalUsd: json['total_usd'] as num? ?? 0,
+  exchangeRate: json['exchange_rate'] as num? ?? 0,
+  proofUrl: json['proof_url'] as String? ?? '',
   createdAt: const NullableTimestampConverter().fromJson(json['created_at']),
   updatedAt: const NullableTimestampConverter().fromJson(json['updated_at']),
   customerInfo: CustomerInfoModel.fromJson(
@@ -94,6 +96,8 @@ Map<String, dynamic> _$OrderHistoryModelToJson(
   'subtotal_usd': instance.subtotalUsd,
   'total_idr': instance.totalIdr,
   'total_usd': instance.totalUsd,
+  'exchange_rate': instance.exchangeRate,
+  'proof_url': instance.proofUrl,
   'created_at': const NullableTimestampConverter().toJson(instance.createdAt),
   'updated_at': const NullableTimestampConverter().toJson(instance.updatedAt),
   'customer': instance.customerInfo.toJson(),

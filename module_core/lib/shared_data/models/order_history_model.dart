@@ -63,6 +63,8 @@ class OrderHistoryModel extends OrderHistoryEntity {
     @JsonKey(name: 'subtotal_usd', defaultValue: 0) required super.subtotalUsd,
     @JsonKey(name: 'total_idr', defaultValue: 0) required super.totalIdr,
     @JsonKey(name: 'total_usd', defaultValue: 0) required super.totalUsd,
+    @JsonKey(name: 'exchange_rate', defaultValue: 0) required super.exchangeRate,
+    @JsonKey(name: 'proof_url', defaultValue: '') required super.proofUrl,
     @NullableTimestampConverter() @JsonKey(name: 'created_at') super.createdAt,
     @NullableTimestampConverter() @JsonKey(name: 'updated_at') super.updatedAt,
     required CustomerInfoModel customerInfo,

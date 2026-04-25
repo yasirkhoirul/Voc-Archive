@@ -238,7 +238,10 @@ class _DetailProductViewState extends State<DetailProductView> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            side: const BorderSide(color: Colors.black, width: 1.5),
+                            side: const BorderSide(
+                              color: Colors.black,
+                              width: 1.5,
+                            ),
                           ),
                           onPressed: () {
                             if (_selectedSize == null) {
@@ -269,7 +272,7 @@ class _DetailProductViewState extends State<DetailProductView> {
                             }
                           },
                           child: Text(
-                            context.tr('+ Keranjang', '+ Keranjang'),
+                            context.tr('+ Keranjang', '+ Chart'),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

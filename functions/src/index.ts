@@ -50,4 +50,8 @@ export {
   createPaypalManualTransaction,
   checkMidtransStatus,
   midtransWebhook,
+  syncPendingMidtransOrders,
+  syncUserPendingMidtransOrders,
+  confirmPaypalOrder,
+  rejectPaypalOrder,
 } from "./functions/payment.functions";

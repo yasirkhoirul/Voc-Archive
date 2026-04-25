@@ -9,6 +9,8 @@ sealed class HistoryUserState extends Equatable {
 
 final class HistoryUserInitial extends HistoryUserState {}
 
+final class HistoryUserSyncing extends HistoryUserState {}
+
 final class HistoryUserLoading extends HistoryUserState {}
 
 final class HistoryUserLoaded extends HistoryUserState {
