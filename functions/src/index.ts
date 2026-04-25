@@ -55,3 +55,9 @@ export {
   confirmPaypalOrder,
   rejectPaypalOrder,
 } from "./functions/payment.functions";
+
+// About Us Functions
+export {
+  getAboutUsContent,
+  updateAboutUsContent,
+} from "./functions/aboutus.functions";

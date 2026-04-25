@@ -23,7 +23,8 @@ enum RouteName {
   adminsliders("/adminsliders"),
   admindisplays("/admindisplays"),
   adminhistory("/adminhistory"),
-  adminbrands("/adminbrands");
+  adminbrands("/adminbrands"),
+  adminaboutus("/adminaboutus");
 
   const RouteName(this.path);
   final String path;

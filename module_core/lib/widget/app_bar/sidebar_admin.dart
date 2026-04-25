@@ -34,6 +34,7 @@ class SidebarAdmin extends StatelessWidget {
           _buildMenuItem(4, 'Setting Harga'),
           _buildMenuItem(5, 'Brands produk'),
           _buildMenuItem(6, 'History Transaksi'),
+          _buildMenuItem(7, 'About Us'),
           // _buildMenuItem(6, 'User'), // Optional
           const Spacer(),
           const Divider(height: 1),

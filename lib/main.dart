@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:module_admin/presentations/bloc/settings_bloc.dart';
 import 'package:module_admin/presentations/bloc/brand_bloc.dart';
+import 'package:module_admin/presentations/cubit/aboutus_cubit.dart';
 import 'package:module_core/module_core.dart';
 import 'package:module_admin/presentations/bloc/product_list_bloc.dart';
 import 'package:module_admin/presentations/bloc/product_mutation_bloc.dart';
@@ -17,6 +18,7 @@ import 'package:module_user/presentation/cubit/catalog_discount_cubit.dart';
 import 'package:module_user/presentation/bloc/checkout_bloc.dart';
 import 'package:module_user/presentation/cubit/history_user_cubit.dart';
 import 'package:module_admin/presentations/cubit/history_cubit.dart';
+import 'package:module_user/presentation/cubit/about_us_cubit.dart';
 import 'package:voc_archive/dependency_injector.dart';
 import 'package:voc_archive/firebase_options.dart';
 import 'package:voc_archive/router/app_router.dart';
@@ -64,6 +66,8 @@ void main() async {
           create: (_) => getIt<HistoryUserCubit>(),
         ),
         BlocProvider<HistoryCubit>(create: (_) => getIt<HistoryCubit>()),
+        BlocProvider<AboutUsCubit>(create: (context) => getIt<AboutUsCubit>()),
+        BlocProvider<AboutUsCubitUser>(create: (_) => getIt<AboutUsCubitUser>()),
       ],
       child: const MainApp(),
     ),

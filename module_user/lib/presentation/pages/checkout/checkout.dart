@@ -796,6 +796,23 @@ class _CheckoutViewState extends State<CheckoutView> {
                         );
                         if (picked != null) {
                           final bytes = await picked.readAsBytes();
+                          // Validate max 2 MB
+                          if (bytes.lengthInBytes > 2 * 1024 * 1024) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    context.trRead(
+                                      'Ukuran gambar maksimal 2 MB.',
+                                      'Image size must be under 2 MB.',
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                            return;
+                          }
                           setState(() {
                             selectedImageBytes = bytes;
                           });

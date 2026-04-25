@@ -38,6 +38,7 @@ import 'package:module_admin/domain/usecases/delete_display_usecase.dart';
 import 'package:module_admin/presentations/bloc/slider_mutation_bloc.dart';
 import 'package:module_admin/presentations/bloc/display_mutation_bloc.dart';
 import 'package:module_admin/presentations/cubit/history_cubit.dart';
+import 'package:module_admin/presentations/cubit/aboutus_cubit.dart';
 import 'package:module_admin/data/datasources/admin_settings_datasource.dart';
 import 'package:module_admin/data/repositories/admin_settings_repository_impl.dart';
 import 'package:module_admin/domain/repositories/admin_settings_repository.dart';
@@ -76,6 +77,7 @@ import 'package:module_user/presentation/cubit/history_user_cubit.dart';
 import 'package:module_user/presentation/cubit/detail_product_cubit.dart';
 import 'package:module_user/presentation/cubit/display_cubit.dart';
 import 'package:module_user/presentation/cubit/home_cubit.dart';
+import 'package:module_user/presentation/cubit/about_us_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -230,6 +232,8 @@ Future<void> dependencyInitializer() async {
   getIt.registerCachedFactory(() => CatalogBloc(getIt()));
   getIt.registerCachedFactory(() => CatalogDiscountCubit(getIt()));
   getIt.registerFactory(() => HistoryUserCubit(getIt(), getIt()));
+  getIt.registerFactory(() => AboutUsCubit(getIt()));
+  getIt.registerFactory(() => AboutUsCubitUser(getIt()));
   getIt.registerFactory(
     () => HistoryCubit(
       getAllHistoryUseCase: getIt(),

@@ -9,6 +9,7 @@ import 'package:module_admin/presentations/pages/admin_soldout_page.dart';
 import 'package:module_admin/presentations/pages/admin_slider_page.dart';
 import 'package:module_admin/presentations/pages/admin_display_page.dart';
 import 'package:module_admin/presentations/pages/history_admin_page.dart';
+import 'package:module_admin/presentations/pages/admin_aboutus_page.dart';
 import 'package:module_auth/presentation/bloc/auth_bloc.dart';
 import 'package:module_auth/presentation/pages/auth_login.dart';
 import 'package:module_auth/presentation/pages/auth_signup.dart';
@@ -64,6 +65,7 @@ class AppRouter {
           RouteName.settings.path,
           RouteName.adminbrands.path,
           RouteName.adminhistory.path,
+          RouteName.adminaboutus.path,
         ];
         // Cek jika butuh login
         final isGoingToSecurePath =
@@ -211,13 +213,12 @@ class AppRouter {
           navigatorContainerBuilder: (context, navigationShell, children) {
             return children[navigationShell.currentIndex];
           },
-          builder: (context, state, navigationShell) =>
-              MainScaffoldAdmin(
-                navigationShell: navigationShell,
-                onLogout: () {
-                  context.read<AuthBloc>().add(AuthLogoutEvent());
-                },
-              ),
+          builder: (context, state, navigationShell) => MainScaffoldAdmin(
+            navigationShell: navigationShell,
+            onLogout: () {
+              context.read<AuthBloc>().add(AuthLogoutEvent());
+            },
+          ),
           branches: [
             StatefulShellBranch(
               routes: [
@@ -311,6 +312,14 @@ class AppRouter {
                 GoRoute(
                   path: RouteName.adminhistory.path,
                   builder: (context, state) => const HistoryAdminPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteName.adminaboutus.path,
+                  builder: (context, state) => const AdminAboutUsPage(),
                 ),
               ],
             ),
