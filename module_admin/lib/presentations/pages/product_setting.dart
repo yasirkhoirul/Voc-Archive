@@ -86,14 +86,6 @@ class _ProductSettingState extends State<ProductSetting> {
         return;
       }
 
-      if (_stocks.values.every((val) => val == 0)) {
-        AppSnackbar.onFailure(
-          context,
-          'Minimal satu ukuran harus memiliki stok',
-        );
-        return;
-      }
-
       if (widget.productId == null && _gambarBase64List.isEmpty) {
         AppSnackbar.onFailure(
           context,

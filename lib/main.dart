@@ -10,6 +10,7 @@ import 'package:module_admin/presentations/bloc/product_mutation_bloc.dart';
 import 'package:module_admin/presentations/bloc/slider_mutation_bloc.dart';
 import 'package:module_admin/presentations/bloc/display_mutation_bloc.dart';
 import 'package:module_auth/presentation/bloc/auth_bloc.dart';
+import 'package:module_user/presentation/cubit/catalog_sold_out_cubit.dart';
 import 'package:module_user/presentation/cubit/display_cubit.dart';
 import 'package:module_user/presentation/cubit/home_cubit.dart';
 import 'package:module_user/presentation/bloc/catalog_bloc.dart';
@@ -67,7 +68,12 @@ void main() async {
         ),
         BlocProvider<HistoryCubit>(create: (_) => getIt<HistoryCubit>()),
         BlocProvider<AboutUsCubit>(create: (context) => getIt<AboutUsCubit>()),
-        BlocProvider<AboutUsCubitUser>(create: (_) => getIt<AboutUsCubitUser>()),
+        BlocProvider<AboutUsCubitUser>(
+          create: (_) => getIt<AboutUsCubitUser>(),
+        ),
+        BlocProvider<CatalogSoldOutCubit>(
+          create: (context) => getIt<CatalogSoldOutCubit>(),
+        ),
       ],
       child: const MainApp(),
     ),

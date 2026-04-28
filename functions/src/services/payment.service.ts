@@ -760,17 +760,51 @@ export class PaymentService {
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Unknown error";
-        console.error(
-          `[SyncPending] Failed to check order ${orderId}:`,
-          message
-        );
-        results.push({
-          order_id: orderId,
-          previous_status: "pending",
-          new_status: "error",
-          stock_restored: false,
-          error: message,
-        });
+
+        // If Midtrans returns 404, the user never selected a payment method.
+        // Treat as expired and restore stock.
+        const is404 = message.includes("404") || message.includes("not found");
+        if (is404) {
+          console.log(`[SyncPending] Order ${orderId} not found in Midtrans (404). Treating as expired.`);
+          const stockReserved = orderData.stock_reserved as boolean;
+          let stockRestored = false;
+
+          if (stockReserved) {
+            try {
+              const items = orderData.items as OrderHistoryItem[];
+              await restoreStock(items);
+              stockRestored = true;
+              console.log(`[SyncPending] Stock restored for abandoned order ${orderId}`);
+            } catch (restoreErr) {
+              console.error(`[SyncPending] Failed to restore stock for ${orderId}:`, restoreErr);
+            }
+          }
+
+          await doc.ref.update({
+            status: "expire",
+            stock_reserved: stockRestored ? false : (orderData.stock_reserved ?? false),
+            updated_at: FieldValue.serverTimestamp(),
+          });
+
+          results.push({
+            order_id: orderId,
+            previous_status: "pending",
+            new_status: "expire",
+            stock_restored: stockRestored,
+          });
+        } else {
+          console.error(
+            `[SyncPending] Failed to check order ${orderId}:`,
+            message
+          );
+          results.push({
+            order_id: orderId,
+            previous_status: "pending",
+            new_status: "error",
+            stock_restored: false,
+            error: message,
+          });
+        }
       }
     }
 
@@ -874,16 +908,49 @@ export class PaymentService {
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Unknown error";
-        console.error(
-          `[SyncUserPending] Failed to check order ${orderId}:`,
-          message
-        );
-        results.push({
-          order_id: orderId,
-          new_status: "error",
-          stock_restored: false,
-          error: message,
-        });
+
+        // If Midtrans returns 404, user never selected payment method.
+        // Treat as expired and restore stock.
+        const is404 = message.includes("404") || message.includes("not found");
+        if (is404) {
+          console.log(`[SyncUserPending] Order ${orderId} not found in Midtrans (404). Treating as expired.`);
+          const stockReserved = orderData.stock_reserved as boolean;
+          let stockRestored = false;
+
+          if (stockReserved) {
+            try {
+              const items = orderData.items as OrderHistoryItem[];
+              await restoreStock(items);
+              stockRestored = true;
+              console.log(`[SyncUserPending] Stock restored for abandoned order ${orderId}`);
+            } catch (restoreErr) {
+              console.error(`[SyncUserPending] Failed to restore stock for ${orderId}:`, restoreErr);
+            }
+          }
+
+          await doc.ref.update({
+            status: "expire",
+            stock_reserved: stockRestored ? false : (orderData.stock_reserved ?? false),
+            updated_at: FieldValue.serverTimestamp(),
+          });
+
+          results.push({
+            order_id: orderId,
+            new_status: "expire",
+            stock_restored: stockRestored,
+          });
+        } else {
+          console.error(
+            `[SyncUserPending] Failed to check order ${orderId}:`,
+            message
+          );
+          results.push({
+            order_id: orderId,
+            new_status: "error",
+            stock_restored: false,
+            error: message,
+          });
+        }
       }
     }
 

@@ -465,7 +465,7 @@ class _DetailProductViewState extends State<DetailProductView> {
                   }
                 },
                 child: Text(
-                  context.tr('+ Keranjang', '+ Keranjang'),
+                  context.tr('+ Keranjang', '+ Chart'),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

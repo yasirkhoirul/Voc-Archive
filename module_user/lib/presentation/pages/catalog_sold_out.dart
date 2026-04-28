@@ -9,7 +9,8 @@ import 'package:module_core/widget/animation/slider_animation.dart';
 import 'package:module_core/widget/card/card.dart';
 import 'package:module_core/widget/footer/footer.dart';
 import 'package:module_user/presentation/bloc/cart_bloc.dart';
-import '../bloc/catalog_bloc.dart';
+import '../cubit/catalog_sold_out_cubit.dart';
+import '../cubit/catalog_sold_out_state.dart';
 import '../widget/filter.dart';
 
 class CatalogSoldOut extends StatefulWidget {
@@ -21,7 +22,7 @@ class CatalogSoldOut extends StatefulWidget {
 
 class _CatalogSoldOutState extends State<CatalogSoldOut>
     with SingleTickerProviderStateMixin {
-  bool _isFilterOpen = true; // For desktop
+  bool _isFilterOpen = true;
 
   Timer? _debounce;
 
@@ -33,6 +34,7 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
   @override
   void initState() {
     super.initState();
+    context.read<CatalogSoldOutCubit>().fetchSoldOutProducts();
     searchNotifier.addListener(_onSearchChanged);
 
     _animationController = AnimationController(
@@ -65,33 +67,21 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
     _animationController.value = 1.0;
   }
 
-  List<String> _selectedTypes = [];
-  double? _minPrice;
-  double? _maxPrice;
-
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
-        context.read<CatalogBloc>().add(
-          FetchCatalogProducts(
-            query: searchNotifier.value,
-            types: _selectedTypes,
-            minPrice: _minPrice,
-            maxPrice: _maxPrice,
-          ),
-        );
+        context.read<CatalogSoldOutCubit>().fetchSoldOutProducts(
+              query: searchNotifier.value,
+            );
       }
     });
   }
 
   void _onFilterSet(List<String> types, double? minPrice, double? maxPrice) {
-    setState(() {
-      _selectedTypes = types;
-      _minPrice = minPrice;
-      _maxPrice = maxPrice;
-    });
-    _onSearchChanged();
+    context.read<CatalogSoldOutCubit>().fetchSoldOutProducts(
+          query: searchNotifier.value,
+        );
   }
 
   @override
@@ -140,18 +130,18 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
     );
   }
 
-  Widget _buildDesktopGrid(CatalogState state) {
+  Widget _buildDesktopGrid(CatalogSoldOutState state) {
     final bool isTablet =
         MediaQuery.of(context).size.width >= 901 &&
         MediaQuery.of(context).size.width < 1600;
-    if (state is CatalogLoading) {
+    if (state is CatalogSoldOutLoading || state is CatalogSoldOutInitial) {
       return const SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       );
-    } else if (state is CatalogError) {
+    } else if (state is CatalogSoldOutError) {
       return SliverFillRemaining(child: Center(child: Text(state.message)));
-    } else if (state is CatalogLoaded) {
-      final products = state.products.where((p) => p.totalStok == 0).toList();
+    } else if (state is CatalogSoldOutLoaded) {
+      final products = state.products;
       if (products.isEmpty) {
         return SliverFillRemaining(
           child: Center(
@@ -174,16 +164,9 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
               direction: SlideDirection.up,
               delay: Duration(milliseconds: 100 * (index % (isTablet ? 4 : 6))),
               child: InkWell(
-                onTap: product.totalStok == 0
-                    ? null
-                    : () {
-                        context.goNamed(
-                          'productDetail',
-                          pathParameters: {'id': product.uid},
-                        );
-                      },
+                onTap: null, // sold out — non-tappable
                 child: MyCard(
-                  isSoldOut: product.totalStok == 0,
+                  isSoldOut: true,
                   isMobile: false,
                   imageUrl: product.gambar.isNotEmpty
                       ? product.gambar.first
@@ -211,15 +194,15 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
     );
   }
 
-  Widget _buildMobileGrid(CatalogState state) {
-    if (state is CatalogLoading) {
+  Widget _buildMobileGrid(CatalogSoldOutState state) {
+    if (state is CatalogSoldOutLoading || state is CatalogSoldOutInitial) {
       return const SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       );
-    } else if (state is CatalogError) {
+    } else if (state is CatalogSoldOutError) {
       return SliverFillRemaining(child: Center(child: Text(state.message)));
-    } else if (state is CatalogLoaded) {
-      final products = state.products.where((p) => p.totalStok == 0).toList();
+    } else if (state is CatalogSoldOutLoaded) {
+      final products = state.products;
       if (products.isEmpty) {
         return SliverFillRemaining(
           child: Center(
@@ -242,16 +225,9 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
               direction: SlideDirection.up,
               delay: Duration(milliseconds: 100 * (index % 2)),
               child: InkWell(
-                onTap: product.totalStok == 0
-                    ? null
-                    : () {
-                        context.goNamed(
-                          'productDetail',
-                          pathParameters: {'id': product.uid},
-                        );
-                      },
+                onTap: null, // sold out — non-tappable
                 child: MyCard(
-                  isSoldOut: product.totalStok == 0,
+                  isSoldOut: true,
                   isMobile: true,
                   imageUrl: product.gambar.isNotEmpty
                       ? product.gambar.first
@@ -333,7 +309,7 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
                         : const SizedBox.shrink(key: ValueKey('empty_btn')),
                   ),
                   const Text(
-                    'Catalog & Filtip',
+                    'Sold Out',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -355,7 +331,7 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
               ? CustomScrollView(
                   slivers: [
                     headerSliver,
-                    BlocBuilder<CatalogBloc, CatalogState>(
+                    BlocBuilder<CatalogSoldOutCubit, CatalogSoldOutState>(
                       builder: (context, state) {
                         return _buildMobileGrid(state);
                       },
@@ -366,7 +342,6 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Desktop filter side panel with auto-fit smooth animation
                     AnimatedBuilder(
                       animation: _animationController,
                       builder: (context, child) {
@@ -393,12 +368,11 @@ class _CatalogSoldOutState extends State<CatalogSoldOut>
                         onSet: _onFilterSet,
                       ),
                     ),
-                    // Grid
                     Expanded(
                       child: CustomScrollView(
                         slivers: [
                           headerSliver,
-                          BlocBuilder<CatalogBloc, CatalogState>(
+                          BlocBuilder<CatalogSoldOutCubit, CatalogSoldOutState>(
                             builder: (context, state) {
                               return _buildDesktopGrid(state);
                             },

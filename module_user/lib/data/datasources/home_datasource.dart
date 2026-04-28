@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:module_core/module_core.dart';
-import '../models/display_item_model.dart';
 import '../models/slider_model.dart';
 import '../../domain/entities/display_section.dart';
 

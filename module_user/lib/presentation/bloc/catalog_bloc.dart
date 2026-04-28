@@ -20,7 +20,11 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
       );
       result.fold(
         (failure) => emit(CatalogError(failure.message)),
-        (products) => emit(CatalogLoaded(products)),
+        (products) => emit(
+          CatalogLoaded(
+            products.where((element) => element.totalStok > 0).toList(),
+          ),
+        ),
       );
     });
   }

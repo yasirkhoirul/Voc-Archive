@@ -226,6 +226,7 @@ Future<void> dependencyInitializer() async {
   );
 
   //cubit
+  getIt.registerFactory(() => CatalogSoldOutCubit(getIt()));
   getIt.registerFactory(() => DetailProductCubit(getIt()));
   getIt.registerCachedFactory(() => HomeCubit(getIt()));
   getIt.registerCachedFactory(() => DisplayCubit(getIt()));
@@ -235,9 +236,6 @@ Future<void> dependencyInitializer() async {
   getIt.registerFactory(() => AboutUsCubit(getIt()));
   getIt.registerFactory(() => AboutUsCubitUser(getIt()));
   getIt.registerFactory(
-    () => HistoryCubit(
-      getAllHistoryUseCase: getIt(),
-      functions: getIt(),
-    ),
+    () => HistoryCubit(getAllHistoryUseCase: getIt(), functions: getIt()),
   );
 }
