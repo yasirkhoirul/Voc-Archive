@@ -48,7 +48,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _signInUseCase(event.email, event.password);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (_) => null, // Sukses akan dihandle otomatis oleh Stream lewat AuthUserChanged
+      (user) {
+        // Block login if email is not verified
+        if (!user.isEmailVerified) {
+          // Sign out the just-logged-in user
+          _signOutUseCase();
+          emit(AuthError(
+            'Email belum diverifikasi. Silakan cek inbox / spam Gmail Anda dan klik link verifikasi terlebih dahulu.',
+          ));
+        }
+        // If verified, AuthUserChanged stream will handle Authenticated state
+      },
     );
   }
 
@@ -57,7 +67,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _registerUseCase(event.email, event.password);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (_) => null,
+      (_) => emit(EmailVerificationSent(event.email)),
     );
   }
 

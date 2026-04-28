@@ -25,22 +25,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AppUser>> registerWithEmailAndPassword(String email, String password) async {
+  Future<Either<Failure, void>> registerWithEmailAndPassword(String email, String password) async {
     return await (() async {
-      final userCredential = await _authDatasource.registerWithEmailAndPassword(email, password);
-      if (userCredential.user != null) {
-        String role = await _authDatasource.getUserRole(userCredential.user!.uid);
-        return AppUserModel.fromFirebaseUser(userCredential.user!, role: role);
-      } else {
-        throw Exception('User is null');
-      }
+      await _authDatasource.registerWithEmailAndPassword(email, password);
     })().guard();
   }
 
   @override
   Stream<AppUser?> authStateChanges() {
     return _authDatasource.authStateChanges().asyncMap((user) async {
-      if (user != null) {
+      if (user != null && user.emailVerified) {
         String role = await _authDatasource.getUserRole(user.uid);
         return AppUserModel.fromFirebaseUser(user, role: role);
       }

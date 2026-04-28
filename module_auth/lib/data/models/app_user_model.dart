@@ -7,6 +7,7 @@ class AppUserModel extends AppUser {
     super.email,
     super.displayName,
     super.role,
+    super.isEmailVerified,
   });
 
   factory AppUserModel.fromFirebaseUser(User user, {String role = 'user'}) {
@@ -15,6 +16,7 @@ class AppUserModel extends AppUser {
       email: user.email,
       displayName: user.displayName,
       role: role,
+      isEmailVerified: user.emailVerified,
     );
   }
 }

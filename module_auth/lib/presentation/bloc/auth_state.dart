@@ -23,6 +23,15 @@ final class Authenticated extends AuthState {
 
 final class Unauthenticated extends AuthState {}
 
+final class EmailVerificationSent extends AuthState {
+  final String email;
+
+  const EmailVerificationSent(this.email);
+
+  @override
+  List<Object?> get props => [email];
+}
+
 final class AuthError extends AuthState {
   final String message;
 

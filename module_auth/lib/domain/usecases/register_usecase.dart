@@ -8,7 +8,7 @@ class RegisterUseCase {
 
   RegisterUseCase(this._repository);
 
-  Future<Either<Failure, AppUser>> call(String email, String password) {
+  Future<Either<Failure, void>> call(String email, String password) {
     return _repository.registerWithEmailAndPassword(email, password);
   }
 }

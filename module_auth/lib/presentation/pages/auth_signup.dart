@@ -15,7 +15,11 @@ class AuthSignup extends StatefulWidget {
 class _AuthSignupState extends State<AuthSignup> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   bool _isPasswordHidden = true;
+  bool _isConfirmPasswordHidden = true;
 
   @override
   void initState() {
@@ -35,9 +39,123 @@ class _AuthSignupState extends State<AuthSignup> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
+  // ─── Validation ───────────────────────────────────────────────
+  String? _validateInputs() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      return 'Semua field harus diisi';
+    }
+
+    final emailRegex = RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$');
+    if (!emailRegex.hasMatch(email)) {
+      return 'Format email tidak valid';
+    }
+
+    if (password.length < 8) {
+      return 'Password minimal 8 karakter';
+    }
+
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      return 'Password harus mengandung minimal 1 huruf kapital';
+    }
+
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      return 'Password harus mengandung minimal 1 angka';
+    }
+
+    if (password != confirmPassword) {
+      return 'Password dan konfirmasi password tidak cocok';
+    }
+
+    return null; // valid
+  }
+
+  void _onSignUp() {
+    final error = _validateInputs();
+    if (error != null) {
+      AppSnackbar.onInfo(context, error);
+      return;
+    }
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    context.read<AuthBloc>().add(AuthRegisterEvent(email, password));
+  }
+
+  void _showVerificationDialog(String email) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: const Icon(
+          Icons.mark_email_unread_outlined,
+          size: 48,
+          color: Colors.black87,
+        ),
+        title: const Text(
+          'Verifikasi Email',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Email verifikasi telah dikirim ke:',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black54, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              email,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Silakan cek inbox atau folder spam Gmail Anda, lalu klik link verifikasi sebelum login.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                context.go('/sign-in');
+              },
+              child: const Text('Mengerti, Ke Halaman Login'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Build ────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,11 +165,7 @@ class _AuthSignupState extends State<AuthSignup> {
         elevation: 0,
         title: InkWell(
           onTap: () => context.go('/'),
-          child: const VocLogo(
-            imageWidth: 28,
-            imageHeight: 28,
-            fontSize: 18,
-          ),
+          child: const VocLogo(imageWidth: 28, imageHeight: 28, fontSize: 18),
         ),
         automaticallyImplyLeading: false,
       ),
@@ -59,18 +173,12 @@ class _AuthSignupState extends State<AuthSignup> {
         listener: (context, state) {
           if (state is AuthError) {
             AppSnackbar.onFailure(context, state.message);
-          } else if (state is Authenticated) {
-            AppSnackbar.onSuccess(context, 'Registrasi berhasil!');
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/');
-            }
+          } else if (state is EmailVerificationSent) {
+            _showVerificationDialog(state.email);
           }
         },
         builder: (context, state) {
           final isLoading = state is AuthLoading;
-
           return LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth >= 600) {
@@ -92,13 +200,16 @@ class _AuthSignupState extends State<AuthSignup> {
         child: SingleChildScrollView(
           child: Container(
             width: 450,
-            padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 48.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 40.0,
+              vertical: 48.0,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -107,14 +218,10 @@ class _AuthSignupState extends State<AuthSignup> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const VocLogo(
-                  imageWidth: 80,
-                  imageHeight: 80,
-                  fontSize: 24,
-                ),
+                const VocLogo(imageWidth: 80, imageHeight: 80, fontSize: 24),
                 const SizedBox(height: 16),
                 const Text(
-                  'Please enter your email and password to sign up',
+                  'Buat akun untuk mulai berbelanja',
                   style: TextStyle(fontSize: 14, color: Colors.black87),
                   textAlign: TextAlign.center,
                 ),
@@ -134,64 +241,66 @@ class _AuthSignupState extends State<AuthSignup> {
 
   Widget _buildMobileLayout(bool isLoading) {
     return SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  _buildTextFields(isLoading),
-                  const SizedBox(height: 12),
-                  _buildLoginText(centered: false),
-                  const Spacer(),
-                  _buildSignupButton(isLoading),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-          ),
-        ],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            _buildTextFields(isLoading),
+            const SizedBox(height: 12),
+            _buildLoginText(centered: false),
+            const SizedBox(height: 32),
+            _buildSignupButton(isLoading),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTextFields(bool isLoading) {
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+    );
+    final focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.black),
+    );
+    const padding = EdgeInsets.symmetric(horizontal: 16, vertical: 18);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Email
         TextField(
           controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          enabled: !isLoading,
           decoration: InputDecoration(
             hintText: 'Email',
             hintStyle: const TextStyle(color: Colors.black54),
-            suffixIcon: const Icon(Icons.alternate_email, color: Colors.black87, size: 22),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+            suffixIcon: const Icon(
+              Icons.alternate_email,
+              color: Colors.black87,
+              size: 22,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black),
-            ),
+            contentPadding: padding,
+            border: inputBorder,
+            enabledBorder: inputBorder,
+            focusedBorder: focusedBorder,
           ),
-          keyboardType: TextInputType.emailAddress,
-          enabled: !isLoading,
         ),
         const SizedBox(height: 16.0),
+        // Password
         TextField(
           controller: _passwordController,
           obscureText: _isPasswordHidden,
+          enabled: !isLoading,
           decoration: InputDecoration(
-            hintText: 'Password',
-            hintStyle: const TextStyle(color: Colors.black54),
+            hintText: 'Password (min. 8 karakter, huruf kapital & angka)',
+            hintStyle: const TextStyle(color: Colors.black54, fontSize: 12),
             suffixIcon: IconButton(
               icon: Icon(
                 _isPasswordHidden ? Icons.remove_red_eye : Icons.visibility_off,
@@ -204,21 +313,46 @@ class _AuthSignupState extends State<AuthSignup> {
                 });
               },
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black),
-            ),
+            contentPadding: padding,
+            border: inputBorder,
+            enabledBorder: inputBorder,
+            focusedBorder: focusedBorder,
           ),
+        ),
+        const SizedBox(height: 16.0),
+        // Confirm Password
+        TextField(
+          controller: _confirmPasswordController,
+          obscureText: _isConfirmPasswordHidden,
           enabled: !isLoading,
+          decoration: InputDecoration(
+            hintText: 'Konfirmasi Password',
+            hintStyle: const TextStyle(color: Colors.black54),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isConfirmPasswordHidden
+                    ? Icons.remove_red_eye
+                    : Icons.visibility_off,
+                color: Colors.black87,
+                size: 22,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isConfirmPasswordHidden = !_isConfirmPasswordHidden;
+                });
+              },
+            ),
+            contentPadding: padding,
+            border: inputBorder,
+            enabledBorder: inputBorder,
+            focusedBorder: focusedBorder,
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Password hint
+        const Text(
+          '• Min. 8 karakter  • 1 huruf kapital  • 1 angka',
+          style: TextStyle(fontSize: 11, color: Colors.black45),
         ),
       ],
     );
@@ -232,18 +366,20 @@ class _AuthSignupState extends State<AuthSignup> {
           if (context.canPop()) {
             context.pop();
           } else {
-            // Sesuaikan route jika ada route /login terpisah
             context.go('/login');
           }
         },
         child: RichText(
           text: const TextSpan(
-            text: 'Already have an account? ',
+            text: 'Sudah punya akun? ',
             style: TextStyle(color: Colors.black87, fontSize: 14),
             children: [
               TextSpan(
                 text: 'Login',
-                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -265,29 +401,15 @@ class _AuthSignupState extends State<AuthSignup> {
           ),
           elevation: 0,
         ),
-        onPressed: isLoading
-            ? null
-            : () {
-                final email = _emailController.text.trim();
-                final password = _passwordController.text.trim();
-
-                if (email.isEmpty || password.isEmpty) {
-                  AppSnackbar.onInfo(
-                    context,
-                    'Email dan Password tidak boleh kosong',
-                  );
-                  return;
-                }
-
-                context.read<AuthBloc>().add(
-                  AuthRegisterEvent(email, password),
-                );
-              },
+        onPressed: isLoading ? null : _onSignUp,
         child: isLoading
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
             : const Text(
                 'Sign Up',
@@ -297,4 +419,3 @@ class _AuthSignupState extends State<AuthSignup> {
     );
   }
 }
-
