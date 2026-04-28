@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://voc-archive.com/sitemap.xml
