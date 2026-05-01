@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:module_core/module_core.dart';
 import 'package:module_core/widget/logo/voc_logo.dart';
 import 'package:module_core/widget/snackbar.dart';
 import '../bloc/auth_bloc.dart';
@@ -60,7 +61,7 @@ class _AuthLoginState extends State<AuthLogin> {
           if (state is AuthError) {
             AppSnackbar.onFailure(context, state.message);
           } else if (state is Authenticated) {
-            AppSnackbar.onSuccess(context, 'Login berhasil!');
+            AppSnackbar.onSuccess(context, context.tr('Login berhasil!', 'Login successful!'));
             if (context.canPop()) {
               context.pop();
             } else {
@@ -113,9 +114,9 @@ class _AuthLoginState extends State<AuthLogin> {
                   fontSize: 24,
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Please enter your email and password',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                Text(
+                  context.tr('Masukkan email dan password Anda', 'Please enter your email and password'),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -232,13 +233,13 @@ class _AuthLoginState extends State<AuthLogin> {
           context.push('/signup');
         },
         child: RichText(
-          text: const TextSpan(
-            text: 'Dont have account? ',
-            style: TextStyle(color: Colors.black87, fontSize: 14),
+          text: TextSpan(
+            text: context.tr('Belum punya akun? ', 'Don\'t have account? '),
+            style: const TextStyle(color: Colors.black87, fontSize: 14),
             children: [
               TextSpan(
-                text: 'Signup',
-                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
+                text: context.tr('Daftar', 'Signup'),
+                style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -269,7 +270,7 @@ class _AuthLoginState extends State<AuthLogin> {
                 if (email.isEmpty || password.isEmpty) {
                   AppSnackbar.onInfo(
                     context,
-                    'Email dan Password tidak boleh kosong',
+                    context.tr('Email dan Password tidak boleh kosong', 'Email and Password cannot be empty'),
                   );
                   return;
                 }
@@ -284,9 +285,9 @@ class _AuthLoginState extends State<AuthLogin> {
                 height: 24,
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
-            : const Text(
-                'Login',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            : Text(
+                context.tr('Login', 'Login'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
       ),
     );

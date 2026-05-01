@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:module_core/enums/currency_enum.dart';
 import 'package:module_core/utils/currency_converter.dart';
 import 'package:module_core/shared_domain/shared_entities/product.dart';
 import 'package:module_core/widget/card/card.dart';
@@ -154,6 +155,28 @@ class _DetailProductViewState extends State<DetailProductView> {
           ),
           const SizedBox(height: 16),
           _buildPriceAndCart(product, textTheme, context),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              BlocBuilder<CurrencyCubit, CurrencyState>(
+                builder: (context, state) {
+                  return Switch(
+                    value: state.currencyType == CurrencyType.usd,
+                    onChanged: (value) {
+                      context.read<CurrencyCubit>().toggleCurrency();
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 32),
           _buildDescriptions(product, textTheme),
           const SizedBox(height: 24),
@@ -208,6 +231,29 @@ class _DetailProductViewState extends State<DetailProductView> {
                       ),
                     );
                   },
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.tr('Mata Uang (IDR/USD)', 'Currency (IDR/USD)'),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    BlocBuilder<CurrencyCubit, CurrencyState>(
+                      builder: (context, state) {
+                        return Switch(
+                          value: state.currencyType == CurrencyType.usd,
+                          onChanged: (value) {
+                            context.read<CurrencyCubit>().toggleCurrency();
+                          },
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 32),
                 Row(

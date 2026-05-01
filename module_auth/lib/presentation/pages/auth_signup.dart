@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:module_core/module_core.dart';
 import 'package:module_core/widget/logo/voc_logo.dart';
 import 'package:module_core/widget/snackbar.dart';
 import '../bloc/auth_bloc.dart';
@@ -100,18 +101,18 @@ class _AuthSignupState extends State<AuthSignup> {
           size: 48,
           color: Colors.black87,
         ),
-        title: const Text(
-          'Verifikasi Email',
+        title: Text(
+          context.tr('Verifikasi Email', 'Email Verification'),
           textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Email verifikasi telah dikirim ke:',
+            Text(
+              context.tr('Email verifikasi telah dikirim ke:', 'Verification email has been sent to:'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54, fontSize: 13),
+              style: const TextStyle(color: Colors.black54, fontSize: 13),
             ),
             const SizedBox(height: 8),
             Text(
@@ -120,10 +121,10 @@ class _AuthSignupState extends State<AuthSignup> {
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Silakan cek inbox atau folder spam Gmail Anda, lalu klik link verifikasi sebelum login.',
+            Text(
+              context.tr('Silakan cek inbox atau folder spam Gmail Anda, lalu klik link verifikasi sebelum login.', 'Please check your inbox or Gmail spam folder, then click the verification link before login.'),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black54,
                 fontSize: 13,
                 height: 1.5,
@@ -147,7 +148,7 @@ class _AuthSignupState extends State<AuthSignup> {
                 Navigator.of(ctx).pop();
                 context.go('/sign-in');
               },
-              child: const Text('Mengerti, Ke Halaman Login'),
+              child: Text(context.tr('Mengerti, Ke Halaman Login', 'OK, Go to Login Page')),
             ),
           ),
         ],
@@ -220,9 +221,9 @@ class _AuthSignupState extends State<AuthSignup> {
               children: [
                 const VocLogo(imageWidth: 80, imageHeight: 80, fontSize: 24),
                 const SizedBox(height: 16),
-                const Text(
-                  'Buat akun untuk mulai berbelanja',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                Text(
+                  context.tr('Buat akun untuk mulai berbelanja', 'Create account to start shopping'),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -279,7 +280,7 @@ class _AuthSignupState extends State<AuthSignup> {
           keyboardType: TextInputType.emailAddress,
           enabled: !isLoading,
           decoration: InputDecoration(
-            hintText: 'Email',
+            hintText: context.tr('Email', 'Email'),
             hintStyle: const TextStyle(color: Colors.black54),
             suffixIcon: const Icon(
               Icons.alternate_email,
@@ -299,7 +300,7 @@ class _AuthSignupState extends State<AuthSignup> {
           obscureText: _isPasswordHidden,
           enabled: !isLoading,
           decoration: InputDecoration(
-            hintText: 'Password (min. 8 karakter, huruf kapital & angka)',
+            hintText: context.tr('Password (min. 8 karakter, huruf kapital & angka)', 'Password (min. 8 characters, uppercase & number)'),
             hintStyle: const TextStyle(color: Colors.black54, fontSize: 12),
             suffixIcon: IconButton(
               icon: Icon(
@@ -326,7 +327,7 @@ class _AuthSignupState extends State<AuthSignup> {
           obscureText: _isConfirmPasswordHidden,
           enabled: !isLoading,
           decoration: InputDecoration(
-            hintText: 'Konfirmasi Password',
+            hintText: context.tr('Konfirmasi Password', 'Confirm Password'),
             hintStyle: const TextStyle(color: Colors.black54),
             suffixIcon: IconButton(
               icon: Icon(
@@ -350,9 +351,9 @@ class _AuthSignupState extends State<AuthSignup> {
         ),
         const SizedBox(height: 8),
         // Password hint
-        const Text(
-          '• Min. 8 karakter  • 1 huruf kapital  • 1 angka',
-          style: TextStyle(fontSize: 11, color: Colors.black45),
+        Text(
+          context.tr('• Min. 8 karakter  • 1 huruf kapital  • 1 angka', '• Min. 8 characters  • 1 uppercase letter  • 1 number'),
+          style: const TextStyle(fontSize: 11, color: Colors.black45),
         ),
       ],
     );
@@ -370,13 +371,13 @@ class _AuthSignupState extends State<AuthSignup> {
           }
         },
         child: RichText(
-          text: const TextSpan(
-            text: 'Sudah punya akun? ',
-            style: TextStyle(color: Colors.black87, fontSize: 14),
+          text: TextSpan(
+            text: context.tr('Sudah punya akun? ', 'Already have an account? '),
+            style: const TextStyle(color: Colors.black87, fontSize: 14),
             children: [
               TextSpan(
-                text: 'Login',
-                style: TextStyle(
+                text: context.tr('Login', 'Login'),
+                style: const TextStyle(
                   color: Colors.blue,
                   fontWeight: FontWeight.w500,
                 ),
@@ -411,9 +412,9 @@ class _AuthSignupState extends State<AuthSignup> {
                   color: Colors.white,
                 ),
               )
-            : const Text(
-                'Sign Up',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            : Text(
+                context.tr('Sign Up', 'Sign Up'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
       ),
     );
