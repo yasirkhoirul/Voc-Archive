@@ -19,7 +19,7 @@ class CurrencyState {
   final double exchangeRate;
 
   const CurrencyState({
-    this.currencyType = CurrencyType.usd,
+    this.currencyType = CurrencyType.idr,
     this.exchangeRate = 0,
   });
 
