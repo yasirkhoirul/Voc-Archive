@@ -22,8 +22,8 @@ class UpdateShippingRateEvent extends CheckoutEvent {
   List<Object?> get props => [selectedRate];
 }
 
-class ProcessMidtransPaymentEvent extends CheckoutEvent {
-  final List<Map<String, dynamic>> items; // [{product_id, quantity, size}]
+class ProcessXenditPaymentEvent extends CheckoutEvent {
+  final List<Map<String, dynamic>> items;
   final String shippingArea;
   final String name;
   final String email;
@@ -32,7 +32,7 @@ class ProcessMidtransPaymentEvent extends CheckoutEvent {
   final String postalCode;
   final String address;
 
-  const ProcessMidtransPaymentEvent({
+  const ProcessXenditPaymentEvent({
     required this.items,
     required this.shippingArea,
     required this.name,
@@ -45,14 +45,7 @@ class ProcessMidtransPaymentEvent extends CheckoutEvent {
 
   @override
   List<Object?> get props => [
-    items,
-    shippingArea,
-    name,
-    email,
-    phone,
-    city,
-    postalCode,
-    address,
+    items, shippingArea, name, email, phone, city, postalCode, address,
   ];
 }
 

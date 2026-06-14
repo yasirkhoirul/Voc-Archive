@@ -46,12 +46,12 @@ export {
 
 // Payment Functions
 export {
-  createMidtransTransaction,
+  createXenditInvoice,
   createPaypalManualTransaction,
-  checkMidtransStatus,
-  midtransWebhook,
-  syncPendingMidtransOrders,
-  syncUserPendingMidtransOrders,
+  checkXenditStatus,
+  xenditWebhook,
+  syncPendingXenditOrders,
+  syncUserPendingXenditOrders,
   confirmPaypalOrder,
   rejectPaypalOrder,
 } from "./functions/payment.functions";

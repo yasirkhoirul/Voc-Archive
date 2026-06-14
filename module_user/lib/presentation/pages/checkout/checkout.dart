@@ -13,7 +13,7 @@ import 'package:module_user/presentation/bloc/cart_bloc.dart';
 import 'package:module_user/presentation/bloc/checkout_bloc.dart';
 import 'package:module_user/presentation/widget/progress_checkout.dart';
 import 'package:module_user/domain/constants/payment_constants.dart';
-import 'package:module_user/presentation/pages/checkout/midtrans_snap_page.dart';
+import 'package:module_user/presentation/pages/checkout/xendit_payment_page.dart';
 import 'package:module_user/presentation/pages/checkout/payment_result_page.dart';
 
 class CheckoutPage extends StatelessWidget {
@@ -537,8 +537,8 @@ class _CheckoutViewState extends State<CheckoutView> {
                 MaterialPageRoute(
                   builder: (_) => BlocProvider.value(
                     value: context.read<CheckoutBloc>(),
-                    child: MidtransSnapPage(
-                      redirectUrl: state.redirectUrl!,
+                    child: XenditPaymentPage(
+                      invoiceUrl: state.redirectUrl!,
                       orderId: state.orderId!,
                     ),
                   ),
@@ -697,7 +697,7 @@ class _CheckoutViewState extends State<CheckoutView> {
           .toList();
 
       context.read<CheckoutBloc>().add(
-        ProcessMidtransPaymentEvent(
+        ProcessXenditPaymentEvent(
           items: items,
           shippingArea: shippingArea,
           name: _nameCtrl.text.trim(),

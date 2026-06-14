@@ -45,7 +45,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       emit(state.copyWith(selectedShippingRate: event.selectedRate));
     });
 
-    on<ProcessMidtransPaymentEvent>(_onProcessPayment);
+    on<ProcessXenditPaymentEvent>(_onProcessXenditPayment);
     on<ProcessPaypalPaymentEvent>(_onProcessPaypalPayment);
     on<CheckPaymentStatusEvent>(_onCheckPaymentStatus);
     on<ResetCheckoutEvent>((event, emit) {
@@ -53,14 +53,13 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     });
   }
 
-  Future<void> _onProcessPayment(
-    ProcessMidtransPaymentEvent event,
+  Future<void> _onProcessXenditPayment(
+    ProcessXenditPaymentEvent event,
     Emitter<CheckoutState> emit,
   ) async {
     emit(state.copyWith(isProcessingPayment: true, paymentError: null));
-
     try {
-      final callable = _functions.httpsCallable('createMidtransTransaction');
+      final callable = _functions.httpsCallable('createXenditInvoice');
       final result = await callable.call({
         'items': event.items,
         'shipping_area': event.shippingArea,
@@ -73,23 +72,17 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
           'address': event.address,
         },
       });
-
       final data = result.data['data'] as Map<String, dynamic>;
-      emit(
-        state.copyWith(
-          isProcessingPayment: false,
-          snapToken: data['snap_token'] as String?,
-          redirectUrl: data['redirect_url'] as String?,
-          orderId: data['order_id'] as String?,
-          totalIdr: (data['total_idr'] as num?)?.toDouble(),
-          totalUsd: (data['total_usd'] as num?)?.toDouble(),
-          paymentStatus: 'pending',
-        ),
-      );
+      emit(state.copyWith(
+        isProcessingPayment: false,
+        redirectUrl: data['invoice_url'] as String?,
+        orderId: data['order_id'] as String?,
+        totalIdr: (data['total_idr'] as num?)?.toDouble(),
+        totalUsd: (data['total_usd'] as num?)?.toDouble(),
+        paymentStatus: 'pending',
+      ));
     } catch (e) {
-      emit(
-        state.copyWith(isProcessingPayment: false, paymentError: e.toString()),
-      );
+      emit(state.copyWith(isProcessingPayment: false, paymentError: e.toString()));
     }
   }
 
@@ -148,9 +141,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     Emitter<CheckoutState> emit,
   ) async {
     try {
-      final callable = _functions.httpsCallable('checkMidtransStatus');
+      final callable = _functions.httpsCallable('checkXenditStatus');
       final result = await callable.call({'order_id': event.orderId});
-
       final data = result.data['data'] as Map<String, dynamic>;
       emit(state.copyWith(paymentStatus: data['status'] as String?));
     } catch (e) {

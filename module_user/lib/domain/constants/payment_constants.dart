@@ -6,7 +6,7 @@ extension PaymentMethodExtension on PaymentMethod {
       case PaymentMethod.paypal:
         return 'PayPal';
       case PaymentMethod.other:
-        return 'Other Method';
+        return 'Xendit (IDR)';
     }
   }
 }
