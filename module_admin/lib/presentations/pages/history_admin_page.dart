@@ -37,11 +37,12 @@ class _HistoryAdminPageState extends State<HistoryAdminPage>
     String? paymentMethodFilter,
   ) {
     return orders.where((e) {
-      final matchSearch = (e.orderId.toLowerCase() +
-              e.customer.name.toLowerCase())
-          .contains(_searchQuery.toLowerCase());
-      final matchMethod = paymentMethodFilter == null ||
-          e.paymentMethod == paymentMethodFilter;
+      final matchSearch =
+          (e.orderId.toLowerCase() + e.customer.name.toLowerCase()).contains(
+            _searchQuery.toLowerCase(),
+          );
+      final matchMethod =
+          paymentMethodFilter == null || e.paymentMethod == paymentMethodFilter;
       return matchSearch && matchMethod;
     }).toList();
   }
@@ -203,10 +204,7 @@ class _OrderHistoryCard extends StatefulWidget {
   final OrderHistoryEntity order;
   final bool showActions;
 
-  const _OrderHistoryCard({
-    required this.order,
-    required this.showActions,
-  });
+  const _OrderHistoryCard({required this.order, required this.showActions});
 
   @override
   State<_OrderHistoryCard> createState() => _OrderHistoryCardState();
@@ -343,7 +341,7 @@ class _OrderHistoryCardState extends State<_OrderHistoryCard> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        isPaypal ? 'PayPal Manual' : 'Midtrans',
+                        isPaypal ? 'PayPal Manual' : 'Xendit',
                         style: TextStyle(
                           color: isPaypal
                               ? Colors.blue.shade700
@@ -417,8 +415,9 @@ class _OrderHistoryCardState extends State<_OrderHistoryCard> {
                         placeholder: (context, url) => const SizedBox(
                           height: 200,
                           child: Center(
-                            child:
-                                CircularProgressIndicator(color: Colors.black),
+                            child: CircularProgressIndicator(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
